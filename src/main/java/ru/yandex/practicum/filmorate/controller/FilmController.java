@@ -50,10 +50,7 @@ public class FilmController {
             throw new NotFoundException(errorMessage);
         }
 
-        searchFilm.setName(film.getName());
-        searchFilm.setDescription(film.getDescription());
-        searchFilm.setDuration(film.getDuration());
-        searchFilm.setReleaseDate(film.getReleaseDate());
+        films.put(film.getId(), film);
 
         log.info("Film updated. Id: " + film.getId());
         return film;

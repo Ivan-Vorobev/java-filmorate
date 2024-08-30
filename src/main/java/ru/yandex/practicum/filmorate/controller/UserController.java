@@ -49,10 +49,7 @@ public class UserController {
             throw new NotFoundException(errorMessage);
         }
 
-        searchUser.setName(user.getName());
-        searchUser.setBirthday(user.getBirthday());
-        searchUser.setEmail(user.getEmail());
-        searchUser.setLogin(user.getLogin());
+        users.put(user.getId(), user);
 
         log.info("User updated. Id: " + user.getId());
         return user;

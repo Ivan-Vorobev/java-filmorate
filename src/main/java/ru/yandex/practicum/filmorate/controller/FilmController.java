@@ -6,10 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.RequestMethod;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
 
@@ -21,7 +19,6 @@ import java.util.Collection;
 public class FilmController {
 
     private final FilmService filmService;
-    private final UserService userService;
 
     @GetMapping
     public Collection<Film> findAll() {
@@ -40,14 +37,7 @@ public class FilmController {
     @PutMapping
     @Validated({RequestMethod.Update.class})
     public Film update(@Valid @RequestBody Film film) {
-        Film updatedFilm;
-        try {
-            updatedFilm = filmService.update(film);
-        } catch (NotFoundException e) {
-            log.info(e.getMessage());
-            throw e;
-        }
-
+        Film updatedFilm = filmService.update(film);
         log.info("Film updated. Id: " + updatedFilm.getId());
         return updatedFilm;
     }
@@ -57,8 +47,6 @@ public class FilmController {
             @PathVariable("id") Long filmId,
             @PathVariable("userId") Long userId
     ) {
-        userService.findUser(userId);
-
         return filmService.addLike(filmId, userId);
     }
 
@@ -68,8 +56,6 @@ public class FilmController {
             @PathVariable("id") Long filmId,
             @PathVariable("userId") Long userId
     ) {
-        userService.findUser(userId);
-
         return filmService.deleteLike(filmId, userId);
     }
 

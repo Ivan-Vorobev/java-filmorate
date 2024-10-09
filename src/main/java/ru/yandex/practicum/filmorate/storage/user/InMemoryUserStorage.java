@@ -2,9 +2,8 @@ package ru.yandex.practicum.filmorate.storage.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.GenerateIdService;
+import ru.yandex.practicum.filmorate.storage.GenerateIdStorage;
 
 import java.util.*;
 
@@ -13,7 +12,7 @@ import java.util.*;
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Long, User> users = new HashMap<>();
     private final Map<Long, Set<Long>> friends = new HashMap<>();
-    private final GenerateIdService idGenerator;
+    private final GenerateIdStorage idGenerator;
 
     public Collection<User> findAll() {
         return users.values();
@@ -21,13 +20,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User findById(Long id) {
-        User searchUser = users.get(id);
-
-        if (searchUser == null) {
-            throw new NotFoundException("User not found. Id: " + id);
-        }
-
-        return searchUser;
+        return users.get(id);
     }
 
     @Override
@@ -54,30 +47,19 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public Set<Long> getFriends(User user) {
-        if (user == null) {
-            throw new NotFoundException("User is null");
-        }
-
-        Set<Long> userFriends = friends.get(user.getId());
-
-        if (userFriends == null) {
-            userFriends = new HashSet<>();
-            friends.put(user.getId(), userFriends);
-        }
-
-        return userFriends;
+        return friends.get(user.getId());
     }
 
     @Override
     public User add(User user) {
         user.setId(idGenerator.generate());
         users.put(user.getId(), user);
+        friends.put(user.getId(), new HashSet<>());
         return user;
     }
 
     @Override
     public User update(User user) {
-        this.findById(user.getId());
         users.put(user.getId(), user);
         return user;
     }

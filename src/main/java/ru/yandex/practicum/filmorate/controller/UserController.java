@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.RequestMethod;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -29,8 +28,7 @@ public class UserController {
     @PostMapping
     @Validated(RequestMethod.Create.class)
     public User add(@Valid @RequestBody User user) {
-        userService.create(user);
-        return user;
+        return userService.create(user);
     }
 
     @PutMapping
@@ -38,12 +36,7 @@ public class UserController {
     public User update(@Valid @RequestBody User user) {
         User updatedUser;
 
-        try {
-            updatedUser = userService.update(user);
-        } catch (NotFoundException e) {
-            log.info(e.getMessage());
-            throw e;
-        }
+        updatedUser = userService.update(user);
 
         log.info("User updated. Id: " + updatedUser.getId());
         return updatedUser;

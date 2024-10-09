@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -21,7 +22,13 @@ public class UserService {
     }
 
     public User findUser(Long userId) {
-        return userStorage.findById(userId);
+        User searchUser = userStorage.findById(userId);
+
+        if (searchUser == null) {
+            throw new NotFoundException("User not found. Id: " + userId);
+        }
+
+        return searchUser;
     }
 
     public User create(User user) {
@@ -29,6 +36,7 @@ public class UserService {
     }
 
     public User update(User user) {
+        findUser(user.getId());
         return userStorage.update(user);
     }
 
@@ -37,8 +45,8 @@ public class UserService {
             throw new IllegalArgumentException("Пользователь и друг совпадают");
         }
 
-        User user = userStorage.findById(userId);
-        User friend = userStorage.findById(friendId);
+        User user = findUser(userId);
+        User friend = findUser(friendId);
 
         userStorage.addFriend(user, friend);
     }
@@ -49,14 +57,14 @@ public class UserService {
             throw new IllegalArgumentException("Пользователь и друг совпадают");
         }
 
-        User user = userStorage.findById(userId);
-        User friend = userStorage.findById(friendId);
+        User user = findUser(userId);
+        User friend = findUser(friendId);
 
         userStorage.deleteFriend(user, friend);
     }
 
     public Collection<User> findFriends(Long userId) {
-        User user = userStorage.findById(userId);
+        User user = findUser(userId);
 
         Set<Long> friends = userStorage.getFriends(user);
 
@@ -66,8 +74,8 @@ public class UserService {
     }
 
     public List<User> findCommonFriends(final Long userId, final Long otherId) {
-        User user = userStorage.findById(userId);
-        User otherUser = userStorage.findById(otherId);
+        User user = findUser(userId);
+        User otherUser = findUser(otherId);
 
         Set<Long> userFriends = userStorage.getFriends(user);
         Set<Long> otherUserFriends = userStorage.getFriends(otherUser);

@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.dal.dto.FilmDto;
 import ru.yandex.practicum.filmorate.storage.GenerateIdStorage;
 
 import java.util.*;
@@ -10,22 +10,25 @@ import java.util.*;
 @RequiredArgsConstructor
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
-    private final Map<Long, Film> films = new HashMap<>();
+    private final Map<Long, FilmDto> films = new HashMap<>();
     private final Map<Long, Set<Long>> likes = new HashMap<>();
     private final GenerateIdStorage idGenerator;
 
     @Override
-    public Collection<Film> findAll() {
+    public Collection<FilmDto> findAll() {
         return films.values();
     }
 
     @Override
-    public Film findById(Long filmId) {
-        return films.get(filmId);
+    public Optional<FilmDto> findById(Long filmId) {
+        FilmDto film = films.get(filmId);
+        return film == null
+                ? Optional.empty()
+                : Optional.of(film);
     }
 
     @Override
-    public Film add(Film film) {
+    public FilmDto add(FilmDto film) {
         film.setId(idGenerator.generate());
         films.put(film.getId(), film);
         likes.put(film.getId(), new HashSet<>());
@@ -33,25 +36,25 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film update(Film film) {
+    public FilmDto update(FilmDto film) {
         films.put(film.getId(), film);
         return film;
     }
 
     @Override
-    public void addLike(Film film, Long userId) {
+    public void addLike(FilmDto film, Long userId) {
         Set<Long> filmLikes = this.getFilmLikes(film);
         filmLikes.add(userId);
     }
 
     @Override
-    public void deleteLike(Film film, Long userId) {
+    public void deleteLike(FilmDto film, Long userId) {
         Set<Long> filmLikes = this.getFilmLikes(film);
         filmLikes.remove(userId);
     }
 
     @Override
-    public Set<Long> getFilmLikes(Film film) {
+    public Set<Long> getFilmLikes(FilmDto film) {
         return likes.get(film.getId());
     }
 

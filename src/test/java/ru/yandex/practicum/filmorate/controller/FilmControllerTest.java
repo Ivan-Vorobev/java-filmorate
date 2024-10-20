@@ -5,8 +5,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Rating;
 
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
@@ -14,6 +16,7 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Фильмы")
+@Sql({"/schema.sql", "/data.sql"})
 @SpringBootTest
 class FilmControllerTest {
     @Autowired
@@ -52,6 +55,7 @@ class FilmControllerTest {
                     Film film = createFilm(1L);
                     film.setReleaseDate(film.getReleaseDate().minusDays(1));
                     film.setDuration(film.getDuration() + 10);
+                    film.setMpa(Rating.builder().id(2L).build());
                     film.setDescription(film.getDescription() + " - update description");
                     film.setName(film.getName() + " - update name");
                     Film updatedFilm = filmController.update(film);
@@ -197,9 +201,9 @@ class FilmControllerTest {
         );
     }
 
-    private Film invoke(String method, Film film) throws Throwable {
+    private void invoke(String method, Film film) throws Throwable {
         try {
-            return (Film) filmController
+            filmController
                     .getClass()
                     .getMethod(method, Film.class)
                     .invoke(filmController, film);
@@ -209,13 +213,13 @@ class FilmControllerTest {
     }
 
     private Film createFilm(Long id) {
-        Film film = new Film();
-        film.setId(id);
-        film.setName("Film #" + id);
-        film.setDescription("About film #" + id);
-        film.setDuration(180);
-        film.setReleaseDate(LocalDate.now());
-
-        return film;
+        return Film.builder()
+                .id(id)
+                .name("Film #" + id)
+                .description("About film #" + id)
+                .mpa(Rating.builder().id(1L).build())
+                .duration(180)
+                .releaseDate(LocalDate.now())
+                .build();
     }
 }

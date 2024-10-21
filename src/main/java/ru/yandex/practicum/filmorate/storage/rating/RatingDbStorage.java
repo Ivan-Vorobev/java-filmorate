@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.dal.BaseStorage;
-import ru.yandex.practicum.filmorate.dal.dto.RatingDto;
+import ru.yandex.practicum.filmorate.storage.dal.BaseStorage;
+import ru.yandex.practicum.filmorate.storage.dal.dto.RatingDto;
 
 import java.util.Collection;
 import java.util.Optional;

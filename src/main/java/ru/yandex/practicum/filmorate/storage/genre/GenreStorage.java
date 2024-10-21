@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.genre;
 
-import ru.yandex.practicum.filmorate.dal.dto.FilmGenreDto;
-import ru.yandex.practicum.filmorate.dal.dto.GenreDto;
+import ru.yandex.practicum.filmorate.storage.dal.dto.FilmGenreDto;
+import ru.yandex.practicum.filmorate.storage.dal.dto.GenreDto;
 
 import java.util.Collection;
 import java.util.Map;

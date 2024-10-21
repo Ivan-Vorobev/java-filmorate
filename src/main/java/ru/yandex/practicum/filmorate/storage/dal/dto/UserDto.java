@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.dal.dto;
+package ru.yandex.practicum.filmorate.storage.dal.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
@@ -8,13 +8,12 @@ import java.time.LocalDate;
 
 @Data
 @Builder
-public class FilmDto {
+public class UserDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
-    private Long ratingId;
+    private String email;
+    private String login;
     private String name;
-    private String description;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private LocalDate releaseDate;
-    private Integer duration;
+    private LocalDate birthday;
 }

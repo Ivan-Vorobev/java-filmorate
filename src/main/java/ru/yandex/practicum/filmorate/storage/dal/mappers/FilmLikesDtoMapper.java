@@ -1,8 +1,8 @@
-package ru.yandex.practicum.filmorate.dal.mappers;
+package ru.yandex.practicum.filmorate.storage.dal.mappers;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.dal.dto.FilmLikesDto;
+import ru.yandex.practicum.filmorate.storage.dal.dto.FilmLikesDto;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

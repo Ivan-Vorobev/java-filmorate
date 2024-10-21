@@ -9,7 +9,7 @@ Template repository for Filmorate project.
 films
 -
 id PK bigint
-rating_id bigint FK >- rating.rating_id
+rating_id bigint FK >- rating.id
 name string
 description string
 release_date date
@@ -19,16 +19,16 @@ film_genres
 -
 id PK bigint
 film_id bigint FK >- films.id
-ganer_id bigint FK >- ganer.ganer_id
+ganer_id bigint FK >- ganre.id
 
-ganer
+ganre
 -
-ganer_id bigint
+id bigint
 name varchar(255)
 
 rating
 -
-rating_id PK bigint
+id PK bigint
 name string
 
 film_likes

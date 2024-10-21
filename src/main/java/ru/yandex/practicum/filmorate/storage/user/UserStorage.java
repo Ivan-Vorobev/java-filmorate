@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
-import ru.yandex.practicum.filmorate.dal.dto.UserDto;
+import ru.yandex.practicum.filmorate.storage.dal.dto.UserDto;
 
 import java.util.Collection;
 import java.util.Optional;

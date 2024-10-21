@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
-import ru.yandex.practicum.filmorate.dal.dto.FilmDto;
+import ru.yandex.practicum.filmorate.storage.dal.dto.FilmDto;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -29,6 +29,8 @@ class FilmDbStorageTest {
                 .ratingId(1L)
                 .name("Test film 1")
                 .description("Description 1")
+                .genres(new ArrayList<>())
+                .genreId(0L)
                 .releaseDate(LocalDate.of(2024, 1, 1))
                 .duration(60)
                 .build();
@@ -40,6 +42,8 @@ class FilmDbStorageTest {
                 .ratingId(2L)
                 .name("Test film 2")
                 .description("Description 2")
+                .genres(new ArrayList<>())
+                .genreId(0L)
                 .releaseDate(LocalDate.of(2024, 2, 1))
                 .duration(120)
                 .build();
@@ -51,6 +55,8 @@ class FilmDbStorageTest {
                 .ratingId(3L)
                 .name("Test film 3")
                 .description("Description 3")
+                .genres(new ArrayList<>())
+                .genreId(0L)
                 .releaseDate(LocalDate.of(2024, 3, 1))
                 .duration(180)
                 .build();

@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.service.mappers;
 
-import ru.yandex.practicum.filmorate.dal.dto.GenreDto;
+import ru.yandex.practicum.filmorate.storage.dal.dto.GenreDto;
 import ru.yandex.practicum.filmorate.model.Genre;
 
 public class GenreMapper {

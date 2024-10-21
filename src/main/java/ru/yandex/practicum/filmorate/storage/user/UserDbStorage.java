@@ -4,9 +4,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.dal.BaseStorage;
-import ru.yandex.practicum.filmorate.dal.dto.UserDto;
-import ru.yandex.practicum.filmorate.dal.dto.UserFriendsDto;
+import ru.yandex.practicum.filmorate.storage.dal.BaseStorage;
+import ru.yandex.practicum.filmorate.storage.dal.dto.UserDto;
+import ru.yandex.practicum.filmorate.storage.dal.dto.UserFriendsDto;
 
 import java.util.Collection;
 import java.util.Optional;

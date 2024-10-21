@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.service.mappers;
 
-import ru.yandex.practicum.filmorate.dal.dto.RatingDto;
+import ru.yandex.practicum.filmorate.storage.dal.dto.RatingDto;
 import ru.yandex.practicum.filmorate.model.Rating;
 
 public class RatingMapper {

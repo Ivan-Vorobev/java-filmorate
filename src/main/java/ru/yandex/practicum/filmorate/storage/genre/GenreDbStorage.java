@@ -5,9 +5,9 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.dal.BaseStorage;
-import ru.yandex.practicum.filmorate.dal.dto.FilmGenreDto;
-import ru.yandex.practicum.filmorate.dal.dto.GenreDto;
+import ru.yandex.practicum.filmorate.storage.dal.BaseStorage;
+import ru.yandex.practicum.filmorate.storage.dal.dto.FilmGenreDto;
+import ru.yandex.practicum.filmorate.storage.dal.dto.GenreDto;
 
 import java.util.*;
 import java.util.stream.Collectors;

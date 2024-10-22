@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -14,6 +15,7 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Пользователи")
+@Sql({"/schema.sql", "/data.sql"})
 @SpringBootTest
 class UserControllerTest {
     @Autowired
@@ -199,13 +201,12 @@ class UserControllerTest {
     }
 
     private User createUser(Long id) {
-        User user = new User();
-        user.setId(id);
-        user.setName("User #" + id);
-        user.setEmail(id + "test@mail.ru");
-        user.setLogin("Login_" + id);
-        user.setBirthday(LocalDate.of(1988, 1, 1));
-
-        return user;
+        return User.builder()
+                .id(id)
+                .name("User #" + id)
+                .email(id + "test@mail.ru")
+                .login("Login_" + id)
+                .birthday(LocalDate.of(1988, 1, 1))
+                .build();
     }
 }

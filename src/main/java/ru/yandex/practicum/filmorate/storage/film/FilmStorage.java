@@ -1,25 +1,26 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.dal.dto.FilmDto;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public interface FilmStorage {
-    Collection<Film> findAll();
+    Collection<FilmDto> findAll();
 
-    Film findById(Long filmId);
+    Optional<FilmDto> findById(Long filmId);
 
-    Film add(Film film);
+    FilmDto add(FilmDto film);
 
-    Film update(Film film);
+    FilmDto update(FilmDto film);
 
-    void deleteLike(Film film, Long userId);
+    void deleteLike(FilmDto film, Long userId);
 
-    void addLike(Film film, Long userId);
+    void addLike(FilmDto film, Long userId);
 
-    Set<Long> getFilmLikes(Film film);
+    Set<Long> getFilmLikes(FilmDto film);
 
     Map<Long, Set<Long>> getAllLikes();
 }

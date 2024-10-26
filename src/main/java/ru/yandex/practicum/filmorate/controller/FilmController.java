@@ -11,8 +11,6 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.*;
 
-import static com.fasterxml.jackson.databind.type.LogicalType.Array;
-
 @RequiredArgsConstructor
 @Validated
 @RestController

@@ -9,7 +9,9 @@ import ru.yandex.practicum.filmorate.RequestMethod;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
-import java.util.Collection;
+import java.util.*;
+
+import static com.fasterxml.jackson.databind.type.LogicalType.Array;
 
 @RequiredArgsConstructor
 @Validated
@@ -71,5 +73,13 @@ public class FilmController {
             @RequestParam(value = "count", defaultValue = "10") Long count
     ) {
         return filmService.findTopPopular(count);
+    }
+
+    @GetMapping("/search")
+    public Collection<Film> searchFilm(
+            @RequestParam(value = "query") String query,
+            @RequestParam(value = "by") String by
+    ) {
+        return filmService.searchFilm(query, by);
     }
 }

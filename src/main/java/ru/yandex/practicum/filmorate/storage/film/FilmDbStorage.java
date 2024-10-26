@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exceptions.BadRequestException;
 import ru.yandex.practicum.filmorate.storage.dal.BaseStorage;
 import ru.yandex.practicum.filmorate.storage.dal.dto.FilmDto;
 import ru.yandex.practicum.filmorate.storage.dal.dto.FilmLikesDto;
@@ -46,6 +47,21 @@ public class FilmDbStorage implements FilmStorage {
     private static final String DELETE_LIKE_QUERY = "DELETE FROM film_likes WHERE film_id = ? AND user_id = ?";
     private static final String FIND_FILM_LIKES_QUERY = "SELECT * FROM film_likes WHERE film_id = ?";
     private static final String FIND_ALL_LIKES_QUERY = "SELECT * FROM film_likes";
+    private static final String SEARCH_QUERY = """
+            SELECT
+                f.*,
+                g.id as genre_id,
+                g.name as genre_name,
+                r.name as rating_name
+            FROM films f
+            LEFT JOIN FILM_LIKES fl ON f.ID = fl.FILM_ID
+            LEFT JOIN film_genres fj ON fj.film_id = f.id
+            LEFT JOIN genre g ON g.id = fj.genre_id
+            LEFT JOIN rating r ON r.id = f.rating_id
+            WHERE %s
+            GROUP BY f.ID, genre_id
+            ORDER BY COALESCE(COUNT(fl.FILM_ID), 0) DESC
+            """;
 
     private final BaseStorage<FilmDto> filmBaseStorage;
     private final BaseStorage<FilmLikesDto> filmLikesBaseStorage;
@@ -130,6 +146,23 @@ public class FilmDbStorage implements FilmStorage {
         }
 
         return result;
+    }
+
+    @Override
+    public Collection<FilmDto> searchFilm(String query, String by) {
+        StringBuilder conditions = new StringBuilder();;
+        for (String condition : by.split(",")) {
+            if (!conditions.isEmpty()) {
+                conditions.append(" OR ");
+            }
+            if (condition.equalsIgnoreCase("title")) {
+                conditions.append("f.NAME LIKE '%").append(query).append("%' ");
+            }
+            if (condition.equalsIgnoreCase("director")) {
+                conditions.append("director LIKE '%").append(query).append("%' ");
+            }
+        }
+        return prepareFilmDtoData(filmBaseStorage.findMany(String.format(SEARCH_QUERY, conditions)));
     }
 
     private Collection<FilmDto> prepareFilmDtoData(Collection<FilmDto> films) {

@@ -62,4 +62,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Map<Long, Set<Long>> getAllLikes() {
         return likes;
     }
+
+    @Override
+    public Collection<FilmDto> searchFilm(String query, String by) {
+        return List.of();
+    }
 }

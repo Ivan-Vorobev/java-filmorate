@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -170,9 +171,12 @@ public class FilmService {
         return film;
     }
 
-    public Collection<Film> findTopPopular(final Long topCount) {
+    public Collection<Film> findTopPopular(final Long topCount, Long genreId, Integer year) {
         if (topCount < 1) {
             throw new ValidationException("Count grater than 0");
+        }
+        if (year < 1895 || year > LocalDate.now().getYear()) {
+            throw new ValidationException("Invalid year value: " + year);
         }
 
         return filmStorage.getAllLikes().entrySet().stream()

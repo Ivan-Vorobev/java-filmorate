@@ -42,6 +42,30 @@ public class FilmDbStorage implements FilmStorage {
     private static final String UPDATE_FILM_QUERY = """
             UPDATE films SET rating_id = ?, name = ?, description = ?, release_date = ?, duration = ? WHERE id = ?
             """;
+    private static final String GET_COMMON_FILMS = """
+            SELECT f.*,
+                   g.id AS genre_id,
+                   g.name AS genre_name,
+                   r.name AS rating_name,
+                   COUNT(fl.user_id) AS likes
+            FROM films AS f
+            INNER JOIN film_likes AS fl ON fl.film_id = f.id
+            LEFT JOIN rating r ON r.id = f.rating_id
+            LEFT JOIN film_genres AS fg ON fg.film_id = f.id
+            LEFT JOIN genre AS g ON g.id = fg.genre_id
+            WHERE fl.film_id IN
+                (SELECT f.id
+                 FROM films AS f
+                 LEFT JOIN film_likes AS fl2 ON fl2.film_id = f.id
+                 WHERE fl2.user_id IN (?,
+                                       ?)
+                 GROUP BY f.id
+                 HAVING COUNT(DISTINCT fl2.user_id) = 2)
+            GROUP BY f.id,
+                     g.id,
+                     r.name
+            ORDER BY likes DESC
+            """;
     private static final String INSERT_LIKE_QUERY = "INSERT INTO film_likes (film_id, user_id) VALUES (?, ?)";
     private static final String DELETE_LIKE_QUERY = "DELETE FROM film_likes WHERE film_id = ? AND user_id = ?";
     private static final String FIND_FILM_LIKES_QUERY = "SELECT * FROM film_likes WHERE film_id = ?";
@@ -130,6 +154,11 @@ public class FilmDbStorage implements FilmStorage {
         }
 
         return result;
+    }
+
+    @Override
+    public Collection<FilmDto> getCommonFilms(Long userId, Long friendId) {
+        return prepareFilmDtoData(filmBaseStorage.findMany(GET_COMMON_FILMS, userId, friendId));
     }
 
     private Collection<FilmDto> prepareFilmDtoData(Collection<FilmDto> films) {

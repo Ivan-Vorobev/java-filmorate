@@ -4,12 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.storage.dal.dto.FilmDto;
 import ru.yandex.practicum.filmorate.storage.GenerateIdStorage;
-
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
+
     private final Map<Long, FilmDto> films = new HashMap<>();
     private final Map<Long, Set<Long>> likes = new HashMap<>();
     private final GenerateIdStorage idGenerator;
@@ -61,5 +62,25 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Map<Long, Set<Long>> getAllLikes() {
         return likes;
+    }
+
+    @Override
+    public Collection<FilmDto> getCommonFilms(Long userId, Long friendId) {
+        List<FilmDto> filmsDto = new ArrayList<>();
+
+        List<Long> filmIds = likes.entrySet().stream()
+                .filter(map -> map.getValue().contains(userId) && map.getValue().contains(friendId))
+                .collect(Collectors
+                        .toMap(Map.Entry::getKey, entry -> entry.getValue().size()))
+                .entrySet()
+                .stream()
+                .sorted(Map.Entry.<Long, Integer> comparingByValue().reversed())
+                .map(Map.Entry::getKey)
+                .toList();
+
+        for (Long filmId : filmIds) {
+            filmsDto.add(films.get(filmId));
+        }
+        return filmsDto;
     }
 }

@@ -23,4 +23,6 @@ public interface FilmStorage {
     Set<Long> getFilmLikes(FilmDto film);
 
     Map<Long, Set<Long>> getAllLikes();
+
+    Collection<FilmDto> getCommonFilms(Long userId, Long friendId);
 }

@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -180,6 +179,12 @@ public class FilmService {
                 .limit(topCount)
                 .map(v -> findFilm(v.getKey()))
                 .collect(Collectors.toList());
+    }
+
+    public Collection<Film> getCommonFilms(Long userId, Long friendId) {
+        return filmStorage.getCommonFilms(userId, friendId).stream()
+                .map(FilmMapper::modelFromDto)
+                .toList();
     }
 
     private void validateFilm(Film film) {

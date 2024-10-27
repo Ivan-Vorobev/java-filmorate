@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.RequestMethod;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-
 import java.util.Collection;
 
 @RequiredArgsConstructor
@@ -71,5 +70,13 @@ public class FilmController {
             @RequestParam(value = "count", defaultValue = "10") Long count
     ) {
         return filmService.findTopPopular(count);
+    }
+
+    @GetMapping("/common")
+    public Collection<Film> getCommonFilms(
+            @RequestParam(value = "userId") Long userId,
+            @RequestParam(value = "friendId") Long friendId
+    ) {
+        return filmService.getCommonFilms(userId, friendId);
     }
 }

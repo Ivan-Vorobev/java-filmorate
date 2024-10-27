@@ -74,7 +74,7 @@ public class InMemoryFilmStorage implements FilmStorage {
                         .toMap(Map.Entry::getKey, entry -> entry.getValue().size()))
                 .entrySet()
                 .stream()
-                .sorted(Map.Entry.<Long, Integer> comparingByValue().reversed())
+                .sorted(Map.Entry.<Long, Integer>comparingByValue().reversed())
                 .map(Map.Entry::getKey)
                 .toList();
 

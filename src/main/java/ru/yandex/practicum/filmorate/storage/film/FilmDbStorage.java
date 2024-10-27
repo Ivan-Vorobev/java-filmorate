@@ -98,8 +98,12 @@ public class FilmDbStorage implements FilmStorage {
                 f.*,
                 g.id as genre_id,
                 g.name as genre_name,
-                r.name as rating_name
+                r.name as rating_name,
+                fd.director_id,
+                d.name as director_name
             FROM films f
+            LEFT JOIN film_director fd ON fd.film_id = f.id
+            LEFT JOIN director d ON fd.director_id = d.id
             LEFT JOIN FILM_LIKES fl ON f.ID = fl.FILM_ID
             LEFT JOIN film_genres fj ON fj.film_id = f.id
             LEFT JOIN genre g ON g.id = fj.genre_id
@@ -212,12 +216,13 @@ public class FilmDbStorage implements FilmStorage {
                 conditions.append(" OR ");
             }
             if (condition.equalsIgnoreCase("title")) {
-                conditions.append("f.NAME LIKE '%").append(query).append("%' ");
+                conditions.append("f.name LIKE '%").append(query).append("%' ");
             }
             if (condition.equalsIgnoreCase("director")) {
-                conditions.append("director LIKE '%").append(query).append("%' ");
+                conditions.append("d.name LIKE '%").append(query).append("%' ");
             }
         }
+        System.out.println(conditions);
         return prepareFilmDtoData(filmBaseStorage.findMany(String.format(SEARCH_QUERY, conditions)));
     }
 

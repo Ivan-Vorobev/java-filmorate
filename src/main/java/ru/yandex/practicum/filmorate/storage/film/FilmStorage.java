@@ -22,4 +22,8 @@ public interface FilmStorage {
     Set<Long> getFilmLikes(FilmDto film);
 
     Collection<FilmDto> getAllLikes(Long count, Long genreId, Integer year);
+
+    Collection<FilmDto> findFilmsByDirectorSortYear(Long directorId);
+
+    Collection<FilmDto> findFilmsByDirectorSortLike(Long directorId);
 }

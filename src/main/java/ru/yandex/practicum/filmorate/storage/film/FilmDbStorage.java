@@ -50,15 +50,56 @@ public class FilmDbStorage implements FilmStorage {
                 f.*,
                 g.id as genre_id,
                 g.name as genre_name,
-                r.name as rating_name
+                r.name as rating_name,
+                fd.director_id,
+                director.name as director_name
             FROM films f
+            JOIN film_director fd ON fd.film_id = f.id
+            JOIN director ON fd.director_id = director.id
             LEFT JOIN FILM_LIKES fl ON f.ID = fl.FILM_ID
             LEFT JOIN film_genres fj ON fj.film_id = f.id
             LEFT JOIN genre g ON g.id = fj.genre_id
             LEFT JOIN rating r ON r.id = f.rating_id
             WHERE %s
-            GROUP BY f.ID, genre_id
+            GROUP BY f.ID, genre_id, fd.director_id
             ORDER BY COALESCE(COUNT(fl.FILM_ID), 0) DESC
+            """;
+    private static final String FIND_FILMS_BY_DIRECTOR_SORT_YEAR = """
+            SELECT
+                f.*,
+                g.id as genre_id,
+                g.name as genre_name,
+                r.name as rating_name,
+                fd.director_id,
+                director.name as director_name
+            FROM films f
+            JOIN film_director fd ON fd.film_id = f.id
+            JOIN director ON fd.director_id = director.id
+            LEFT JOIN film_genres fj ON fj.film_id = f.id
+            LEFT JOIN genre g ON g.id = fj.genre_id
+            LEFT JOIN rating r ON r.id = f.rating_id
+            WHERE fd.director_id = ?
+            ORDER BY EXTRACT(YEAR FROM release_date)
+            """;
+
+    private static final String FIND_FILMS_BY_DIRECTOR_SORT_LIKE = """
+            SELECT DISTINCT
+                f.*,
+                g.id as genre_id,
+                g.name as genre_name,
+                r.name as rating_name,
+                fd.director_id,
+                director.name as director_name,
+                COUNT(*) OVER (PARTITION BY f.id) as count_likes
+            FROM films f
+            JOIN film_director fd ON fd.film_id = f.id
+            JOIN director ON fd.director_id = director.id
+            LEFT JOIN film_likes fl on fl.film_id = f.id
+            LEFT JOIN film_genres fj ON fj.film_id = f.id
+            LEFT JOIN genre g ON g.id = fj.genre_id
+            LEFT JOIN rating r ON r.id = f.rating_id
+            WHERE fd.director_id = ?
+            ORDER BY count_likes
             """;
 
     private final BaseStorage<FilmDto> filmBaseStorage;
@@ -148,6 +189,16 @@ public class FilmDbStorage implements FilmStorage {
         }
         return prepareFilmDtoData(filmBaseStorage.findMany(String.format(SEARCH_QUERY + " LIMIT " + count,
                 !conditions.isEmpty() ? String.valueOf(conditions) : "1=1")));
+    }
+
+    @Override
+    public Collection<FilmDto> findFilmsByDirectorSortYear(Long directorId) {
+        return prepareFilmDtoData(filmBaseStorage.findMany(FIND_FILMS_BY_DIRECTOR_SORT_YEAR, directorId));
+    }
+
+    @Override
+    public Collection<FilmDto> findFilmsByDirectorSortLike(Long directorId) {
+        return prepareFilmDtoData(filmBaseStorage.findMany(FIND_FILMS_BY_DIRECTOR_SORT_LIKE, directorId));
     }
 
     private Collection<FilmDto> prepareFilmDtoData(Collection<FilmDto> films) {

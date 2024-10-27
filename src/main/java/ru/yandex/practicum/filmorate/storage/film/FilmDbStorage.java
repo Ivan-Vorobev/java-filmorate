@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 @Repository
 public class FilmDbStorage implements FilmStorage {
+    // есть смысл поменять все inner на left join
     private static final String FIND_ALL_QUERY = """
             SELECT
                 f.*,
@@ -54,25 +55,6 @@ public class FilmDbStorage implements FilmStorage {
     private static final String INSERT_LIKE_QUERY = "INSERT INTO film_likes (film_id, user_id) VALUES (?, ?)";
     private static final String DELETE_LIKE_QUERY = "DELETE FROM film_likes WHERE film_id = ? AND user_id = ?";
     private static final String FIND_FILM_LIKES_QUERY = "SELECT * FROM film_likes WHERE film_id = ?";
-    private static final String SEARCH_QUERY = """
-            SELECT
-                f.*,
-                g.id as genre_id,
-                g.name as genre_name,
-                r.name as rating_name,
-                fd.director_id,
-                director.name as director_name
-            FROM films f
-            JOIN film_director fd ON fd.film_id = f.id
-            JOIN director ON fd.director_id = director.id
-            LEFT JOIN FILM_LIKES fl ON f.ID = fl.FILM_ID
-            LEFT JOIN film_genres fj ON fj.film_id = f.id
-            LEFT JOIN genre g ON g.id = fj.genre_id
-            LEFT JOIN rating r ON r.id = f.rating_id
-            WHERE %s
-            GROUP BY f.ID, genre_id, fd.director_id
-            ORDER BY COALESCE(COUNT(fl.FILM_ID), 0) DESC
-            """;
     private static final String FIND_ALL_LIKES_QUERY = "SELECT * FROM film_likes";
     private static final String FIND_FILMS_BY_DIRECTOR_SORT_LIKE = """
             SELECT DISTINCT
@@ -112,6 +94,26 @@ public class FilmDbStorage implements FilmStorage {
             ORDER BY EXTRACT(YEAR FROM release_date)
             """;
 
+    // дублирование FIND_ALL_QUERY (в финальной версии свести к одному запросу)
+    private static final String FIND_MOST_POPULAR_QUERY = """
+            SELECT
+                f.*,
+                g.id as genre_id,
+                g.name as genre_name,
+                r.name as rating_name,
+                fd.director_id,
+                director.name as director_name
+            FROM films f
+            LEFT JOIN film_director fd ON fd.film_id = f.id
+            LEFT JOIN director ON fd.director_id = director.id
+            LEFT JOIN FILM_LIKES fl ON f.ID = fl.FILM_ID
+            LEFT JOIN film_genres fj ON fj.film_id = f.id
+            LEFT JOIN genre g ON g.id = fj.genre_id
+            LEFT JOIN rating r ON r.id = f.rating_id
+            WHERE %s
+            GROUP BY f.ID, genre_id, fd.director_id
+            ORDER BY COALESCE(COUNT(fl.FILM_ID), 0) DESC
+            """;
 
     private final BaseStorage<FilmDto> filmBaseStorage;
     private final BaseStorage<FilmLikesDto> filmLikesBaseStorage;
@@ -198,7 +200,7 @@ public class FilmDbStorage implements FilmStorage {
             }
             conditions.append("YEAR(f.release_date) = ").append(year);
         }
-        return prepareFilmDtoData(filmBaseStorage.findMany(String.format(SEARCH_QUERY + " LIMIT " + count,
+        return prepareFilmDtoData(filmBaseStorage.findMany(String.format(FIND_MOST_POPULAR_QUERY + " LIMIT " + count,
                 !conditions.isEmpty() ? String.valueOf(conditions) : "1=1")));
     }
 

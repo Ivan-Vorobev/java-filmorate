@@ -25,6 +25,7 @@ public class Film {
     private LocalDate releaseDate;
     private Rating mpa;
     private Collection<Genre> genres;
+    private Collection<Director> directors;
     @Positive(groups = {RequestMethod.Create.class, RequestMethod.Update.class})
     @Min(value = 1, groups = {RequestMethod.Create.class, RequestMethod.Update.class})
     private int duration;

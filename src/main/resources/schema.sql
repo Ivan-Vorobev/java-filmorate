@@ -103,3 +103,30 @@ CREATE TABLE IF NOT EXISTS film_likes
          user_id
             )
 );
+DROP TABLE IF EXISTS director;
+CREATE TABLE IF NOT EXISTS director
+(
+    id
+        BIGSERIAL
+        PRIMARY
+        KEY,
+    name
+        VARCHAR(255) NOT NULL
+    );
+DROP TABLE IF EXISTS film_director;
+CREATE TABLE IF NOT EXISTS film_director
+(
+    id
+        BIGSERIAL
+        PRIMARY
+        KEY,
+    film_id
+        BIGINT,
+    director_id
+        BIGINT,
+    UNIQUE
+        (
+         film_id,
+         director_id
+        )
+    );

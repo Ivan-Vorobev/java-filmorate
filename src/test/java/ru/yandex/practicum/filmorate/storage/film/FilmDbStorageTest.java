@@ -31,6 +31,8 @@ class FilmDbStorageTest {
                 .description("Description 1")
                 .genres(new ArrayList<>())
                 .genreId(0L)
+                .directors(new ArrayList<>())
+                .directorId(0L)
                 .releaseDate(LocalDate.of(2024, 1, 1))
                 .duration(60)
                 .build();
@@ -44,6 +46,8 @@ class FilmDbStorageTest {
                 .description("Description 2")
                 .genres(new ArrayList<>())
                 .genreId(0L)
+                .directors(new ArrayList<>())
+                .directorId(0L)
                 .releaseDate(LocalDate.of(2024, 2, 1))
                 .duration(120)
                 .build();
@@ -57,6 +61,8 @@ class FilmDbStorageTest {
                 .description("Description 3")
                 .genres(new ArrayList<>())
                 .genreId(0L)
+                .directors(new ArrayList<>())
+                .directorId(0L)
                 .releaseDate(LocalDate.of(2024, 3, 1))
                 .duration(180)
                 .build();

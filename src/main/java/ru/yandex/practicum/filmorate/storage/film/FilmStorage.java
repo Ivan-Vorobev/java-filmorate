@@ -25,5 +25,6 @@ public interface FilmStorage {
     Map<Long, Set<Long>> getAllLikes();
 
     Collection<FilmDto> findFilmsByDirectorSortYear(Long directorId);
+
     Collection<FilmDto> findFilmsByDirectorSortLike(Long directorId);
 }

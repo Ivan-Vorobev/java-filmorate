@@ -4,7 +4,15 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.RequestMethod;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -71,6 +79,14 @@ public class FilmController {
             @RequestParam(value = "count", defaultValue = "10") Long count
     ) {
         return filmService.findTopPopular(count);
+    }
+
+    @GetMapping("/director/{id}")
+    public Collection<Film> getFilmByDirectorId(
+            @PathVariable("id") Long directorId,
+            @RequestParam(value = "sortBy") String sortBy
+    ) {
+        return filmService.findFilmsByDirector(directorId, sortBy);
     }
 
     @GetMapping("/search")

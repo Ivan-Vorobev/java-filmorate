@@ -103,3 +103,23 @@ CREATE TABLE IF NOT EXISTS film_likes
          user_id
             )
 );
+
+DROP TABLE IF EXISTS reviews;
+CREATE TABLE IF NOT EXISTS reviews
+(
+    id          BIGSERIAL PRIMARY KEY,
+    film_id     BIGINT,
+    user_id     BIGINT,
+    is_positive BOOLEAN,
+    content     TEXT
+);
+
+DROP TABLE IF EXISTS review_ratings;
+CREATE TABLE IF NOT EXISTS review_ratings
+(
+    id        BIGSERIAL PRIMARY KEY,
+    review_id BIGINT,
+    user_id   BIGINT,
+    "value"   INT,
+    UNIQUE (review_id, user_id)
+);

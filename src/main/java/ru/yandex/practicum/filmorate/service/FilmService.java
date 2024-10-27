@@ -43,32 +43,6 @@ public class FilmService {
         return filmStorage.findAll().stream()
                 .map(FilmMapper::modelFromDto)
                 .toList();
-//
-//        Map<Long, Set<Long>> filmGenres = genreStorage.findAllFilmGenres();
-//        Map<Long, Genre> genres = genreService.findAllAsMap();
-//        Map<Long, Rating> ratings = ratingService.findAllAsMap();
-//        return filmStorage.findAll().stream()
-//                .map(v -> {
-//                    Film film = FilmMapper.modelFromDto(v);
-//                    Set<Long> currentFilmGenres = filmGenres.get(film.getId());
-//                    if (currentFilmGenres != null) {
-//                        film.setGenres(
-//                                currentFilmGenres.stream()
-//                                        .map(genres::get)
-//                                        .collect(Collectors.toList())
-//                        );
-//                    } else {
-//                        film.setGenres(List.of());
-//                    }
-//
-//                    if (film.getMpa() != null) {
-//                        film.setMpa(
-//                                ratings.get(film.getMpa().getId())
-//                        );
-//                    }
-//                    return film;
-//                })
-//                .collect(Collectors.toList());
     }
 
     public Film findFilm(Long filmId) {
@@ -76,28 +50,6 @@ public class FilmService {
                 .findById(filmId)
                 .orElseThrow(() -> new NotFoundException("Film not found. Id: " + filmId));
         return FilmMapper.modelFromDto(filmDto);
-//        film.setGenres(dto.getGenres().stream()
-//                .map(GenreMapper::modelFromDto)
-//                .toList());
-//        return
-//        Map<Long, Genre> genres = genreService.findAllAsMap();
-//
-//        Film film = FilmMapper.modelFromDto(filmDto);
-//        Set<Long> filmGenres = genreStorage.findFilmGenres(film.getId());
-//        if (filmGenres != null) {
-//            film.setGenres(
-//                    filmGenres.stream()
-//                            .map(genres::get)
-//                            .collect(Collectors.toList())
-//            );
-//        } else {
-//            film.setGenres(List.of());
-//        }
-//
-//        if (film.getMpa() != null) {
-//            film.setMpa(ratingService.findRating(film.getMpa().getId()));
-//        }
-//        return film;
     }
 
     public Film create(Film film) {

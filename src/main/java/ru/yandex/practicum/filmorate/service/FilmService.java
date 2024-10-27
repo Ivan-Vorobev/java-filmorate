@@ -4,16 +4,18 @@ import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.storage.dal.dto.FilmDto;
 import ru.yandex.practicum.filmorate.exceptions.BadRequestException;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.service.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.service.mappers.FilmMapper;
+import ru.yandex.practicum.filmorate.storage.dal.dto.FilmDto;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -180,6 +182,12 @@ public class FilmService {
                 .limit(topCount)
                 .map(v -> findFilm(v.getKey()))
                 .collect(Collectors.toList());
+    }
+
+    public Collection<Film> getRecommendations(Long userId) {
+        return filmStorage.getUserRecommendations(userId).stream()
+                .map(FilmMapper::modelFromDto)
+                .toList();
     }
 
     private void validateFilm(Film film) {

@@ -15,7 +15,6 @@ import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
@@ -175,15 +174,13 @@ public class FilmService {
         if (topCount < 1) {
             throw new ValidationException("Count grater than 0");
         }
-        if (year < 1895 || year > LocalDate.now().getYear()) {
+        if (year != 0 && (year < 1895 || year > LocalDate.now().getYear())) {
             throw new ValidationException("Invalid year value: " + year);
         }
 
-        return filmStorage.getAllLikes().entrySet().stream()
-                .sorted((v1, v2) -> Integer.compare(v1.getValue().size(), v2.getValue().size()) * -1)
-                .limit(topCount)
-                .map(v -> findFilm(v.getKey()))
-                .collect(Collectors.toList());
+        return filmStorage.getAllLikes(topCount, genreId, year).stream()
+                .map(FilmMapper::modelFromDto)
+                .toList();
     }
 
     private void validateFilm(Film film) {

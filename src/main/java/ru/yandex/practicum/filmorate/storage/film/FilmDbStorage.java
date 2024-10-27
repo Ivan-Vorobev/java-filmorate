@@ -45,7 +45,21 @@ public class FilmDbStorage implements FilmStorage {
     private static final String INSERT_LIKE_QUERY = "INSERT INTO film_likes (film_id, user_id) VALUES (?, ?)";
     private static final String DELETE_LIKE_QUERY = "DELETE FROM film_likes WHERE film_id = ? AND user_id = ?";
     private static final String FIND_FILM_LIKES_QUERY = "SELECT * FROM film_likes WHERE film_id = ?";
-    private static final String FIND_ALL_LIKES_QUERY = "SELECT * FROM film_likes";
+    private static final String SEARCH_QUERY = """
+            SELECT
+                f.*,
+                g.id as genre_id,
+                g.name as genre_name,
+                r.name as rating_name
+            FROM films f
+            LEFT JOIN FILM_LIKES fl ON f.ID = fl.FILM_ID
+            LEFT JOIN film_genres fj ON fj.film_id = f.id
+            LEFT JOIN genre g ON g.id = fj.genre_id
+            LEFT JOIN rating r ON r.id = f.rating_id
+            WHERE %s
+            GROUP BY f.ID, genre_id
+            ORDER BY COALESCE(COUNT(fl.FILM_ID), 0) DESC
+            """;
 
     private final BaseStorage<FilmDto> filmBaseStorage;
     private final BaseStorage<FilmLikesDto> filmLikesBaseStorage;
@@ -121,15 +135,19 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Map<Long, Set<Long>> getAllLikes() {
-        Map<Long, Set<Long>> result = new HashMap<>();
-
-        for (FilmLikesDto userLike : filmLikesBaseStorage.findMany(FIND_ALL_LIKES_QUERY)) {
-            Set<Long> filmLikes = result.computeIfAbsent(userLike.getFilmId(), k -> new HashSet<>());
-            filmLikes.add(userLike.getUserId());
+    public Collection<FilmDto> getAllLikes(Long count, Long genreId, Integer year) {
+        StringBuilder conditions = new StringBuilder();
+        if (genreId != 0) {
+            conditions.append(" g.id = ").append(genreId);
         }
-
-        return result;
+        if (year != 0) {
+            if (!conditions.isEmpty()) {
+                conditions.append(" AND ");
+            }
+            conditions.append("YEAR(f.release_date) = ").append(year);
+        }
+        return prepareFilmDtoData(filmBaseStorage.findMany(String.format(SEARCH_QUERY + " LIMIT " + count,
+                !conditions.isEmpty() ? String.valueOf(conditions) : "1=1")));
     }
 
     private Collection<FilmDto> prepareFilmDtoData(Collection<FilmDto> films) {

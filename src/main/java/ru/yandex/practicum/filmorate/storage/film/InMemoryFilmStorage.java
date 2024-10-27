@@ -59,7 +59,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Map<Long, Set<Long>> getAllLikes() {
-        return likes;
+    public Collection<FilmDto> getAllLikes(Long count, Long genreId, Integer year) {
+        return null;
     }
 }

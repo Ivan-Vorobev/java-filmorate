@@ -34,6 +34,7 @@ public class DirectorDbStorage implements DirectorStorage {
     ) {
         directorBaseStorage = new BaseStorage<>(jdbc, directorDtoRowMapper);
     }
+
     @Override
     public Collection<DirectorDto> findAll() {
         return directorBaseStorage.findMany(FIND_ALL_DIRECTOR_QUERY);
@@ -43,6 +44,7 @@ public class DirectorDbStorage implements DirectorStorage {
     public Optional<DirectorDto> findById(Long directorId) {
         return directorBaseStorage.findOne(FIND_DIRECTOR_QUERY, directorId);
     }
+
     @Override
     public DirectorDto add(DirectorDto directorDto) {
         Long id = directorBaseStorage.insert(

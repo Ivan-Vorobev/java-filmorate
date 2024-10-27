@@ -111,8 +111,8 @@ public class FilmDbStorage implements FilmStorage {
             LEFT JOIN genre g ON g.id = fj.genre_id
             LEFT JOIN rating r ON r.id = f.rating_id
             WHERE %s
-            GROUP BY f.ID, genre_id, fd.director_id
-            ORDER BY COALESCE(COUNT(fl.FILM_ID), 0) DESC
+            GROUP BY f.ID, genre_id, fd.director_id, genre_name, rating_name
+            ORDER BY COUNT(fl.FILM_ID) DESC
             """;
 
     private final BaseStorage<FilmDto> filmBaseStorage;
@@ -200,7 +200,8 @@ public class FilmDbStorage implements FilmStorage {
             }
             conditions.append("YEAR(f.release_date) = ").append(year);
         }
-        return prepareFilmDtoData(filmBaseStorage.findMany(String.format(FIND_MOST_POPULAR_QUERY + " LIMIT " + count,
+
+        return prepareFilmDtoDataSorted(filmBaseStorage.findMany(String.format(FIND_MOST_POPULAR_QUERY + " LIMIT " + count,
                 !conditions.isEmpty() ? String.valueOf(conditions) : "1=1")));
     }
 
@@ -216,6 +217,53 @@ public class FilmDbStorage implements FilmStorage {
 
     private Collection<FilmDto> prepareFilmDtoData(Collection<FilmDto> films) {
         HashMap<Long, FilmDto> outputFilms = new HashMap<>();
+        for (FilmDto film : films) {
+            FilmDto findFilm = outputFilms.get(film.getId());
+
+            if (findFilm == null) {
+                findFilm = film;
+                outputFilms.put(film.getId(), film);
+            }
+
+            if (film.getGenreId() != null && film.getGenreName() != null) {
+                Collection<GenreDto> genres = findFilm.getGenres();
+                if (genres == null) {
+                    genres = new ArrayList<>();
+                    findFilm.setGenres(genres);
+                }
+
+                genres.add(
+                        GenreDto.builder()
+                                .id(film.getGenreId())
+                                .name(film.getGenreName())
+                                .build()
+                );
+            }
+
+            if (film.getDirectorId() != null && film.getDirectorName() != null) {
+                Collection<DirectorDto> directors = findFilm.getDirectors();
+                if (directors == null) {
+                    directors = new ArrayList<>();
+                    findFilm.setDirectors(directors);
+                }
+
+                directors.add(
+                        DirectorDto.builder()
+                                .id(film.getDirectorId())
+                                .name(film.getDirectorName())
+                                .build()
+                );
+            }
+        }
+
+        return outputFilms.values();
+    }
+
+    // add-most-populars: Продублировал prepareFilmDtoData, но с LinkedHashMap,
+    // который сохраняет порядок сортировки в наборе данных из БД. Иначе тесты валятся.
+    // Обычный HashMap сортировку не сохраняет.
+    private Collection<FilmDto> prepareFilmDtoDataSorted(Collection<FilmDto> films) {
+        HashMap<Long, FilmDto> outputFilms = new LinkedHashMap<>();
         for (FilmDto film : films) {
             FilmDto findFilm = outputFilms.get(film.getId());
 

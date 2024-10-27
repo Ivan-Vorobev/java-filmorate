@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.Collection;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Validated
@@ -71,5 +72,13 @@ public class FilmController {
             @RequestParam(value = "count", defaultValue = "10") Long count
     ) {
         return filmService.findTopPopular(count);
+    }
+
+    @GetMapping("/director/{id}")
+    public Collection<Film> getFilmByDirectorId(
+            @PathVariable("id") Long directorId,
+            @RequestParam(value = "sortBy") String sortBy
+    ) {
+        return filmService.findFilmsByDirector(directorId, sortBy);
     }
 }

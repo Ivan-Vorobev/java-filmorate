@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service.mappers;
 
+import ru.yandex.practicum.filmorate.storage.dal.dto.DirectorDto;
 import ru.yandex.practicum.filmorate.storage.dal.dto.FilmDto;
 import ru.yandex.practicum.filmorate.storage.dal.dto.GenreDto;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -15,6 +16,11 @@ public class FilmMapper {
             genres = new ArrayList<>();
         }
 
+        Collection<DirectorDto> directors = dto.getDirectors();
+        if (directors == null) {
+            directors = new ArrayList<>();
+        }
+
         return Film.builder()
                 .id(dto.getId())
                 .name(dto.getName())
@@ -26,6 +32,9 @@ public class FilmMapper {
                                 .map(GenreMapper::modelFromDto)
                                 .toList()
                 )
+                .directors(directors.stream()
+                        .map(DirectorMapper::modelFromDto)
+                        .toList())
                 .duration(dto.getDuration())
                 .build();
     }

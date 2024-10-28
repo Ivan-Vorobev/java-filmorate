@@ -210,20 +210,28 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Collection<FilmDto> searchFilm(String query, String by) {
-        StringBuilder conditions = new StringBuilder();;
+        List<Object> params = new ArrayList<>();
+        StringBuilder conditions = new StringBuilder();
+
         for (String condition : by.split(",")) {
-            if (!conditions.isEmpty()) {
-                conditions.append(" OR ");
-            }
-            if (condition.equalsIgnoreCase("title")) {
-                conditions.append("f.name LIKE '%").append(query).append("%' ");
-            }
-            if (condition.equalsIgnoreCase("director")) {
-                conditions.append("d.name LIKE '%").append(query).append("%' ");
-            }
+            SearchByEnum.fromString(condition).ifPresent(searchBy -> {
+                if (!conditions.isEmpty()) {
+                    conditions.append(" OR ");
+                }
+                switch (searchBy) {
+                    case TITLE -> {
+                        conditions.append("f.name LIKE ?");
+                        params.add("%" + query + "%");
+                    }
+                    case DIRECTOR -> {
+                        conditions.append("d.name LIKE ?");
+                        params.add("%" + query + "%");
+                    }
+                }
+            });
         }
-        System.out.println(conditions);
-        return prepareFilmDtoData(filmBaseStorage.findMany(String.format(SEARCH_QUERY, conditions)));
+        String formattedQuery = String.format(SEARCH_QUERY, conditions);
+        return prepareFilmDtoData(filmBaseStorage.findMany(formattedQuery, params.toArray()));
     }
 
     private Collection<FilmDto> prepareFilmDtoData(Collection<FilmDto> films) {

@@ -124,7 +124,7 @@ public class FilmService {
 
     public Collection<Film> findTopPopular(final Long topCount) {
         if (topCount < 1) {
-            throw new ValidationException("Count grater than 0");
+            throw new ValidationException("The 'count' value must be greater than 0, " + topCount + " given");
         }
 
         return filmStorage.getAllLikes().entrySet().stream()

@@ -2,18 +2,20 @@ package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Data
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Review {
-    private Long reviewId;
+    Long reviewId;
     @NotNull
-    private String content;
+    String content;
     @NotNull
-    private Boolean isPositive;
+    Boolean isPositive;
     @NotNull
-    private Long userId;
+    Long userId;
     @NotNull
-    private Long filmId;
-    private Integer useful;
+    Long filmId;
+    Integer useful;
 }

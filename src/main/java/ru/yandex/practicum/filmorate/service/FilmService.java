@@ -4,6 +4,7 @@ import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.dal.dto.FilmDto;
 import ru.yandex.practicum.filmorate.exceptions.BadRequestException;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -182,6 +183,8 @@ public class FilmService {
     }
 
     public Collection<Film> getCommonFilms(Long userId, Long friendId) {
+        User firstUser = userService.findUser(userId);
+        User secondUser = userService.findUser(friendId);
         return filmStorage.getCommonFilms(userId, friendId).stream()
                 .map(FilmMapper::modelFromDto)
                 .toList();

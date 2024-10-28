@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.exceptions.BadRequestException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.storage.dal.dto.FilmDto;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -185,6 +186,11 @@ public class FilmService {
     }
 
     public Collection<Film> getRecommendations(Long userId) {
+        User user = userService.findUser(userId);
+        if (user == null) {
+            throw new NotFoundException("Пользователь с id " + userId + " не найден.");
+        }
+
         return filmStorage.getUserRecommendations(userId).stream()
                 .map(FilmMapper::modelFromDto)
                 .toList();

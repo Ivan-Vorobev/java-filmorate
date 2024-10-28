@@ -154,10 +154,10 @@ class FilmDbStorageTest {
 
         assertEquals(0, likes.size());
 
-        // filmStorage.addLike(getFirstFilm(), 1L);
+        filmStorage.addLike(getFirstFilm(), 1L);
 
-        // likes = filmStorage.getAllLikes(1L, 0L, 0);
+        likes = filmStorage.getAllLikes(1L, 0L, 0);
 
-        // assertEquals(1, likes.size());
+        assertEquals(1, likes.size());
     }
 }

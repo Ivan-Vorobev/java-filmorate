@@ -190,20 +190,24 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Collection<FilmDto> getAllLikes(Long count, Long genreId, Integer year) {
-        StringBuilder conditions = new StringBuilder();
+        StringBuilder conditions = new StringBuilder("1=1");
+        List<Object> params = new ArrayList<>();
+
         if (genreId != 0) {
-            conditions.append(" g.id = ").append(genreId);
+            conditions.append(" AND g.id = ?");
+            params.add(genreId);
         }
         if (year != 0) {
-            if (!conditions.isEmpty()) {
-                conditions.append(" AND ");
-            }
-            conditions.append("YEAR(f.release_date) = ").append(year);
+            conditions.append(" AND YEAR(f.release_date) = ?");
+            params.add(year);
         }
 
-        return prepareFilmDtoDataSorted(filmBaseStorage.findMany(String.format(FIND_MOST_POPULAR_QUERY + " LIMIT " + count,
-                !conditions.isEmpty() ? String.valueOf(conditions) : "1=1")));
+        String query = String.format(FIND_MOST_POPULAR_QUERY + " LIMIT ?", conditions.toString());
+        params.add(count);
+
+        return prepareFilmDtoDataSorted(filmBaseStorage.findMany(query, params.toArray()));
     }
+
 
     @Override
     public Collection<FilmDto> findFilmsByDirectorSortYear(Long directorId) {

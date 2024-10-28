@@ -217,17 +217,15 @@ public class FilmService {
 
     public Collection<Film> findFilmsByDirector(final Long directorId, final String sortBy) {
         directorService.findDirector(directorId);
-        if (sortBy.equals(SortFilm.YEAR.toString().toLowerCase())) {
-            return filmStorage.findFilmsByDirectorSortYear(directorId).stream()
+        return switch (SortFilm.fromString(sortBy)) {
+            case LIKES -> filmStorage.findFilmsByDirectorSortLike(directorId).stream()
                     .map(FilmMapper::modelFromDto)
                     .toList();
-        } else if (sortBy.equals(SortFilm.LIKES.toString().toLowerCase())) {
-            return filmStorage.findFilmsByDirectorSortLike(directorId).stream()
+            case YEAR -> filmStorage.findFilmsByDirectorSortYear(directorId).stream()
                     .map(FilmMapper::modelFromDto)
                     .toList();
-        } else {
-            throw new ValidationException("The sort option specified is incorrect");
-        }
+            default -> throw new NotFoundException("Incorrect sort type: " + sortBy);
+        };
     }
 
     private void validateFilm(Film film) {

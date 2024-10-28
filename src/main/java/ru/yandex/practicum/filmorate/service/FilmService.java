@@ -4,6 +4,7 @@ import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.constraints.SortFilm;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.dal.dto.FilmDto;
 import ru.yandex.practicum.filmorate.exceptions.BadRequestException;
@@ -138,7 +139,7 @@ public class FilmService {
             Map<Long, Director> directors = directorService.findAllAsMap();
 
             for (Director director : film.getDirectors()) {
-                directorStorage.add_film(newFilm.getId(), director.getId());
+                directorStorage.addFilm(newFilm.getId(), director.getId());
                 newDirectors.add(directors.get(director.getId()));
             }
 
@@ -174,14 +175,14 @@ public class FilmService {
         }
 
         if (film.getDirectors() != null) {
-            directorStorage.delete_by_film(updatedFilm.getId());
+            directorStorage.deleteByFilm(updatedFilm.getId());
             updatedFilm.setDirectors(film.getDirectors());
 
             for (Director director : film.getDirectors()) {
-                directorStorage.add_film(updatedFilm.getId(), director.getId());
+                directorStorage.addFilm(updatedFilm.getId(), director.getId());
             }
         } else {
-            directorStorage.delete_by_film(updatedFilm.getId());
+            directorStorage.deleteByFilm(updatedFilm.getId());
         }
 
         return updatedFilm;
@@ -216,11 +217,11 @@ public class FilmService {
 
     public Collection<Film> findFilmsByDirector(final Long directorId, final String sortBy) {
         directorService.findDirector(directorId);
-        if (sortBy.equals("year")) {
+        if (sortBy.equals(SortFilm.YEAR.toString().toLowerCase())) {
             return filmStorage.findFilmsByDirectorSortYear(directorId).stream()
                     .map(FilmMapper::modelFromDto)
                     .toList();
-        } else if (sortBy.equals("likes")) {
+        } else if (sortBy.equals(SortFilm.LIKES.toString().toLowerCase())) {
             return filmStorage.findFilmsByDirectorSortLike(directorId).stream()
                     .map(FilmMapper::modelFromDto)
                     .toList();

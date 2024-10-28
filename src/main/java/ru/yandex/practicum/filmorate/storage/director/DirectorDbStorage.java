@@ -56,7 +56,7 @@ public class DirectorDbStorage implements DirectorStorage {
     }
 
     @Override
-    public void add_film(Long filmId, Long directorId) {
+    public void addFilm(Long filmId, Long directorId) {
         try {
             directorBaseStorage.insert(
                     INSERT_FILM_DIRECTOR_QUERY,
@@ -83,7 +83,7 @@ public class DirectorDbStorage implements DirectorStorage {
     }
 
     @Override
-    public void delete_by_film(Long filmId) {
+    public void deleteByFilm(Long filmId) {
         directorBaseStorage.delete(DELETE_FILIM_DIRECTOR_QUERY, filmId);
     }
 }

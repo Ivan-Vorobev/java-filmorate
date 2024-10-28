@@ -16,7 +16,7 @@ public interface DirectorStorage {
 
     void delete(DirectorDto directorDto);
 
-    void add_film(Long filmId, Long directorId);
+    void addFilm(Long filmId, Long directorId);
 
-    void delete_by_film(Long filmId);
+    void deleteByFilm(Long filmId);
 }

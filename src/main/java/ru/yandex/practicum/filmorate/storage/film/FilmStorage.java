@@ -1,13 +1,13 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import ru.yandex.practicum.filmorate.storage.dal.dto.FilmDto;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 public interface FilmStorage {
+
     Collection<FilmDto> findAll();
 
     Optional<FilmDto> findById(Long filmId);
@@ -15,6 +15,10 @@ public interface FilmStorage {
     FilmDto add(FilmDto film);
 
     FilmDto update(FilmDto film);
+
+    void removeFilmById(Long filmId);
+
+//    Collection<FilmDto> findTopPopularFilms(Long topCount);
 
     void deleteLike(FilmDto film, Long userId);
 

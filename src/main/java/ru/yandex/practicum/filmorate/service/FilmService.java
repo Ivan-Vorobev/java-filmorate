@@ -4,12 +4,15 @@ import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.mappers.UserMapper;
 import ru.yandex.practicum.filmorate.storage.dal.dto.FilmDto;
 import ru.yandex.practicum.filmorate.exceptions.BadRequestException;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.service.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.dal.dto.UserDto;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
@@ -155,6 +158,11 @@ public class FilmService {
         return updatedFilm;
     }
 
+    public void removeFilmById(Long filmId) {
+        Film film = findFilm(filmId);
+        filmStorage.removeFilmById(film.getId());
+    }
+
     public Film addLike(final Long filmId, final Long userId) {
         userService.findUser(userId);
         Film film = findFilm(filmId);
@@ -170,6 +178,12 @@ public class FilmService {
         return film;
     }
 
+/*
+!!!!!!!!!!!!!!!!!!!!!!!!
+Вот этот метод нужно переделать, но не могу придумать как.
+Тесты подразумевают, что если нет фильмов для сравнения, то должен возвращаться пустой список
+ */
+    
     public Collection<Film> findTopPopular(final Long topCount) {
         if (topCount < 1) {
             throw new ValidationException("Count grater than 0");
@@ -181,6 +195,17 @@ public class FilmService {
                 .map(v -> findFilm(v.getKey()))
                 .collect(Collectors.toList());
     }
+
+ /*
+ Это альтернативный вариант, с ним работают все тесты на удаление фильма,
+ но ломается тест на получение популярных фильмов из прошлой коллекции add-database"
+  */
+//    public Collection<Film> findTopPopular(final Long topCount) {
+//        Collection<FilmDto> topPopularFilms = filmStorage.findTopPopularFilms(topCount);
+//        return topPopularFilms.stream()
+//                .map(FilmMapper::modelFromDto)
+//                .toList();
+//    }
 
     private void validateFilm(Film film) {
         if (film.getMpa() != null) {

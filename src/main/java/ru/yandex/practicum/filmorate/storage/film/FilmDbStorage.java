@@ -8,12 +8,12 @@ import ru.yandex.practicum.filmorate.storage.dal.BaseStorage;
 import ru.yandex.practicum.filmorate.storage.dal.dto.FilmDto;
 import ru.yandex.practicum.filmorate.storage.dal.dto.FilmLikesDto;
 import ru.yandex.practicum.filmorate.storage.dal.dto.GenreDto;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
 public class FilmDbStorage implements FilmStorage {
+
     private static final String FIND_ALL_QUERY = """
             SELECT
                 f.*,
@@ -42,6 +42,31 @@ public class FilmDbStorage implements FilmStorage {
     private static final String UPDATE_FILM_QUERY = """
             UPDATE films SET rating_id = ?, name = ?, description = ?, release_date = ?, duration = ? WHERE id = ?
             """;
+    private static final String REMOVE_QUERY = """
+            DELETE FROM films
+            WHERE id = ?
+            """;
+    /*
+Это альтернативный вариант, с ним работают все тесты на удаление фильма,
+но ломается тест на получение популярных фильмов из прошлой коллекции add-database"
+ */
+//    private static final String FIND_TOP_POPULAR_FILMS_QUERY = """
+//            SELECT f.*,
+//                   g.id AS genre_id,
+//                   g.name AS genre_name,
+//                   r.name AS rating_name,
+//                   COUNT(fl.user_id) AS likes
+//            FROM films AS f
+//            LEFT JOIN film_likes AS fl ON fl.film_id = f.id
+//            LEFT JOIN rating r ON r.id = f.rating_id
+//            LEFT JOIN film_genres AS fg ON fg.film_id = f.id
+//            LEFT JOIN genre AS g ON g.id = fg.genre_id
+//            GROUP BY f.id,
+//                     r.name,
+//                     g.id
+//            ORDER BY likes DESC, name
+//            LIMIT ?
+//            """;
     private static final String INSERT_LIKE_QUERY = "INSERT INTO film_likes (film_id, user_id) VALUES (?, ?)";
     private static final String DELETE_LIKE_QUERY = "DELETE FROM film_likes WHERE film_id = ? AND user_id = ?";
     private static final String FIND_FILM_LIKES_QUERY = "SELECT * FROM film_likes WHERE film_id = ?";
@@ -101,6 +126,20 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public void removeFilmById(Long filmId) {
+        filmBaseStorage.delete(REMOVE_QUERY, filmId);
+    }
+
+     /*
+ Это альтернативный вариант, с ним работают все тесты на удаление фильма,
+ но ломается тест на получение популярных фильмов из прошлой коллекции add-database"
+  */
+//    @Override
+//    public Collection<FilmDto> findTopPopularFilms(Long topCount) {
+//        return prepareFilmDtoData(filmBaseStorage.findMany(FIND_TOP_POPULAR_FILMS_QUERY, topCount));
+//    }
+
+    @Override
     public void deleteLike(FilmDto film, Long userId) {
         filmLikesBaseStorage.delete(DELETE_LIKE_QUERY, film.getId(), userId);
     }
@@ -128,7 +167,6 @@ public class FilmDbStorage implements FilmStorage {
             Set<Long> filmLikes = result.computeIfAbsent(userLike.getFilmId(), k -> new HashSet<>());
             filmLikes.add(userLike.getUserId());
         }
-
         return result;
     }
 
@@ -157,7 +195,6 @@ public class FilmDbStorage implements FilmStorage {
                 );
             }
         }
-
         return outputFilms.values();
     }
 }

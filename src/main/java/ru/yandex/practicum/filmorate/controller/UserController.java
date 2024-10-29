@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.RequestMethod;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-
 import java.util.Collection;
 
 @RequiredArgsConstructor
@@ -40,6 +39,18 @@ public class UserController {
 
         log.info("User updated. Id: " + updatedUser.getId());
         return updatedUser;
+    }
+
+    @GetMapping("/{id}")
+    public User getUserById(@PathVariable("id") Long id) {
+        log.info("Поступил запрос GET на получение данных о пользователе с id = {}", id);
+        return userService.findUser(id);
+    }
+
+    @DeleteMapping("/{id}")
+    public void removeUserById(@PathVariable("id") Long id) {
+        log.info("Получен запрос DELETE на удаление пользователя с id = {}", id);
+        userService.removeUserById(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")

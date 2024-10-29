@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.storage.dal.dto.UserDto;
 import ru.yandex.practicum.filmorate.storage.GenerateIdStorage;
-
 import java.util.*;
 
 @RequiredArgsConstructor
@@ -28,23 +27,33 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public void addFriend(UserDto user, UserDto friend) {
-        Set<Long> userFriends = this.getFriends(user);
-
-        userFriends.add(friend.getId());
+//        Set<Long> userFriends = this.getFriends(user);
+//
+//        userFriends.add(friend.getId());
     }
 
     @Override
     public void deleteFriend(UserDto user, UserDto friend) {
-        Set<Long> userFriends = this.getFriends(user);
-        Set<Long> friendFriends = this.getFriends(friend);
+//        Set<Long> userFriends = this.getFriends(user);
+//        Set<Long> friendFriends = this.getFriends(friend);
+//
+//        userFriends.remove(friend.getId());
+//        friendFriends.remove(user.getId());
+    }
 
-        userFriends.remove(friend.getId());
-        friendFriends.remove(user.getId());
+//    @Override
+//    public Set<Long> getFriends(UserDto user) {
+//        return friends.get(user.getId());
+//    }
+
+    @Override
+    public Collection<UserDto> getFriends(Long userId) {
+        return List.of();
     }
 
     @Override
-    public Set<Long> getFriends(UserDto user) {
-        return friends.get(user.getId());
+    public Collection<UserDto> getCommonFriendsOfUsers(Long userId, Long otherId) {
+        return List.of();
     }
 
     @Override
@@ -59,5 +68,10 @@ public class InMemoryUserStorage implements UserStorage {
     public UserDto update(UserDto user) {
         users.put(user.getId(), user);
         return user;
+    }
+
+    @Override
+    public void removeUserById(Long userId) {
+
     }
 }

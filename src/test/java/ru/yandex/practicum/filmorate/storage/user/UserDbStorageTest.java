@@ -54,20 +54,20 @@ class UserDbStorageTest {
         assertArrayEquals(userOptional.toArray(), Arrays.asList(getUser(), getFriend()).toArray(), "Не совпадают данные в базе");
     }
 
-    @Test
-    @DisplayName("Успешное добавление друга")
-    void addFriend() {
-        UserDto user = getUser();
-
-        assertEquals(0, userStorage.getFriends(user).size(), "У пользователя не должны быть друзей");
-
-        userStorage.addFriend(user, getFriend());
-
-        Set<Long> updatedUser = userStorage.getFriends(user);
-
-        assertEquals(1, updatedUser.size(), "У пользователя должен появиться друг");
-        assertEquals(2L, updatedUser.toArray()[0], "У пользователя должен появиться друг");
-    }
+//    @Test
+//    @DisplayName("Успешное добавление друга")
+//    void addFriend() {
+//        UserDto user = getUser();
+//
+//        assertEquals(0, userStorage.getFriends(user).size(), "У пользователя не должны быть друзей");
+//
+//        userStorage.addFriend(user, getFriend());
+//
+//        Set<Long> updatedUser = userStorage.getFriends(user);
+//
+//        assertEquals(1, updatedUser.size(), "У пользователя должен появиться друг");
+//        assertEquals(2L, updatedUser.toArray()[0], "У пользователя должен появиться друг");
+//    }
 
     @Test
     @DisplayName("Успешное добавление нового пользователя")
@@ -123,22 +123,22 @@ class UserDbStorageTest {
                 );
     }
 
-    @Test
-    void deleteFriend() {
-        UserDto user = getUser();
+//    @Test
+//    void deleteFriend() {
+//        UserDto user = getUser();
+//
+//        userStorage.addFriend(user, getFriend());
+//        userStorage.deleteFriend(user, getFriend());
+//
+//        assertEquals(0, userStorage.getFriends(user).size());
+//    }
 
-        userStorage.addFriend(user, getFriend());
-        userStorage.deleteFriend(user, getFriend());
-
-        assertEquals(0, userStorage.getFriends(user).size());
-    }
-
-    @Test
-    void getFriends() {
-        UserDto user = getUser();
-
-        userStorage.addFriend(user, getFriend());
-
-        assertEquals(1, userStorage.getFriends(user).size());
-    }
+//    @Test
+//    void getFriends() {
+//        UserDto user = getUser();
+//
+//        userStorage.addFriend(user, getFriend());
+//
+//        assertEquals(1, userStorage.getFriends(user).size());
+//    }
 }

@@ -4,12 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.storage.dal.dto.FilmDto;
 import ru.yandex.practicum.filmorate.storage.GenerateIdStorage;
-
 import java.util.*;
 
 @RequiredArgsConstructor
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
+
     private final Map<Long, FilmDto> films = new HashMap<>();
     private final Map<Long, Set<Long>> likes = new HashMap<>();
     private final GenerateIdStorage idGenerator;
@@ -39,6 +39,11 @@ public class InMemoryFilmStorage implements FilmStorage {
     public FilmDto update(FilmDto film) {
         films.put(film.getId(), film);
         return film;
+    }
+
+    @Override
+    public void removeFilmById(Long filmId) {
+
     }
 
     @Override

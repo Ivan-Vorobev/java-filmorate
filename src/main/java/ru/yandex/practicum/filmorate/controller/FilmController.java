@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.RequestMethod;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-
 import java.util.Collection;
 
 @RequiredArgsConstructor
@@ -49,6 +48,12 @@ public class FilmController {
         return updatedFilm;
     }
 
+    @DeleteMapping("/{filmId}")
+    public void removeFilmById(@PathVariable("filmId") Long filmId) {
+        log.info("Получен запрос DELETE на удаление фильма с id = {}", filmId);
+        filmService.removeFilmById(filmId);
+    }
+
     @PutMapping("/{id}/like/{userId}")
     public Film addLike(
             @PathVariable("id") Long filmId,
@@ -56,7 +61,6 @@ public class FilmController {
     ) {
         return filmService.addLike(filmId, userId);
     }
-
 
     @DeleteMapping("/{id}/like/{userId}")
     public Film deleteLike(

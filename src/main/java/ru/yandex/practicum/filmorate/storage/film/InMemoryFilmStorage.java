@@ -20,6 +20,16 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
+    public Collection<FilmDto> findFilmsByDirectorSortYear(Long directorId) {
+        return List.of();
+    }
+
+    @Override
+    public Collection<FilmDto> findFilmsByDirectorSortLike(Long directorId) {
+        return List.of();
+    }
+
+    @Override
     public Optional<FilmDto> findById(Long filmId) {
         FilmDto film = films.get(filmId);
         return film == null
@@ -64,7 +74,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Map<Long, Set<Long>> getAllLikes() {
-        return likes;
+    public Collection<FilmDto> getAllLikes(Long count, Long genreId, Integer year) {
+        return null;
     }
 }

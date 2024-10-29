@@ -4,20 +4,18 @@ import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.mappers.UserMapper;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.dal.dto.FilmDto;
 import ru.yandex.practicum.filmorate.exceptions.BadRequestException;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.service.mappers.FilmMapper;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.dal.dto.UserDto;
+import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
@@ -26,6 +24,8 @@ public class FilmService {
     private final GenreStorage genreStorage;
     private final GenreService genreService;
     private final RatingService ratingService;
+    private final DirectorService directorService;
+    private final DirectorStorage directorStorage;
 
     @Autowired
     public FilmService(
@@ -33,13 +33,17 @@ public class FilmService {
             UserService userService,
             GenreStorage genreStorage,
             GenreService genreService,
-            RatingService ratingService
+            RatingService ratingService,
+            DirectorService directorService,
+            DirectorStorage directorStorage
     ) {
         this.filmStorage = filmStorage;
         this.userService = userService;
         this.genreStorage = genreStorage;
         this.genreService = genreService;
         this.ratingService = ratingService;
+        this.directorService = directorService;
+        this.directorStorage = directorStorage;
     }
 
     public Collection<Film> findAll() {
@@ -128,6 +132,18 @@ public class FilmService {
             newFilm.setGenres(newGenres);
         }
 
+        if (film.getDirectors() != null) {
+            Collection<Director> newDirectors = new ArrayList<>();
+            Map<Long, Director> directors = directorService.findAllAsMap();
+
+            for (Director director : film.getDirectors()) {
+                directorStorage.add_film(newFilm.getId(), director.getId());
+                newDirectors.add(directors.get(director.getId()));
+            }
+
+            newFilm.setDirectors(newDirectors);
+        }
+
         return newFilm;
     }
 
@@ -151,8 +167,20 @@ public class FilmService {
             for (Genre genre : film.getGenres()) {
                 genreStorage.add(updatedFilm.getId(), genre.getId());
             }
+            updatedFilm.setGenres(film.getGenres());
         } else {
             genreStorage.delete(updatedFilm.getId());
+        }
+
+        if (film.getDirectors() != null) {
+            directorStorage.delete_by_film(updatedFilm.getId());
+            updatedFilm.setDirectors(film.getDirectors());
+
+            for (Director director : film.getDirectors()) {
+                directorStorage.add_film(updatedFilm.getId(), director.getId());
+            }
+        } else {
+            directorStorage.delete_by_film(updatedFilm.getId());
         }
 
         return updatedFilm;
@@ -178,22 +206,29 @@ public class FilmService {
         return film;
     }
 
-/*
-!!!!!!!!!!!!!!!!!!!!!!!!
-Вот этот метод нужно переделать, но не могу придумать как.
-Тесты подразумевают, что если нет фильмов для сравнения, то должен возвращаться пустой список
- */
-    
-    public Collection<Film> findTopPopular(final Long topCount) {
+    public Collection<Film> findTopPopular(final Long topCount, Long genreId, Integer year) {
         if (topCount < 1) {
             throw new ValidationException("Count grater than 0");
         }
 
-        return filmStorage.getAllLikes().entrySet().stream()
-                .sorted((v1, v2) -> Integer.compare(v1.getValue().size(), v2.getValue().size()) * -1)
-                .limit(topCount)
-                .map(v -> findFilm(v.getKey()))
-                .collect(Collectors.toList());
+        return filmStorage.getAllLikes(topCount, genreId, year).stream()
+                .map(FilmMapper::modelFromDto)
+                .toList();
+    }
+
+    public Collection<Film> findFilmsByDirector(final Long directorId, final String sortBy) {
+        directorService.findDirector(directorId);
+        if (sortBy.equals("year")) {
+            return filmStorage.findFilmsByDirectorSortYear(directorId).stream()
+                    .map(FilmMapper::modelFromDto)
+                    .toList();
+        } else if (sortBy.equals("likes")) {
+            return filmStorage.findFilmsByDirectorSortLike(directorId).stream()
+                    .map(FilmMapper::modelFromDto)
+                    .toList();
+        } else {
+            throw new ValidationException("The sort option specified is incorrect");
+        }
     }
 
  /*

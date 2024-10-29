@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import ru.yandex.practicum.filmorate.storage.dal.dto.FilmDto;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -26,5 +25,9 @@ public interface FilmStorage {
 
     Set<Long> getFilmLikes(FilmDto film);
 
-    Map<Long, Set<Long>> getAllLikes();
+    Collection<FilmDto> getAllLikes(Long count, Long genreId, Integer year);
+
+    Collection<FilmDto> findFilmsByDirectorSortYear(Long directorId);
+
+    Collection<FilmDto> findFilmsByDirectorSortLike(Long directorId);
 }

@@ -109,7 +109,7 @@ CREATE TABLE IF NOT EXISTS events (
     id BIGSERIAL PRIMARY KEY,
     event_type varchar NOT NULL,
     operation varchar NOT NULL,
-    user_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+    user_id BIGINT,
     entity_id BIGINT NOT NULL,
     created_at timestamp NOT NULL
 );

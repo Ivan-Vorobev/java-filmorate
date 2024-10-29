@@ -104,6 +104,7 @@ CREATE TABLE IF NOT EXISTS film_likes
             )
 );
 
+DROP TABLE IF EXISTS events;
 CREATE TABLE IF NOT EXISTS events (
     id BIGSERIAL PRIMARY KEY,
     event_type varchar NOT NULL,

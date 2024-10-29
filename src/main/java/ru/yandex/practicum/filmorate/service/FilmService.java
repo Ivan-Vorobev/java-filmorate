@@ -185,6 +185,8 @@ public class FilmService {
     }
 
     public Collection<Film> getRecommendations(Long userId) {
+        userService.findUser(userId);
+
         return filmStorage.getUserRecommendations(userId).stream()
                 .map(FilmMapper::modelFromDto)
                 .toList();

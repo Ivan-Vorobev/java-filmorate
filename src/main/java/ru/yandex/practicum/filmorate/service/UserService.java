@@ -3,12 +3,12 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.storage.dal.dto.UserDto;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.mappers.UserMapper;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -18,10 +18,12 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
     private final UserStorage userStorage;
+    private final EventService eventService;
 
     @Autowired
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, EventService eventService) {
         this.userStorage = userStorage;
+        this.eventService = eventService;
     }
 
     public Collection<User> findAll() {
@@ -59,11 +61,10 @@ public class UserService {
         if (Objects.equals(userId, friendId)) {
             throw new IllegalArgumentException("Пользователь и друг совпадают");
         }
-
         User user = findUser(userId);
         User friend = findUser(friendId);
-
         userStorage.addFriend(UserMapper.dtoFromModel(user), UserMapper.dtoFromModel(friend));
+        eventService.add(friendId, userId, EventType.FRIEND);
     }
 
 
@@ -71,11 +72,10 @@ public class UserService {
         if (Objects.equals(userId, friendId)) {
             throw new IllegalArgumentException("Пользователь и друг совпадают");
         }
-
         User user = findUser(userId);
         User friend = findUser(friendId);
-
         userStorage.deleteFriend(UserMapper.dtoFromModel(user), UserMapper.dtoFromModel(friend));
+        eventService.remove(friendId, userId, EventType.FRIEND);
     }
 
     public Collection<User> findFriends(Long userId) {

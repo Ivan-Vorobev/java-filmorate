@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.storage.dal.BaseStorage;
 import ru.yandex.practicum.filmorate.storage.dal.dto.ReviewDto;
-
 import java.util.Collection;
 import java.util.Optional;
 
@@ -102,7 +101,6 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     public void removeRating(Long reviewId, Long userId) {
         reviewDtoStorage.delete(DELETE_REVIEW_RATING_VALUE, reviewId, userId);
-
     }
 
     @Override

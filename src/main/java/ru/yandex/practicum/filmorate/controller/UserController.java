@@ -6,9 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.RequestMethod;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.EventService;
 import ru.yandex.practicum.filmorate.service.UserService;
-
 import java.util.Collection;
 
 @RequiredArgsConstructor
@@ -19,6 +20,7 @@ import java.util.Collection;
 public class UserController {
 
     private final UserService userService;
+    private  final EventService eventService;
 
     @GetMapping
     public Collection<User> findAll() {
@@ -72,5 +74,11 @@ public class UserController {
             @PathVariable("otherId") Long otherId
     ) {
         return userService.findCommonFriends(userId, otherId);
+    }
+
+    @GetMapping("/{id}/feed")
+    public Collection<Event> getEventFeed(@PathVariable("id") Long userId) {
+        log.info("Поступил запрос GET на получение ленты пользователя {}", userId);
+        return eventService.getEventFeed(userId);
     }
 }

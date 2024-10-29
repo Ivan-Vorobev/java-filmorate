@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.storage.dal.BaseStorage;
 import ru.yandex.practicum.filmorate.storage.dal.dto.UserDto;
 import ru.yandex.practicum.filmorate.storage.dal.dto.UserFriendsDto;
@@ -110,15 +109,6 @@ public class UserDbStorage implements UserStorage {
     public void removeUserById(Long userId) {
         userBaseStorage.delete(REMOVE_QUERY, userId);
     }
-
-//    @Override
-//    public void removeUserById(Long userId) {
-//        try {
-//            userBaseStorage.delete(REMOVE_QUERY, userId);
-//        } catch (NotFoundException e) {
-//            throw new NotFoundException("Пользователь для удаления не найден");
-//        }
-//    }
 
     @Override
     public Optional<UserDto> findById(Long id) {

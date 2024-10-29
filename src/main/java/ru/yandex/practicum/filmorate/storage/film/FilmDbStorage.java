@@ -55,27 +55,6 @@ public class FilmDbStorage implements FilmStorage {
             DELETE FROM films
             WHERE id = ?
             """;
-    /*
-Это альтернативный вариант, с ним работают все тесты на удаление фильма,
-но ломается тест на получение популярных фильмов из прошлой коллекции add-database"
- */
-//    private static final String FIND_TOP_POPULAR_FILMS_QUERY = """
-//            SELECT f.*,
-//                   g.id AS genre_id,
-//                   g.name AS genre_name,
-//                   r.name AS rating_name,
-//                   COUNT(fl.user_id) AS likes
-//            FROM films AS f
-//            LEFT JOIN film_likes AS fl ON fl.film_id = f.id
-//            LEFT JOIN rating r ON r.id = f.rating_id
-//            LEFT JOIN film_genres AS fg ON fg.film_id = f.id
-//            LEFT JOIN genre AS g ON g.id = fg.genre_id
-//            GROUP BY f.id,
-//                     r.name,
-//                     g.id
-//            ORDER BY likes DESC, name
-//            LIMIT ?
-//            """;
     private static final String INSERT_LIKE_QUERY = "INSERT INTO film_likes (film_id, user_id) VALUES (?, ?)";
     private static final String DELETE_LIKE_QUERY = "DELETE FROM film_likes WHERE film_id = ? AND user_id = ?";
     private static final String FIND_FILM_LIKES_QUERY = "SELECT * FROM film_likes WHERE film_id = ?";
@@ -197,15 +176,6 @@ public class FilmDbStorage implements FilmStorage {
         filmBaseStorage.delete(REMOVE_QUERY, filmId);
     }
 
-     /*
- Это альтернативный вариант, с ним работают все тесты на удаление фильма,
- но ломается тест на получение популярных фильмов из прошлой коллекции add-database"
-  */
-//    @Override
-//    public Collection<FilmDto> findTopPopularFilms(Long topCount) {
-//        return prepareFilmDtoData(filmBaseStorage.findMany(FIND_TOP_POPULAR_FILMS_QUERY, topCount));
-//    }
-
     @Override
     public void deleteLike(FilmDto film, Long userId) {
         filmLikesBaseStorage.delete(DELETE_LIKE_QUERY, film.getId(), userId);
@@ -245,7 +215,6 @@ public class FilmDbStorage implements FilmStorage {
 
         return prepareFilmDtoDataSorted(filmBaseStorage.findMany(query, params.toArray()));
     }
-
 
     @Override
     public Collection<FilmDto> findFilmsByDirectorSortYear(Long directorId) {

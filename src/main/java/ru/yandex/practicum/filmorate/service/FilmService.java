@@ -14,7 +14,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
-
 import java.util.*;
 
 @Service
@@ -230,17 +229,6 @@ public class FilmService {
             throw new ValidationException("The sort option specified is incorrect");
         }
     }
-
- /*
- Это альтернативный вариант, с ним работают все тесты на удаление фильма,
- но ломается тест на получение популярных фильмов из прошлой коллекции add-database"
-  */
-//    public Collection<Film> findTopPopular(final Long topCount) {
-//        Collection<FilmDto> topPopularFilms = filmStorage.findTopPopularFilms(topCount);
-//        return topPopularFilms.stream()
-//                .map(FilmMapper::modelFromDto)
-//                .toList();
-//    }
 
     private void validateFilm(Film film) {
         if (film.getMpa() != null) {

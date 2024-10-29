@@ -17,8 +17,6 @@ public interface FilmStorage {
 
     void removeFilmById(Long filmId);
 
-//    Collection<FilmDto> findTopPopularFilms(Long topCount);
-
     void deleteLike(FilmDto film, Long userId);
 
     void addLike(FilmDto film, Long userId);

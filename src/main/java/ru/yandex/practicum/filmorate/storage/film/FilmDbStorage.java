@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.storage.dal.BaseStorage;
 import ru.yandex.practicum.filmorate.storage.dal.dto.FilmDto;
 import ru.yandex.practicum.filmorate.storage.dal.dto.FilmLikesDto;
 import ru.yandex.practicum.filmorate.storage.dal.dto.GenreDto;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -53,14 +52,12 @@ public class FilmDbStorage implements FilmStorage {
             LEFT JOIN rating r ON r.id = f.rating_id
             LEFT JOIN film_genres AS fg ON fg.film_id = f.id
             LEFT JOIN genre AS g ON g.id = fg.genre_id
-            WHERE fl.film_id IN
-                (SELECT f.id
-                 FROM films AS f
-                 LEFT JOIN film_likes AS fl2 ON fl2.film_id = f.id
-                 WHERE fl2.user_id IN (?,
-                                       ?)
-                 GROUP BY f.id
-                 HAVING COUNT(DISTINCT fl2.user_id) = 2)
+            WHERE f.id IN
+                (SELECT fl1.film_id
+                 FROM film_likes AS fl1
+                 INNER JOIN film_likes fl2 ON fl2.film_id = fl1.film_id
+                 AND fl1.user_id = ?
+                 AND fl2.user_id = ?)
             GROUP BY f.id,
                      g.id,
                      r.name
@@ -152,7 +149,6 @@ public class FilmDbStorage implements FilmStorage {
             Set<Long> filmLikes = result.computeIfAbsent(userLike.getFilmId(), k -> new HashSet<>());
             filmLikes.add(userLike.getUserId());
         }
-
         return result;
     }
 
@@ -186,7 +182,6 @@ public class FilmDbStorage implements FilmStorage {
                 );
             }
         }
-
         return outputFilms.values();
     }
 }

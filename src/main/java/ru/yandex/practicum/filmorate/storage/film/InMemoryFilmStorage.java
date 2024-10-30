@@ -52,6 +52,11 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
+    public void removeFilmById(Long filmId) {
+
+    }
+
+    @Override
     public void addLike(FilmDto film, Long userId) {
         Set<Long> filmLikes = this.getFilmLikes(film);
         filmLikes.add(userId);
@@ -69,8 +74,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Map<Long, Set<Long>> getAllLikes() {
-        return likes;
+    public Collection<FilmDto> getAllLikes(Long count, Long genreId, Integer year) {
+        return null;
     }
 
     @Override

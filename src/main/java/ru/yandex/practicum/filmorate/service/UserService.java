@@ -12,11 +12,11 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class UserService {
+
     private final UserStorage userStorage;
     private final EventService eventService;
 
@@ -57,6 +57,11 @@ public class UserService {
         );
     }
 
+    public void removeUserById(Long userId) {
+        User user = findUser(userId);
+        userStorage.removeUserById(userId);
+    }
+
     public void addFriend(Long userId, Long friendId) {
         if (Objects.equals(userId, friendId)) {
             throw new IllegalArgumentException("Пользователь и друг совпадают");
@@ -66,7 +71,6 @@ public class UserService {
         userStorage.addFriend(UserMapper.dtoFromModel(user), UserMapper.dtoFromModel(friend));
         eventService.add(friendId, userId, EventType.FRIEND);
     }
-
 
     public void deleteFriend(Long userId, Long friendId) {
         if (Objects.equals(userId, friendId)) {
@@ -78,26 +82,59 @@ public class UserService {
         eventService.remove(friendId, userId, EventType.FRIEND);
     }
 
+    /*
+    Пришлось изменить этот метод, так как тесты подразумевают,
+    что при удалении какого-либо пользователя из базы, он всё-равно должен
+    оставаться в друзьях у тех пользователей, с кем дружил
+     */
+
+//    public Collection<User> findFriends(Long userId) {
+//        User user = findUser(userId);
+//
+//        Set<Long> friends = userStorage.getFriends(UserMapper.dtoFromModel(user));
+//
+//        return friends.stream()
+//                .map(this::findUser)
+//                .collect(Collectors.toList());
+//    }
+
     public Collection<User> findFriends(Long userId) {
         User user = findUser(userId);
-
-        Set<Long> friends = userStorage.getFriends(UserMapper.dtoFromModel(user));
-
+        Collection<UserDto> friends = userStorage.getFriends(userId);
         return friends.stream()
-                .map(this::findUser)
+                .map(UserMapper::modelFromDto)
                 .collect(Collectors.toList());
     }
+
+    /*
+    Аналогично предыдущему методу.
+    Допустим, пользователь был в друзьях у двух других пользователей.
+    Этого пользователя удаляем из базы, но он все-равно должен остаться в друзьях у тех двух пользователей
+    Далее в тестах идет проверка, что он общий друг у этих двух пользователей.
+
+    Чтобы это реализовать, пришлось разработать новый метод в UserDbStorage:
+    public Collection<UserDto> getCommonFriendsOfUsers(Long userId, Long otherId)
+     */
+
+//    public List<User> findCommonFriends(final Long userId, final Long otherId) {
+//        User user = findUser(userId);
+//        User otherUser = findUser(otherId);
+//
+//        Set<Long> userFriends = userStorage.getFriends(UserMapper.dtoFromModel(user));
+//        Set<Long> otherUserFriends = userStorage.getFriends(UserMapper.dtoFromModel(otherUser));
+//
+//        return userFriends.stream()
+//                .filter(otherUserFriends::contains)
+//                .map(this::findUser)
+//                .collect(Collectors.toList());
+//    }
 
     public List<User> findCommonFriends(final Long userId, final Long otherId) {
         User user = findUser(userId);
         User otherUser = findUser(otherId);
-
-        Set<Long> userFriends = userStorage.getFriends(UserMapper.dtoFromModel(user));
-        Set<Long> otherUserFriends = userStorage.getFriends(UserMapper.dtoFromModel(otherUser));
-
-        return userFriends.stream()
-                .filter(otherUserFriends::contains)
-                .map(this::findUser)
-                .collect(Collectors.toList());
+        Collection<UserDto> commonFriendsOfUsers = userStorage.getCommonFriendsOfUsers(user.getId(), otherUser.getId());
+        return commonFriendsOfUsers.stream()
+                .map(UserMapper::modelFromDto)
+                .toList();
     }
 }

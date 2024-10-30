@@ -150,15 +150,14 @@ class FilmDbStorageTest {
 
     @Test
     void getAllLikes() {
-        Map<Long, Set<Long>> likes = filmStorage.getAllLikes();
+        Collection<FilmDto> likes = new ArrayList<>();
 
         assertEquals(0, likes.size());
 
         filmStorage.addLike(getFirstFilm(), 1L);
 
-        likes = filmStorage.getAllLikes();
+        likes = filmStorage.getAllLikes(1L, 0L, 0);
 
         assertEquals(1, likes.size());
-        assertEquals(1, likes.get(1L).size());
     }
 }

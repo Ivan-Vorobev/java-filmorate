@@ -17,7 +17,7 @@ import ru.yandex.practicum.filmorate.RequestMethod;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
-import java.util.*;
+import java.util.Collection;
 
 @RequiredArgsConstructor
 @Validated
@@ -57,6 +57,12 @@ public class FilmController {
         return updatedFilm;
     }
 
+    @DeleteMapping("/{filmId}")
+    public void removeFilmById(@PathVariable("filmId") Long filmId) {
+        log.info("Получен запрос DELETE на удаление фильма с id = {}", filmId);
+        filmService.removeFilmById(filmId);
+    }
+
     @PutMapping("/{id}/like/{userId}")
     public Film addLike(
             @PathVariable("id") Long filmId,
@@ -64,7 +70,6 @@ public class FilmController {
     ) {
         return filmService.addLike(filmId, userId);
     }
-
 
     @DeleteMapping("/{id}/like/{userId}")
     public Film deleteLike(
@@ -76,9 +81,11 @@ public class FilmController {
 
     @GetMapping("/popular")
     public Collection<Film> getPopular(
-            @RequestParam(value = "count", defaultValue = "10") Long count
+            @RequestParam(value = "count", defaultValue = "10") Long count,
+            @RequestParam(value = "genreId", defaultValue = "0") Long genreId,
+            @RequestParam(value = "year", defaultValue = "0") Integer year
     ) {
-        return filmService.findTopPopular(count);
+        return filmService.findTopPopular(count, genreId, year);
     }
 
     @GetMapping("/director/{id}")

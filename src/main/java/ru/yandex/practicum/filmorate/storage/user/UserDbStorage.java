@@ -7,14 +7,12 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.storage.dal.BaseStorage;
 import ru.yandex.practicum.filmorate.storage.dal.dto.UserDto;
 import ru.yandex.practicum.filmorate.storage.dal.dto.UserFriendsDto;
-
 import java.util.Collection;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Repository
 public class UserDbStorage implements UserStorage {
+
     private static final String FIND_ALL_QUERY = "SELECT * FROM users";
     private static final String FIND_BY_ID_QUERY = "SELECT * FROM users WHERE id = ?";
     private static final String INSERT_USER_QUERY = "INSERT INTO users (email, login, name, birthday)" +
@@ -22,10 +20,40 @@ public class UserDbStorage implements UserStorage {
     private static final String UPDATE_USER_QUERY = """
             UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE id = ?
             """;
+    private static final String REMOVE_QUERY = "DELETE FROM users WHERE id = ?";
     private static final String INSERT_FRIEND_QUERY = "INSERT INTO user_friends (user_id, friend_id) VALUES (?, ?)";
     private static final String DELETE_USER_FRIEND_QUERY = "DELETE FROM user_friends WHERE user_id = ? AND friend_id = ?";
-    private static final String FIND_USER_LIKES_QUERY = "SELECT * FROM user_friends WHERE user_id = ?";
 
+//    private static final String FIND_USER_LIKES_QUERY = "SELECT * FROM user_friends WHERE user_id = ?";
+
+    private static final String FIND_USER_LIKES_QUERY = """
+            SELECT id,
+                   email,
+                   login,
+                   name,
+                   birthday
+            FROM users
+            WHERE id IN
+                (SELECT friend_id
+                 FROM user_friends
+                 WHERE user_id = ?)
+        """;
+    private static final String FIND_ALL_COMMON_USER_FRIENDS_QUERY = """
+            SELECT id,
+                   email,
+                   login,
+                   name,
+                   birthday
+            FROM users
+            WHERE id IN
+                (SELECT friend_id AS user_id
+                 FROM user_friends
+                 WHERE user_id = ?)
+              AND id IN
+                (SELECT friend_id AS user_id
+                 FROM user_friends
+                 WHERE user_id = ?)
+            """;
     private final BaseStorage<UserDto> userBaseStorage;
     private final BaseStorage<UserFriendsDto> userFriendBaseStorage;
 
@@ -78,6 +106,11 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
+    public void removeUserById(Long userId) {
+        userBaseStorage.delete(REMOVE_QUERY, userId);
+    }
+
+    @Override
     public Optional<UserDto> findById(Long id) {
         return userBaseStorage.findOne(FIND_BY_ID_QUERY, id);
     }
@@ -87,10 +120,20 @@ public class UserDbStorage implements UserStorage {
         userFriendBaseStorage.delete(DELETE_USER_FRIEND_QUERY, user.getId(), friend.getId());
     }
 
+//    @Override
+//    public Set<Long> getFriends(UserDto user) {
+//        return userFriendBaseStorage.findMany(FIND_USER_LIKES_QUERY, user.getId()).stream()
+//                .map(UserFriendsDto::getFriendId)
+//                .collect(Collectors.toSet());
+//    }
+
     @Override
-    public Set<Long> getFriends(UserDto user) {
-        return userFriendBaseStorage.findMany(FIND_USER_LIKES_QUERY, user.getId()).stream()
-                .map(UserFriendsDto::getFriendId)
-                .collect(Collectors.toSet());
+    public Collection<UserDto> getFriends(Long userId) {
+        return userBaseStorage.findMany(FIND_USER_LIKES_QUERY, userId);
+    }
+
+    @Override
+    public Collection<UserDto> getCommonFriendsOfUsers(Long userId, Long otherId) {
+        return userBaseStorage.findMany(FIND_ALL_COMMON_USER_FRIENDS_QUERY, userId, otherId);
     }
 }

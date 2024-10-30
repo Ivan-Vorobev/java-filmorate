@@ -79,6 +79,10 @@ public class FilmDbStorage implements FilmStorage {
     private static final String UPDATE_FILM_QUERY = """
             UPDATE films SET rating_id = ?, name = ?, description = ?, release_date = ?, duration = ? WHERE id = ?
             """;
+    private static final String REMOVE_QUERY = """
+            DELETE FROM films
+            WHERE id = ?
+            """;
     private static final String INSERT_LIKE_QUERY = "INSERT INTO film_likes (film_id, user_id) VALUES (?, ?)";
     private static final String DELETE_LIKE_QUERY = "DELETE FROM film_likes WHERE film_id = ? AND user_id = ?";
     private static final String FIND_FILM_LIKES_QUERY = "SELECT * FROM film_likes WHERE film_id = ?";
@@ -140,6 +144,26 @@ public class FilmDbStorage implements FilmStorage {
             GROUP BY f.ID, genre_id
             ORDER BY COALESCE(COUNT(fl.FILM_ID), 0) DESC
             """;
+    // дублирование FIND_ALL_QUERY (в финальной версии свести к одному запросу)
+    private static final String FIND_MOST_POPULAR_QUERY = """
+            SELECT
+                f.*,
+                g.id as genre_id,
+                g.name as genre_name,
+                r.name as rating_name,
+                fd.director_id,
+                director.name as director_name
+            FROM films f
+            LEFT JOIN film_director fd ON fd.film_id = f.id
+            LEFT JOIN director ON fd.director_id = director.id
+            LEFT JOIN FILM_LIKES fl ON f.ID = fl.FILM_ID
+            LEFT JOIN film_genres fj ON fj.film_id = f.id
+            LEFT JOIN genre g ON g.id = fj.genre_id
+            LEFT JOIN rating r ON r.id = f.rating_id
+            WHERE %s
+            GROUP BY f.ID, genre_id, fd.director_id, genre_name, rating_name
+            ORDER BY COUNT(fl.FILM_ID) DESC
+            """;
 
     private final BaseStorage<FilmDto> filmBaseStorage;
     private final BaseStorage<FilmLikesDto> filmLikesBaseStorage;
@@ -195,6 +219,11 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public void removeFilmById(Long filmId) {
+        filmBaseStorage.delete(REMOVE_QUERY, filmId);
+    }
+
+    @Override
     public void deleteLike(FilmDto film, Long userId) {
         filmLikesBaseStorage.delete(DELETE_LIKE_QUERY, film.getId(), userId);
     }
@@ -215,15 +244,23 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Map<Long, Set<Long>> getAllLikes() {
-        Map<Long, Set<Long>> result = new HashMap<>();
+    public Collection<FilmDto> getAllLikes(Long count, Long genreId, Integer year) {
+        StringBuilder conditions = new StringBuilder("1=1");
+        List<Object> params = new ArrayList<>();
 
-        for (FilmLikesDto userLike : filmLikesBaseStorage.findMany(FIND_ALL_LIKES_QUERY)) {
-            Set<Long> filmLikes = result.computeIfAbsent(userLike.getFilmId(), k -> new HashSet<>());
-            filmLikes.add(userLike.getUserId());
+        if (genreId != 0) {
+            conditions.append(" AND g.id = ?");
+            params.add(genreId);
+        }
+        if (year != 0) {
+            conditions.append(" AND YEAR(f.release_date) = ?");
+            params.add(year);
         }
 
-        return result;
+        String query = String.format(FIND_MOST_POPULAR_QUERY + " LIMIT ?", conditions.toString());
+        params.add(count);
+
+        return prepareFilmDtoDataSorted(filmBaseStorage.findMany(query, params.toArray()));
     }
 
     @Override
@@ -306,6 +343,52 @@ public class FilmDbStorage implements FilmStorage {
         return outputFilms.values();
     }
 
+    // add-most-populars: Продублировал prepareFilmDtoData, но с LinkedHashMap,
+    // который сохраняет порядок сортировки в наборе данных из БД. Иначе тесты валятся.
+    // Обычный HashMap сортировку не сохраняет.
+    private Collection<FilmDto> prepareFilmDtoDataSorted(Collection<FilmDto> films) {
+        HashMap<Long, FilmDto> outputFilms = new LinkedHashMap<>();
+        for (FilmDto film : films) {
+            FilmDto findFilm = outputFilms.get(film.getId());
+
+            if (findFilm == null) {
+                findFilm = film;
+                outputFilms.put(film.getId(), film);
+            }
+
+            if (film.getGenreId() != null && film.getGenreName() != null) {
+                Collection<GenreDto> genres = findFilm.getGenres();
+                if (genres == null) {
+                    genres = new ArrayList<>();
+                    findFilm.setGenres(genres);
+                }
+
+                genres.add(
+                        GenreDto.builder()
+                                .id(film.getGenreId())
+                                .name(film.getGenreName())
+                                .build()
+                );
+            }
+
+            if (film.getDirectorId() != null && film.getDirectorName() != null) {
+                Collection<DirectorDto> directors = findFilm.getDirectors();
+                if (directors == null) {
+                    directors = new ArrayList<>();
+                    findFilm.setDirectors(directors);
+                }
+
+                directors.add(
+                        DirectorDto.builder()
+                                .id(film.getDirectorId())
+                                .name(film.getDirectorName())
+                                .build()
+                );
+            }
+        }
+        return outputFilms.values();
+    }
+
     public Collection<FilmDto> getUserRecommendations(Long userId) {
         Optional<Long> similarUserOptional = filmLikesBaseStorage
                 .findOne(FIND_SIMILAR_USER_QUERY, userId, userId)
@@ -321,7 +404,4 @@ public class FilmDbStorage implements FilmStorage {
 
         return prepareFilmDtoData(recommendedFilms);
     }
-
-
 }
-

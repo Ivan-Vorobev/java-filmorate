@@ -3,16 +3,13 @@ package ru.yandex.practicum.filmorate.storage.user;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.ActiveProfiles;
 import ru.yandex.practicum.filmorate.storage.dal.dto.UserDto;
-
 import java.time.LocalDate;
 import java.util.*;
 
@@ -54,20 +51,20 @@ class UserDbStorageTest {
         assertArrayEquals(userOptional.toArray(), Arrays.asList(getUser(), getFriend()).toArray(), "Не совпадают данные в базе");
     }
 
-//    @Test
-//    @DisplayName("Успешное добавление друга")
-//    void addFriend() {
-//        UserDto user = getUser();
-//
-//        assertEquals(0, userStorage.getFriends(user).size(), "У пользователя не должны быть друзей");
-//
-//        userStorage.addFriend(user, getFriend());
-//
-//        Set<Long> updatedUser = userStorage.getFriends(user);
-//
-//        assertEquals(1, updatedUser.size(), "У пользователя должен появиться друг");
-//        assertEquals(2L, updatedUser.toArray()[0], "У пользователя должен появиться друг");
-//    }
+    @Test
+    @DisplayName("Успешное добавление друга")
+    void addFriend() {
+        UserDto user = getUser();
+
+        assertEquals(0, userStorage.getFriends(user.getId()).size(), "У пользователя не должно быть друзей");
+
+        userStorage.addFriend(user, getFriend());
+        Collection<UserDto> friends = userStorage.getFriends(user.getId());
+
+        assertEquals(1, friends.size(), "У пользователя должен появиться друг");
+        assertEquals(2L, friends.stream().toList().getFirst().getId(), "У пользователя должен появиться " +
+                "друг c id = 2L");
+    }
 
     @Test
     @DisplayName("Успешное добавление нового пользователя")
@@ -123,22 +120,20 @@ class UserDbStorageTest {
                 );
     }
 
-//    @Test
-//    void deleteFriend() {
-//        UserDto user = getUser();
-//
-//        userStorage.addFriend(user, getFriend());
-//        userStorage.deleteFriend(user, getFriend());
-//
-//        assertEquals(0, userStorage.getFriends(user).size());
-//    }
+    @Test
+    void deleteFriend() {
+        UserDto user = getUser();
+        userStorage.addFriend(user, getFriend());
+        userStorage.deleteFriend(user, getFriend());
 
-//    @Test
-//    void getFriends() {
-//        UserDto user = getUser();
-//
-//        userStorage.addFriend(user, getFriend());
-//
-//        assertEquals(1, userStorage.getFriends(user).size());
-//    }
+        assertEquals(0, userStorage.getFriends(user.getId()).size());
+    }
+
+    @Test
+    void getFriends() {
+        UserDto user = getUser();
+        userStorage.addFriend(user, getFriend());
+
+        assertEquals(1, userStorage.getFriends(user.getId()).size());
+    }
 }

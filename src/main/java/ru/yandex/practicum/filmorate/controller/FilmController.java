@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.RequestMethod;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-
 import java.util.Collection;
 
 @RequiredArgsConstructor
@@ -102,5 +101,13 @@ public class FilmController {
             @RequestParam(value = "by") String by
     ) {
         return filmService.searchFilm(query, by);
+    }
+
+    @GetMapping("/common")
+    public Collection<Film> getCommonFilms(
+            @RequestParam(value = "userId") Long userId,
+            @RequestParam(value = "friendId") Long friendId
+    ) {
+        return filmService.getCommonFilms(userId, friendId);
     }
 }

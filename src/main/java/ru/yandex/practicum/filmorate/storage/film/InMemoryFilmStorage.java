@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.storage.GenerateIdStorage;
 import ru.yandex.practicum.filmorate.storage.dal.dto.FilmDto;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Component
@@ -86,5 +87,26 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Collection<FilmDto> searchFilm(String query, String by) {
         return List.of();
+    }
+
+    @Override
+    public Collection<FilmDto> getCommonFilms(Long userId, Long friendId) {
+        List<FilmDto> filmsDto = new ArrayList<>();
+
+        List<Long> filmIds = likes.entrySet().stream()
+                .filter(map -> map.getValue().contains(userId) && map.getValue().contains(friendId))
+                .collect(Collectors
+                        .toMap(Map.Entry::getKey, entry -> entry.getValue().size()))
+                .entrySet()
+                .stream()
+                .sorted(Map.Entry.<Long, Integer>comparingByValue().reversed())
+                .map(Map.Entry::getKey)
+                .toList();
+
+        for (Long filmId : filmIds) {
+            filmsDto.add(films.get(filmId));
+        }
+
+        return filmsDto;
     }
 }

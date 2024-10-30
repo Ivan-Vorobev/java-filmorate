@@ -8,7 +8,6 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface FilmStorage {
-
     Collection<FilmDto> findAll();
 
     Optional<FilmDto> findById(Long filmId);
@@ -26,6 +25,8 @@ public interface FilmStorage {
     Set<Long> getFilmLikes(FilmDto film);
 
     Collection<FilmDto> getAllLikes(Long count, Long genreId, Integer year);
+
+    Collection<FilmDto> getCommonFilms(Long userId, Long friendId);
 
     Collection<FilmDto> searchFilm(String query, String by);
 

@@ -3,17 +3,19 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.mappers.ReviewMapper;
 import ru.yandex.practicum.filmorate.storage.review.ReviewRatingValue;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
-
 import java.util.Collection;
 
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
+
     private final ReviewStorage reviewStorage;
+    private final EventService eventService;
 
     public Review add(Review review) {
         assertNull(review, "Class review");
@@ -23,7 +25,7 @@ public class ReviewService {
                         ReviewMapper.dtoFromModel(review)
                 )
         );
-
+        eventService.add(createdReview.getReviewId(), createdReview.getUserId(), EventType.REVIEW);
         return findReview(createdReview.getReviewId());
     }
 
@@ -33,13 +35,16 @@ public class ReviewService {
         reviewStorage.update(
                 ReviewMapper.dtoFromModel(review)
         );
-
-        return findReview(review.getReviewId());
+        Review updatedReview = findReview(review.getReviewId());
+        eventService.update(updatedReview.getReviewId(), updatedReview.getUserId(), EventType.REVIEW);
+        return updatedReview;
     }
 
     public void delete(Long reviewId) {
         assertNull(reviewId, "ReviewId");
+        Review review = findReview(reviewId);
         reviewStorage.delete(reviewId);
+        eventService.remove(review.getReviewId(), review.getUserId(), EventType.REVIEW);
     }
 
     public Review findReview(Long reviewId) {
@@ -59,11 +64,17 @@ public class ReviewService {
         assertNull(reviewId, "ReviewId");
         assertNull(userId, "UserId");
         reviewStorage.changeRating(reviewId, userId, ratingValue);
+        if (ratingValue == ReviewRatingValue.INCREASE) {
+            eventService.add(reviewId, userId, EventType.LIKE);
+        } else if (ratingValue == ReviewRatingValue.DECREASE) {
+            eventService.add(reviewId, userId, EventType.DISLIKE);
+        }
     }
 
     public void deleteReviewRating(Long reviewId, Long userId) {
         assertNull(reviewId, "ReviewId");
         assertNull(userId, "UserId");
+
         reviewStorage.removeRating(reviewId, userId);
     }
 

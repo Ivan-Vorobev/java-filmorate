@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.constraints.SortFilm;
 import ru.yandex.practicum.filmorate.model.Director;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.storage.dal.dto.FilmDto;
 import ru.yandex.practicum.filmorate.exceptions.BadRequestException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
@@ -30,6 +31,7 @@ public class FilmService {
     private final RatingService ratingService;
     private final DirectorService directorService;
     private final DirectorStorage directorStorage;
+    private final EventService eventService;
 
     @Autowired
     public FilmService(
@@ -40,6 +42,8 @@ public class FilmService {
             RatingService ratingService,
             DirectorService directorService,
             DirectorStorage directorStorage
+            RatingService ratingService,
+            EventService eventService
     ) {
         this.filmStorage = filmStorage;
         this.userService = userService;
@@ -48,6 +52,7 @@ public class FilmService {
         this.ratingService = ratingService;
         this.directorService = directorService;
         this.directorStorage = directorStorage;
+        this.eventService = eventService;
     }
 
     public Collection<Film> findAll() {
@@ -146,7 +151,7 @@ public class FilmService {
         userService.findUser(userId);
         Film film = findFilm(filmId);
         filmStorage.addLike(FilmMapper.dtoFromModel(film), userId);
-
+        eventService.add(filmId, userId, EventType.LIKE);
         return film;
     }
 
@@ -154,6 +159,7 @@ public class FilmService {
         userService.findUser(userId);
         Film film = findFilm(filmId);
         filmStorage.deleteLike(FilmMapper.dtoFromModel(film), userId);
+        eventService.remove(filmId, userId, EventType.LIKE);
         return film;
     }
 

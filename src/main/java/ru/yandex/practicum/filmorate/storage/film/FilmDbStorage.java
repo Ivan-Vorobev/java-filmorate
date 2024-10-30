@@ -121,6 +121,25 @@ public class FilmDbStorage implements FilmStorage {
             ORDER BY EXTRACT(YEAR FROM release_date)
             """;
 
+    private static final String SEARCH_QUERY = """
+            SELECT
+                f.*,
+                g.id as genre_id,
+                g.name as genre_name,
+                r.name as rating_name,
+                fd.director_id,
+                d.name as director_name
+            FROM films f
+            LEFT JOIN film_director fd ON fd.film_id = f.id
+            LEFT JOIN director d ON fd.director_id = d.id
+            LEFT JOIN FILM_LIKES fl ON f.ID = fl.FILM_ID
+            LEFT JOIN film_genres fj ON fj.film_id = f.id
+            LEFT JOIN genre g ON g.id = fj.genre_id
+            LEFT JOIN rating r ON r.id = f.rating_id
+            WHERE %s
+            GROUP BY f.ID, genre_id
+            ORDER BY COALESCE(COUNT(fl.FILM_ID), 0) DESC
+            """;
 
     private final BaseStorage<FilmDto> filmBaseStorage;
     private final BaseStorage<FilmLikesDto> filmLikesBaseStorage;
@@ -215,6 +234,32 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Collection<FilmDto> findFilmsByDirectorSortLike(Long directorId) {
         return prepareFilmDtoData(filmBaseStorage.findMany(FIND_FILMS_BY_DIRECTOR_SORT_LIKE, directorId));
+    }
+
+    @Override
+    public Collection<FilmDto> searchFilm(String query, String by) {
+        List<Object> params = new ArrayList<>();
+        StringBuilder conditions = new StringBuilder();
+
+        for (String condition : by.split(",")) {
+            SearchByEnum.fromString(condition).ifPresent(searchBy -> {
+                if (!conditions.isEmpty()) {
+                    conditions.append(" OR ");
+                }
+                switch (searchBy) {
+                    case TITLE -> {
+                        conditions.append("f.name LIKE ?");
+                        params.add("%" + query + "%");
+                    }
+                    case DIRECTOR -> {
+                        conditions.append("d.name LIKE ?");
+                        params.add("%" + query + "%");
+                    }
+                }
+            });
+        }
+        String formattedQuery = String.format(SEARCH_QUERY, conditions);
+        return prepareFilmDtoData(filmBaseStorage.findMany(formattedQuery, params.toArray()));
     }
 
     private Collection<FilmDto> prepareFilmDtoData(Collection<FilmDto> films) {

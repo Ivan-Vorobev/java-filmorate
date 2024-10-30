@@ -29,4 +29,5 @@ public class Film {
     @Positive(groups = {RequestMethod.Create.class, RequestMethod.Update.class})
     @Min(value = 1, groups = {RequestMethod.Create.class, RequestMethod.Update.class})
     private int duration;
+    // Collection<Director> directors;
 }

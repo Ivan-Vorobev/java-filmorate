@@ -213,4 +213,10 @@ public class FilmService {
             }
         }
     }
+
+    public Collection<Film> searchFilm(String query, String by) {
+        return filmStorage.searchFilm(query, by).stream()
+                .map((FilmMapper::modelFromDto))
+                .toList();
+    }
 }

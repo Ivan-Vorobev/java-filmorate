@@ -77,4 +77,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Collection<FilmDto> getUserRecommendations(Long userId) {
         return null;
     }
+
+    @Override
+    public Collection<FilmDto> searchFilm(String query, String by) {
+        return List.of();
+    }
 }

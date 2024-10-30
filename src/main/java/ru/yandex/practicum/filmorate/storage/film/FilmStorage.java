@@ -27,4 +27,6 @@ public interface FilmStorage {
     Collection<FilmDto> findFilmsByDirectorSortYear(Long directorId);
 
     Collection<FilmDto> findFilmsByDirectorSortLike(Long directorId);
+
+    Collection<FilmDto> getUserRecommendations(Long userId);
 }

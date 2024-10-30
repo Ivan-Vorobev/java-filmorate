@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -14,6 +15,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
+@Slf4j
 public class FilmDbStorage implements FilmStorage {
     private static final String FIND_ALL_QUERY = """
             SELECT
@@ -46,6 +48,32 @@ public class FilmDbStorage implements FilmStorage {
             LEFT JOIN rating r ON r.id = f.rating_id
             WHERE f.id = ?
             """;
+    private static final String FIND_SIMILAR_USER_QUERY = "SELECT l.* " +
+            "FROM film_likes AS l " +
+            "WHERE l.film_id IN (" +
+            "SELECT film_id " +
+            "FROM film_likes l1 " +
+            "WHERE l1.user_id = ?) " +
+            "AND l.user_id <> ? " +
+            "GROUP BY l.user_id, l.film_id " +
+            "ORDER BY COUNT(l.film_id) DESC " +
+            "LIMIT 1";
+    private static final String FIND_RECOMMENDED_FILMS_QUERY = """
+            SELECT
+                f.*,
+                g.id as genre_id,
+                g.name as genre_name,
+                r.name as rating_name
+            FROM films f
+            LEFT JOIN film_genres fj ON fj.film_id = f.id
+            LEFT JOIN genre g ON g.id = fj.genre_id
+            LEFT JOIN rating r ON r.id = f.rating_id
+            LEFT JOIN film_likes l ON f.id = l.film_id
+            WHERE l.user_id = ? AND f.id NOT IN (
+                SELECT film_id FROM film_likes WHERE user_id = ?
+            )
+            """;
+
     private static final String INSERT_FILM_QUERY = "INSERT INTO films (rating_id, name, description, release_date, duration)" +
             "VALUES (?, ?, ?, ?, ?)";
     private static final String UPDATE_FILM_QUERY = """
@@ -232,4 +260,23 @@ public class FilmDbStorage implements FilmStorage {
 
         return outputFilms.values();
     }
+
+    public Collection<FilmDto> getUserRecommendations(Long userId) {
+        Optional<Long> similarUserOptional = filmLikesBaseStorage
+                .findOne(FIND_SIMILAR_USER_QUERY, userId, userId)
+                .map(FilmLikesDto::getUserId);
+
+        if (similarUserOptional.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Long similarUserId = similarUserOptional.get();
+
+        // Получаем список фильмов, которые понравились похожему пользователю, но отсутствуют у текущего пользователя
+        Collection<FilmDto> recommendedFilms = filmBaseStorage.findMany(FIND_RECOMMENDED_FILMS_QUERY, similarUserId, userId);
+
+        return prepareFilmDtoData(recommendedFilms);
+    }
+
+
 }
+

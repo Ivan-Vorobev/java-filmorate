@@ -2,8 +2,8 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.storage.dal.dto.FilmDto;
 import ru.yandex.practicum.filmorate.storage.GenerateIdStorage;
+import ru.yandex.practicum.filmorate.storage.dal.dto.FilmDto;
 
 import java.util.*;
 
@@ -71,5 +71,10 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Map<Long, Set<Long>> getAllLikes() {
         return likes;
+    }
+
+    @Override
+    public Collection<FilmDto> getUserRecommendations(Long userId) {
+        return null;
     }
 }

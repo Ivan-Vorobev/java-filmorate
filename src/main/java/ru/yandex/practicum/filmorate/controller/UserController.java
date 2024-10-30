@@ -79,6 +79,7 @@ public class UserController {
     @GetMapping("/{id}/feed")
     public Collection<Event> getEventFeed(@PathVariable("id") Long userId) {
         log.info("Поступил запрос GET на получение ленты пользователя {}", userId);
-        return eventService.getEventFeed(userId);
+        User user = userService.findUser(userId);
+        return eventService.getEventFeed(user.getId());
     }
 }

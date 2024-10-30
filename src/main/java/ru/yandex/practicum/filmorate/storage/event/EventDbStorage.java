@@ -8,17 +8,22 @@ import ru.yandex.practicum.filmorate.storage.dal.BaseStorage;
 import ru.yandex.practicum.filmorate.storage.dal.dto.EventDto;
 import java.util.Collection;
 
-
 @Repository
 public class EventDbStorage implements EventStorage {
 
-    private static final String INSERT_QUERY =
-            "INSERT INTO events(event_type, operation, user_id, entity_id, created_at)" +
-                    "VALUES (?, ?, ?, ?, ?)";
-
-    private static final String GET_EVENT_FEED_QUERY = "SELECT * FROM events AS e WHERE user_id = ? " +
-            "OR user_id IN (SELECT friend_id FROM user_friends where user_id = ?)";
-
+    private static final String INSERT_QUERY = """
+            INSERT INTO events(event_type, OPERATION, user_id, entity_id, created_at)
+            VALUES (?, ?, ?, ?, ?)
+            """;
+    private static final String GET_EVENT_FEED_QUERY = """
+            SELECT *
+            FROM EVENTS AS e
+            WHERE user_id = ?
+               OR user_id IN
+                (SELECT friend_id
+                 FROM user_friends
+                 WHERE user_id = ?)
+            """;
     private final BaseStorage<EventDto> eventBaseStorage;
 
     @Autowired

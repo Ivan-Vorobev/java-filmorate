@@ -11,12 +11,10 @@ import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.storage.dal.dto.EventDto;
 import ru.yandex.practicum.filmorate.storage.dal.dto.UserDto;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
-
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Random;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @JdbcTest

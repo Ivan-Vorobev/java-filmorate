@@ -13,7 +13,6 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -32,7 +31,8 @@ public class FilmService {
             UserService userService,
             GenreStorage genreStorage,
             GenreService genreService,
-            RatingService ratingService, EventService eventService
+            RatingService ratingService,
+            EventService eventService
     ) {
         this.filmStorage = filmStorage;
         this.userService = userService;
@@ -79,7 +79,6 @@ public class FilmService {
 
             newFilm.setGenres(newGenres);
         }
-
         return newFilm;
     }
 
@@ -106,7 +105,6 @@ public class FilmService {
         } else {
             genreStorage.delete(updatedFilm.getId());
         }
-
         return updatedFilm;
     }
 

@@ -18,9 +18,7 @@ import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class FilmService {
@@ -124,10 +122,17 @@ public class FilmService {
         if (film.getGenres() != null) {
             genreStorage.delete(updatedFilm.getId());
 
+            HashMap<Long, Boolean> newGenreIds = new HashMap<>();
+            Collection<Genre> genres = genreService.findAll();
             for (Genre genre : film.getGenres()) {
                 genreStorage.add(updatedFilm.getId(), genre.getId());
+                newGenreIds.put(genre.getId(), true);
             }
-            updatedFilm.setGenres(film.getGenres());
+            updatedFilm.setGenres(
+                    genres.stream()
+                            .filter(g -> newGenreIds.get(g.getId()) != null)
+                            .toList()
+            );
         } else {
             genreStorage.delete(updatedFilm.getId());
         }

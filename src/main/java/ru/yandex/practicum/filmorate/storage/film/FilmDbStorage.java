@@ -61,6 +61,9 @@ public class FilmDbStorage implements FilmStorage {
     private static final String FIND_RECOMMENDED_FILMS_QUERY = """
             SELECT
                 f.*,
+                dir.id,
+                dir.name as director_name,
+                fdir.*,
                 g.id as genre_id,
                 g.name as genre_name,
                 r.name as rating_name
@@ -69,6 +72,8 @@ public class FilmDbStorage implements FilmStorage {
             LEFT JOIN genre g ON g.id = fj.genre_id
             LEFT JOIN rating r ON r.id = f.rating_id
             LEFT JOIN film_likes l ON f.id = l.film_id
+            LEFT JOIN film_director fdir ON f.id = fdir.film_id
+            LEFT JOIN director dir ON fdir.director_id = dir.id
             WHERE l.user_id = ? AND f.id NOT IN (
                 SELECT film_id FROM film_likes WHERE user_id = ?
             )
@@ -277,7 +282,7 @@ public class FilmDbStorage implements FilmStorage {
             params.add(year);
         }
 
-        String query = String.format(FIND_MOST_POPULAR_QUERY + " LIMIT ?", conditions.toString());
+        String query = String.format(FIND_MOST_POPULAR_QUERY + " LIMIT ?", conditions);
         params.add(count);
 
         return prepareFilmDtoDataSorted(filmBaseStorage.findMany(query, params.toArray()));

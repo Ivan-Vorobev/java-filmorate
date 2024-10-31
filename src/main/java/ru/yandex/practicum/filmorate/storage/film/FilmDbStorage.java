@@ -278,10 +278,11 @@ public class FilmDbStorage implements FilmStorage {
                 if (!conditions.isEmpty()) {
                     conditions.append(" OR ");
                 }
+                String toLower = query.toLowerCase();
                 switch (searchBy) {
                     case TITLE -> {
-                        conditions.append("f.name LIKE ?");
-                        params.add("%" + query + "%");
+                        conditions.append("lower(f.name) LIKE ?");
+                        params.add("%" + toLower + "%");
                     }
                     case DIRECTOR -> {
                         conditions.append("""
@@ -289,10 +290,10 @@ public class FilmDbStorage implements FilmStorage {
                                     SELECT DISTINCT fd.film_id
                                     FROM film_director fd
                                     INNER JOIN director d ON d.id = fd.director_id
-                                    WHERE d.name LIKE ?
+                                    WHERE lower(d.name) LIKE ?
                                 )
                                 """);
-                        params.add("%" + query + "%");
+                        params.add("%" + toLower + "%");
                     }
                 }
             });

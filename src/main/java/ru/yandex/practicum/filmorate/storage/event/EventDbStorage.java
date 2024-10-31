@@ -19,10 +19,6 @@ public class EventDbStorage implements EventStorage {
             SELECT *
             FROM EVENTS AS e
             WHERE user_id = ?
-               OR user_id IN
-                (SELECT friend_id
-                 FROM user_friends
-                 WHERE user_id = ?)
             """;
     private final BaseStorage<EventDto> eventBaseStorage;
 
@@ -46,6 +42,6 @@ public class EventDbStorage implements EventStorage {
 
     @Override
     public Collection<EventDto> getEventFeed(Long userId) {
-        return eventBaseStorage.findMany(GET_EVENT_FEED_QUERY, userId, userId);
+        return eventBaseStorage.findMany(GET_EVENT_FEED_QUERY, userId);
     }
 }

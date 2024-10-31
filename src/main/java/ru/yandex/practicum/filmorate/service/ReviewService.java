@@ -64,18 +64,11 @@ public class ReviewService {
         assertNull(reviewId, "ReviewId");
         assertNull(userId, "UserId");
         reviewStorage.changeRating(reviewId, userId, ratingValue);
-        if (ratingValue == ReviewRatingValue.INCREASE) {
-            eventService.add(reviewId, userId, EventType.LIKE);
-        } else if (ratingValue == ReviewRatingValue.DECREASE) {
-            eventService.add(reviewId, userId, EventType.DISLIKE);
-        }
     }
 
     public void deleteReviewRating(Long reviewId, Long userId) {
         assertNull(reviewId, "ReviewId");
         assertNull(userId, "UserId");
-
-        reviewStorage.removeRating(reviewId, userId);
     }
 
     private void assertNull(Object value, String field) {

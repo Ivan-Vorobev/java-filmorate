@@ -17,9 +17,7 @@ public class FilmDto {
     private String description;
     private Collection<GenreDto> genres;
     private Collection<DirectorDto> directors;
-    private Long genreId;
     private String genreName;
-    private Long directorId;
     private String directorName;
     private String ratingName;
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)

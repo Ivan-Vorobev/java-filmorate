@@ -30,9 +30,7 @@ class FilmDbStorageTest {
                 .name("Test film 1")
                 .description("Description 1")
                 .genres(new ArrayList<>())
-                .genreId(0L)
                 .directors(new ArrayList<>())
-                .directorId(0L)
                 .releaseDate(LocalDate.of(2024, 1, 1))
                 .duration(60)
                 .build();
@@ -45,9 +43,7 @@ class FilmDbStorageTest {
                 .name("Test film 2")
                 .description("Description 2")
                 .genres(new ArrayList<>())
-                .genreId(0L)
                 .directors(new ArrayList<>())
-                .directorId(0L)
                 .releaseDate(LocalDate.of(2024, 2, 1))
                 .duration(120)
                 .build();
@@ -60,9 +56,7 @@ class FilmDbStorageTest {
                 .name("Test film 3")
                 .description("Description 3")
                 .genres(new ArrayList<>())
-                .genreId(0L)
                 .directors(new ArrayList<>())
-                .directorId(0L)
                 .releaseDate(LocalDate.of(2024, 3, 1))
                 .duration(180)
                 .build();
@@ -150,13 +144,9 @@ class FilmDbStorageTest {
 
     @Test
     void getAllLikes() {
-        Collection<FilmDto> likes = new ArrayList<>();
-
-        assertEquals(0, likes.size());
-
         filmStorage.addLike(getFirstFilm(), 1L);
 
-        likes = filmStorage.getAllLikes(1L, 0L, 0);
+        Collection<FilmDto> likes = filmStorage.getAllLikes(1L, 0L, 0);
 
         assertEquals(1, likes.size());
     }

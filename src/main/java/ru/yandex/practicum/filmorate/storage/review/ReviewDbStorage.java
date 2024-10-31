@@ -22,8 +22,6 @@ public class ReviewDbStorage implements ReviewStorage {
             """;
     private static final String UPDATE_REVIEW = """
             UPDATE reviews SET
-                film_id = ?,
-                user_id = ?,
                 is_positive = ?,
                 content = ?
             WHERE id = ?
@@ -44,7 +42,7 @@ public class ReviewDbStorage implements ReviewStorage {
     private static final String FIND_ALL_FILM_REVIEWS_QUERY = """
             SELECT
                 r.*,
-                SUM(rr."value") AS useful
+                IFNULL(SUM(rr."value"), 0) AS useful
             FROM reviews r
             LEFT JOIN review_ratings rr ON rr.review_id = r.id
             ((WHERE_EXPRESSION))
@@ -122,8 +120,6 @@ public class ReviewDbStorage implements ReviewStorage {
     public void update(ReviewDto reviewDto) {
         reviewDtoStorage.update(
                 UPDATE_REVIEW,
-                reviewDto.getFilmId(),
-                reviewDto.getUserId(),
                 reviewDto.getIsPositive(),
                 reviewDto.getContent(),
                 reviewDto.getId()

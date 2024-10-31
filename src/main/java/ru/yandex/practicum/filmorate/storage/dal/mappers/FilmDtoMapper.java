@@ -19,11 +19,7 @@ public class FilmDtoMapper implements RowMapper<FilmDto> {
                 .name(rs.getString("name"))
                 .description(rs.getString("description"))
                 .genres(new ArrayList<>())
-                .genreId(rs.getLong("genre_id"))
-                .genreName(rs.getString("genre_name"))
                 .directors(new ArrayList<>())
-                .directorId(rs.getLong("director_id"))
-                .directorName(rs.getString("director_name"))
                 .releaseDate(rs.getDate("release_date").toLocalDate())
                 .duration(rs.getInt("duration"))
                 .build();

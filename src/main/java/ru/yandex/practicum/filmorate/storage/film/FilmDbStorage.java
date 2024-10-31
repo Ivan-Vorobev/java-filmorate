@@ -1,15 +1,13 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.storage.dal.BaseStorage;
-import ru.yandex.practicum.filmorate.storage.dal.dto.DirectorDto;
-import ru.yandex.practicum.filmorate.storage.dal.dto.FilmDto;
-import ru.yandex.practicum.filmorate.storage.dal.dto.FilmLikesDto;
-import ru.yandex.practicum.filmorate.storage.dal.dto.GenreDto;
+import ru.yandex.practicum.filmorate.storage.dal.dto.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,31 +18,15 @@ public class FilmDbStorage implements FilmStorage {
     private static final String FIND_ALL_QUERY = """
             SELECT
                 f.*,
-                g.id as genre_id,
-                g.name as genre_name,
                 r.name as rating_name,
-                fd.director_id,
-                director.name as director_name
             FROM films f
-            LEFT JOIN film_director fd ON fd.film_id = f.id
-            LEFT JOIN director ON fd.director_id = director.id
-            LEFT JOIN film_genres fj ON fj.film_id = f.id
-            LEFT JOIN genre g ON g.id = fj.genre_id
             LEFT JOIN rating r ON r.id = f.rating_id
             """;
     private static final String FIND_BY_ID_QUERY = """
             SELECT
                 f.*,
-                g.id as genre_id,
-                g.name as genre_name,
                 r.name as rating_name,
-                fd.director_id,
-                director.name as director_name
             FROM films f
-            LEFT JOIN film_director fd ON fd.film_id = f.id
-            LEFT JOIN director ON fd.director_id = director.id
-            LEFT JOIN film_genres fj ON fj.film_id = f.id
-            LEFT JOIN genre g ON g.id = fj.genre_id
             LEFT JOIN rating r ON r.id = f.rating_id
             WHERE f.id = ?
             """;
@@ -61,19 +43,10 @@ public class FilmDbStorage implements FilmStorage {
     private static final String FIND_RECOMMENDED_FILMS_QUERY = """
             SELECT
                 f.*,
-                dir.id,
-                dir.name as director_name,
-                fdir.*,
-                g.id as genre_id,
-                g.name as genre_name,
                 r.name as rating_name
             FROM films f
-            LEFT JOIN film_genres fj ON fj.film_id = f.id
-            LEFT JOIN genre g ON g.id = fj.genre_id
             LEFT JOIN rating r ON r.id = f.rating_id
             LEFT JOIN film_likes l ON f.id = l.film_id
-            LEFT JOIN film_director fdir ON f.id = fdir.film_id
-            LEFT JOIN director dir ON fdir.director_id = dir.id
             WHERE l.user_id = ? AND f.id NOT IN (
                 SELECT film_id FROM film_likes WHERE user_id = ?
             )
@@ -86,25 +59,18 @@ public class FilmDbStorage implements FilmStorage {
             """;
     private static final String GET_COMMON_FILMS = """
             SELECT f.*,
-                   g.id AS genre_id,
-                   g.name AS genre_name,
-                   r.name AS rating_name,
-                   COUNT(fl.user_id) AS likes
+                   r.name AS rating_name
             FROM films AS f
             INNER JOIN film_likes AS fl ON fl.film_id = f.id
             LEFT JOIN rating r ON r.id = f.rating_id
-            LEFT JOIN film_genres AS fg ON fg.film_id = f.id
-            LEFT JOIN genre AS g ON g.id = fg.genre_id
             WHERE f.id IN
                 (SELECT fl1.film_id
                  FROM film_likes AS fl1
                  INNER JOIN film_likes fl2 ON fl2.film_id = fl1.film_id
                  AND fl1.user_id = ?
                  AND fl2.user_id = ?)
-            GROUP BY f.id,
-                     g.id,
-                     r.name
-            ORDER BY likes DESC
+            GROUP BY f.id
+            ORDER BY COUNT(fl.user_id) DESC
             """;
     private static final String REMOVE_QUERY = """
             DELETE FROM films
@@ -116,18 +82,10 @@ public class FilmDbStorage implements FilmStorage {
     private static final String FIND_FILMS_BY_DIRECTOR_SORT_LIKE = """
             SELECT DISTINCT
                 f.*,
-                g.id as genre_id,
-                g.name as genre_name,
                 r.name as rating_name,
-                fd.director_id,
-                director.name as director_name,
                 COUNT(*) OVER (PARTITION BY f.id) as count_likes
             FROM films f
             JOIN film_director fd ON fd.film_id = f.id
-            JOIN director ON fd.director_id = director.id
-            LEFT JOIN film_likes fl on fl.film_id = f.id
-            LEFT JOIN film_genres fj ON fj.film_id = f.id
-            LEFT JOIN genre g ON g.id = fj.genre_id
             LEFT JOIN rating r ON r.id = f.rating_id
             WHERE fd.director_id = ?
             ORDER BY count_likes
@@ -136,16 +94,9 @@ public class FilmDbStorage implements FilmStorage {
     private static final String FIND_FILMS_BY_DIRECTOR_SORT_YEAR = """
             SELECT
                 f.*,
-                g.id as genre_id,
-                g.name as genre_name,
                 r.name as rating_name,
-                fd.director_id,
-                director.name as director_name
             FROM films f
             JOIN film_director fd ON fd.film_id = f.id
-            JOIN director ON fd.director_id = director.id
-            LEFT JOIN film_genres fj ON fj.film_id = f.id
-            LEFT JOIN genre g ON g.id = fj.genre_id
             LEFT JOIN rating r ON r.id = f.rating_id
             WHERE fd.director_id = ?
             ORDER BY EXTRACT(YEAR FROM release_date)
@@ -154,54 +105,65 @@ public class FilmDbStorage implements FilmStorage {
     private static final String SEARCH_QUERY = """
             SELECT
                 f.*,
-                g.id as genre_id,
-                g.name as genre_name,
                 r.name as rating_name,
-                fd.director_id,
-                d.name as director_name
             FROM films f
-            LEFT JOIN film_director fd ON fd.film_id = f.id
-            LEFT JOIN director d ON fd.director_id = d.id
             LEFT JOIN FILM_LIKES fl ON f.ID = fl.FILM_ID
-            LEFT JOIN film_genres fj ON fj.film_id = f.id
-            LEFT JOIN genre g ON g.id = fj.genre_id
             LEFT JOIN rating r ON r.id = f.rating_id
             WHERE %s
-            GROUP BY f.ID, genre_id
+            GROUP BY f.ID
             ORDER BY COALESCE(COUNT(fl.FILM_ID), 0) DESC
             """;
     private static final String FIND_MOST_POPULAR_QUERY = """
             SELECT
                 f.*,
-                g.id as genre_id,
-                g.name as genre_name,
                 r.name as rating_name,
-                fd.director_id,
-                director.name as director_name
             FROM films f
-            LEFT JOIN film_director fd ON fd.film_id = f.id
-            LEFT JOIN director ON fd.director_id = director.id
             LEFT JOIN FILM_LIKES fl ON f.ID = fl.FILM_ID
             LEFT JOIN film_genres fj ON fj.film_id = f.id
-            LEFT JOIN genre g ON g.id = fj.genre_id
             LEFT JOIN rating r ON r.id = f.rating_id
             WHERE %s
-            GROUP BY f.ID, genre_id, fd.director_id, genre_name, rating_name
+            GROUP BY f.ID
             ORDER BY COUNT(fl.FILM_ID) DESC
+            """;
+    private static final String FIND_FILM_GENRES = """
+            SELECT
+                fg.film_id AS film_id,
+                fg.genre_id AS genre_id,
+                g.name AS genre_name
+            FROM film_genres fg
+            INNER JOIN genre g ON g.id = fg.genre_id
+            WHERE fg.film_id IN (%s)
+            ORDER BY fg.film_id ASC
+            """;
+    private static final String FIND_FILM_DIRECTORS = """
+            SELECT
+                fd.film_id AS film_id,
+                fd.director_id AS director_id,
+                d.name AS director_name
+            FROM film_director fd
+            INNER JOIN director d ON d.id = fd.director_id
+            WHERE fd.film_id IN (%s)
+            ORDER BY fd.film_id ASC
             """;
 
     private final BaseStorage<FilmDto> filmBaseStorage;
     private final BaseStorage<FilmLikesDto> filmLikesBaseStorage;
+    private final BaseStorage<FilmFullGenreDto> filmGenreBaseStorage;
+    private final BaseStorage<FilmFullDirectorDto> filmDirectorBaseStorage;
 
 
     @Autowired
     public FilmDbStorage(
             JdbcTemplate jdbc,
             RowMapper<FilmDto> filmDtoRowMapper,
-            RowMapper<FilmLikesDto> filmLikesRowMapper
+            RowMapper<FilmLikesDto> filmLikesRowMapper,
+            RowMapper<FilmFullGenreDto> filmGenreRowMapper,
+            RowMapper<FilmFullDirectorDto> filmDirectorRowMapper
     ) {
         filmBaseStorage = new BaseStorage<>(jdbc, filmDtoRowMapper);
         filmLikesBaseStorage = new BaseStorage<>(jdbc, filmLikesRowMapper);
+        filmGenreBaseStorage = new BaseStorage<>(jdbc, filmGenreRowMapper);
+        filmDirectorBaseStorage = new BaseStorage<>(jdbc, filmDirectorRowMapper);
     }
 
     @Override
@@ -212,7 +174,14 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Optional<FilmDto> findById(Long filmId) {
         Collection<FilmDto> films = prepareFilmDtoData(filmBaseStorage.findMany(FIND_BY_ID_QUERY, filmId));
-        return films.stream().findFirst();
+        Optional<FilmDto> film = films.stream().findFirst();
+
+        if (film.isPresent()) {
+            loadGenres(List.of(film.get()));
+            loadDirectors(List.of(film.get()));
+        }
+
+        return film;
     }
 
     @Override
@@ -274,7 +243,7 @@ public class FilmDbStorage implements FilmStorage {
         List<Object> params = new ArrayList<>();
 
         if (genreId != 0) {
-            conditions.append(" AND g.id = ?");
+            conditions.append(" AND fj.genre_id = ?");
             params.add(genreId);
         }
         if (year != 0) {
@@ -285,7 +254,8 @@ public class FilmDbStorage implements FilmStorage {
         String query = String.format(FIND_MOST_POPULAR_QUERY + " LIMIT ?", conditions);
         params.add(count);
 
-        return prepareFilmDtoDataSorted(filmBaseStorage.findMany(query, params.toArray()));
+
+        return prepareFilmDtoData(filmBaseStorage.findMany(query, params.toArray()));
     }
 
     @Override
@@ -314,7 +284,14 @@ public class FilmDbStorage implements FilmStorage {
                         params.add("%" + query + "%");
                     }
                     case DIRECTOR -> {
-                        conditions.append("d.name LIKE ?");
+                        conditions.append("""
+                                f.id IN (
+                                    SELECT DISTINCT fd.film_id
+                                    FROM film_director fd
+                                    INNER JOIN director d ON d.id = fd.director_id
+                                    WHERE d.name LIKE ?
+                                )
+                                """);
                         params.add("%" + query + "%");
                     }
                 }
@@ -330,92 +307,88 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private Collection<FilmDto> prepareFilmDtoData(Collection<FilmDto> films) {
-        HashMap<Long, FilmDto> outputFilms = new HashMap<>();
-        for (FilmDto film : films) {
-            FilmDto findFilm = outputFilms.get(film.getId());
-
-            if (findFilm == null) {
-                findFilm = film;
-                outputFilms.put(film.getId(), film);
-            }
-
-            if (film.getGenreId() != null && film.getGenreName() != null) {
-                Collection<GenreDto> genres = findFilm.getGenres();
-                if (genres == null) {
-                    genres = new ArrayList<>();
-                    findFilm.setGenres(genres);
-                }
-
-                genres.add(
-                        GenreDto.builder()
-                                .id(film.getGenreId())
-                                .name(film.getGenreName())
-                                .build()
-                );
-            }
-
-            if (film.getDirectorId() != null && film.getDirectorName() != null) {
-                Collection<DirectorDto> directors = findFilm.getDirectors();
-                if (directors == null) {
-                    directors = new ArrayList<>();
-                    findFilm.setDirectors(directors);
-                }
-
-                directors.add(
-                        DirectorDto.builder()
-                                .id(film.getDirectorId())
-                                .name(film.getDirectorName())
-                                .build()
-                );
-            }
-        }
-        return outputFilms.values();
+        loadGenres(films);
+        loadDirectors(films);
+        return films;
     }
 
-    // add-most-populars: Продублировал prepareFilmDtoData, но с LinkedHashMap,
-    // который сохраняет порядок сортировки в наборе данных из БД. Иначе тесты валятся.
-    // Обычный HashMap сортировку не сохраняет.
-    private Collection<FilmDto> prepareFilmDtoDataSorted(Collection<FilmDto> films) {
-        HashMap<Long, FilmDto> outputFilms = new LinkedHashMap<>();
+    private void loadGenres(Collection<FilmDto> films) {
+        if (films == null || films.isEmpty()) {
+            return;
+        }
+
+        HashMap<Long, Collection<GenreDto>> filmGenres = new HashMap<>();
+
+        Collection<FilmFullGenreDto> findFilmGenres = filmGenreBaseStorage.findMany(
+                FIND_FILM_GENRES.formatted(
+                        Strings.join(Arrays.stream(new StringBuilder()
+                                .repeat("?", films.size())
+                                .toString()
+                                .split("")).toList(), ',')),
+                films.stream().map(v -> v.getId().toString()).toArray()
+        );
+
+        for (FilmFullGenreDto filmFullGenreDto : findFilmGenres) {
+            Collection<GenreDto> genres = filmGenres.get(filmFullGenreDto.getFilmId());
+            if (genres == null) {
+                genres = new ArrayList<>();
+                filmGenres.put(filmFullGenreDto.getFilmId(), genres);
+            }
+
+            genres.add(
+                    GenreDto.builder()
+                            .id(filmFullGenreDto.getGenreId())
+                            .name(filmFullGenreDto.getGenreName())
+                            .build()
+            );
+        }
+
         for (FilmDto film : films) {
-            FilmDto findFilm = outputFilms.get(film.getId());
-
-            if (findFilm == null) {
-                findFilm = film;
-                outputFilms.put(film.getId(), film);
-            }
-
-            if (film.getGenreId() != null && film.getGenreName() != null) {
-                Collection<GenreDto> genres = findFilm.getGenres();
-                if (genres == null) {
-                    genres = new ArrayList<>();
-                    findFilm.setGenres(genres);
-                }
-
-                genres.add(
-                        GenreDto.builder()
-                                .id(film.getGenreId())
-                                .name(film.getGenreName())
-                                .build()
-                );
-            }
-
-            if (film.getDirectorId() != null && film.getDirectorName() != null) {
-                Collection<DirectorDto> directors = findFilm.getDirectors();
-                if (directors == null) {
-                    directors = new ArrayList<>();
-                    findFilm.setDirectors(directors);
-                }
-
-                directors.add(
-                        DirectorDto.builder()
-                                .id(film.getDirectorId())
-                                .name(film.getDirectorName())
-                                .build()
-                );
+            Collection<GenreDto> genres = filmGenres.get(film.getId());
+            if (genres != null) {
+                film.setGenres(genres);
             }
         }
-        return outputFilms.values();
+    }
+
+    private void loadDirectors(Collection<FilmDto> films) {
+        if (films == null || films.isEmpty()) {
+            return;
+        }
+
+        HashMap<Long, Collection<DirectorDto>> filmDirectors = new HashMap<>();
+
+        Collection<FilmFullDirectorDto> findFilmDirectors = filmDirectorBaseStorage.findMany(
+                FIND_FILM_DIRECTORS.formatted(
+                        Strings.join(Arrays.stream(new StringBuilder()
+                                .repeat("?", films.size())
+                                .toString()
+                                .split("")).toList(), ',')
+                ),
+                films.stream().map(FilmDto::getId).toArray()
+        );
+
+        for (FilmFullDirectorDto findFilmDirector : findFilmDirectors) {
+            Collection<DirectorDto> directors = filmDirectors.get(findFilmDirector.getFilmId());
+            if (directors == null) {
+                directors = new ArrayList<>();
+                filmDirectors.put(findFilmDirector.getFilmId(), directors);
+            }
+
+            directors.add(
+                    DirectorDto.builder()
+                            .id(findFilmDirector.getDirectorId())
+                            .name(findFilmDirector.getDirectorName())
+                            .build()
+            );
+        }
+
+        for (FilmDto film : films) {
+            Collection<DirectorDto> directors = filmDirectors.get(film.getId());
+            if (directors != null) {
+                film.setDirectors(directors);
+            }
+        }
     }
 
     public Collection<FilmDto> getUserRecommendations(Long userId) {

@@ -1,13 +1,15 @@
 package ru.yandex.practicum.filmorate.storage.dal.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 import lombok.Data;
-import lombok.experimental.SuperBuilder;
 
 @Data
-@SuperBuilder
-public class FilmGenreDto {
+@Builder
+public class FilmFullDirectorDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long filmId;
-    private Long genreId;
+    private Long directorId;
+    private String directorName;
 }
+

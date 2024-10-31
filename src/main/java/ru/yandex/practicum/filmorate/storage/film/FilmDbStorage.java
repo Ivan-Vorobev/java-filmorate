@@ -85,27 +85,24 @@ public class FilmDbStorage implements FilmStorage {
             UPDATE films SET rating_id = ?, name = ?, description = ?, release_date = ?, duration = ? WHERE id = ?
             """;
     private static final String GET_COMMON_FILMS = """
-            SELECT f.*,
-                   g.id AS genre_id,
-                   g.name AS genre_name,
-                   r.name AS rating_name,
-                   COUNT(fl.user_id) AS likes
-            FROM films AS f
-            INNER JOIN film_likes AS fl ON fl.film_id = f.id
-            LEFT JOIN rating r ON r.id = f.rating_id
-            LEFT JOIN film_genres AS fg ON fg.film_id = f.id
-            LEFT JOIN genre AS g ON g.id = fg.genre_id
-            WHERE f.id IN
-                (SELECT fl1.film_id
-                 FROM film_likes AS fl1
-                 INNER JOIN film_likes fl2 ON fl2.film_id = fl1.film_id
-                 AND fl1.user_id = ?
-                 AND fl2.user_id = ?)
-            GROUP BY f.id,
-                     g.id,
-                     r.name
-            ORDER BY likes DESC
-            """;
+        SELECT f.*,
+               r.id AS rating_id,
+               r.name AS rating_name,
+               g.id AS genre_id,
+               g.name AS genre_name,
+               d.id AS director_id,
+               d.name AS director_name
+        FROM FILMS f
+        LEFT JOIN rating AS r ON f.rating_id = r.id
+        LEFT JOIN film_genres fg ON f.id = fg.film_id
+        LEFT JOIN genre AS g ON fg.genre_id = g.id
+        LEFT JOIN film_director fd ON f.id = fd.film_id
+        LEFT JOIN director AS d ON fd.director_id = d.id
+        JOIN film_likes AS l1 ON f.id = l1.film_id
+        AND l1.user_id = ?
+        JOIN film_likes l2 ON f.id = l2.film_id
+        AND l2.user_id = ?
+        """;
     private static final String REMOVE_QUERY = """
             DELETE FROM films
             WHERE id = ?

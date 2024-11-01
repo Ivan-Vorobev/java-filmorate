@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service.mappers;
 
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.storage.dal.dto.EventDto;
+import java.util.Collection;
 
 public class EventMapper {
 
@@ -14,5 +15,11 @@ public class EventMapper {
                 .userId(eventDto.getUserId())
                 .timestamp(eventDto.getCreatedAt().toInstant().toEpochMilli())
                 .build();
+    }
+
+    public static Collection<Event> modelFromDto(Collection<EventDto> eventDto) {
+        return eventDto.stream()
+                .map(EventMapper::modelFromDto)
+                .toList();
     }
 }

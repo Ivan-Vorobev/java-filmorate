@@ -120,13 +120,6 @@ public class UserDbStorage implements UserStorage {
         userFriendBaseStorage.delete(DELETE_USER_FRIEND_QUERY, user.getId(), friend.getId());
     }
 
-//    @Override
-//    public Set<Long> getFriends(UserDto user) {
-//        return userFriendBaseStorage.findMany(FIND_USER_LIKES_QUERY, user.getId()).stream()
-//                .map(UserFriendsDto::getFriendId)
-//                .collect(Collectors.toSet());
-//    }
-
     @Override
     public Collection<UserDto> getFriends(Long userId) {
         return userBaseStorage.findMany(FIND_USER_LIKES_QUERY, userId);

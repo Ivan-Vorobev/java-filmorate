@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.storage.dal.dto.FilmDto;
+import ru.yandex.practicum.filmorate.storage.dal.film.FilmDbStorage;
 
 import java.time.LocalDate;
 import java.util.*;

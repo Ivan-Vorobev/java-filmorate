@@ -6,7 +6,7 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.service.mappers.DirectorMapper;
 import ru.yandex.practicum.filmorate.storage.dal.dto.DirectorDto;
-import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
+import ru.yandex.practicum.filmorate.storage.dal.director.DirectorStorage;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -24,7 +24,7 @@ public class DirectorService {
                 .collect(Collectors.toList());
     }
 
-    public Director findDirector(Long directorId) {
+    public Director findDirectorById(Long directorId) {
         DirectorDto director = directorStorage.findById(directorId)
                 .orElseThrow(() -> new NotFoundException("Director not found. Id: " + directorId));
 
@@ -40,7 +40,7 @@ public class DirectorService {
     }
 
     public Director update(Director director) {
-        findDirector(director.getId());
+        findDirectorById(director.getId());
         return DirectorMapper.modelFromDto(
                 directorStorage.update(
                         DirectorMapper.dtoFromModel(director)
@@ -49,7 +49,7 @@ public class DirectorService {
     }
 
     public void delete(Long direcorId) {
-        Director director = findDirector(direcorId);
+        Director director = findDirectorById(direcorId);
         directorStorage.delete(DirectorMapper.dtoFromModel(director));
     }
 

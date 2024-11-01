@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.review;
+package ru.yandex.practicum.filmorate.storage.dal.review;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;

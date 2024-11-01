@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.director;
+package ru.yandex.practicum.filmorate.storage.dal.director;
 
 import ru.yandex.practicum.filmorate.storage.dal.dto.DirectorDto;
 

@@ -24,7 +24,7 @@ public class DirectorService {
                 .collect(Collectors.toList());
     }
 
-    public Director findDirector(Long directorId) {
+    public Director findDirectorByID(Long directorId) {
         DirectorDto director = directorStorage.findById(directorId)
                 .orElseThrow(() -> new NotFoundException("Director not found. Id: " + directorId));
 
@@ -40,7 +40,7 @@ public class DirectorService {
     }
 
     public Director update(Director director) {
-        findDirector(director.getId());
+        findDirectorByID(director.getId());
         return DirectorMapper.modelFromDto(
                 directorStorage.update(
                         DirectorMapper.dtoFromModel(director)
@@ -49,16 +49,7 @@ public class DirectorService {
     }
 
     public void delete(Long direcorId) {
-        Director director = findDirector(direcorId);
+        Director director = findDirectorByID(direcorId);
         directorStorage.delete(DirectorMapper.dtoFromModel(director));
-    }
-
-    public Map<Long, Director> findAllAsMap() {
-        HashMap<Long, Director> directorsMap = new HashMap<>();
-        for (DirectorDto director : directorStorage.findAll()) {
-            directorsMap.put(director.getId(), DirectorMapper.modelFromDto(director));
-        }
-
-        return directorsMap;
     }
 }

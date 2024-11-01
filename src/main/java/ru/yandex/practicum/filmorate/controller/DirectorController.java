@@ -32,15 +32,15 @@ public class DirectorController {
     }
 
     @GetMapping("/{id}")
-    public Director findDirector(
+    public Director findDirectorById(
             @PathVariable("id") Long directorId
     ) {
-        return directorService.findDirector(directorId);
+        return directorService.findDirectorByID(directorId);
     }
 
     @PostMapping
     @Validated(RequestMethod.Create.class)
-    public Director add(@Valid @RequestBody Director director) {
+    public Director create(@Valid @RequestBody Director director) {
         return directorService.create(director);
     }
 

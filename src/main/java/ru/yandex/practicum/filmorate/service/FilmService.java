@@ -19,6 +19,7 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
@@ -92,7 +93,8 @@ public class FilmService {
 
         if (film.getDirectors() != null) {
             Collection<Director> newDirectors = new ArrayList<>();
-            Map<Long, Director> directors = directorService.findAllAsMap();
+            Map<Long, Director> directors = directorService.findAll().stream()
+                    .collect(Collectors.toMap(Director::getId, director -> director));
 
             for (Director director : film.getDirectors()) {
                 directorStorage.addFilm(newFilm.getId(), director.getId());
@@ -183,7 +185,7 @@ public class FilmService {
     }
 
     public Collection<Film> findFilmsByDirector(final Long directorId, final String sortBy) {
-        directorService.findDirector(directorId);
+        directorService.findDirectorByID(directorId);
         return switch (SortFilm.fromString(sortBy)) {
             case LIKES -> filmStorage.findFilmsByDirectorSortLike(directorId).stream()
                     .map(FilmMapper::modelFromDto)

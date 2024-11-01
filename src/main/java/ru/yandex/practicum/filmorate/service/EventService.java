@@ -1,27 +1,40 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.service.mappers.EventMapper;
 import ru.yandex.practicum.filmorate.storage.dal.dto.EventDto;
+import ru.yandex.practicum.filmorate.storage.dal.dto.UserDto;
 import ru.yandex.practicum.filmorate.storage.event.EventStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collection;
 
 @Service
-@AllArgsConstructor
 public class EventService {
 
-    EventStorage eventStorage;
+    private final EventStorage eventStorage;
+    private final UserStorage userStorage;
+
+    @Autowired
+    public EventService(EventStorage eventStorage,
+                        @Qualifier("userDbStorage") UserStorage userStorage) {
+        this.eventStorage = eventStorage;
+        this.userStorage = userStorage;
+    }
 
     public Collection<Event> getEventFeed(Long userId) {
-        return eventStorage.getEventFeed(userId).stream()
-                .map(EventMapper::modelFromDto)
-                .toList();
+        UserDto userDto = userStorage.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found. Id: " + userId));
+
+        Collection<EventDto> eventFeedDto = eventStorage.getEventFeed(userDto.getId());
+        return EventMapper.modelFromDto(eventFeedDto);
     }
 
     public void add(Long entityId, Long userId, EventType eventType) {

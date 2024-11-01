@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.RequestMethod;
 import ru.yandex.practicum.filmorate.constraints.ReleaseDateFrom;
-
 import java.time.LocalDate;
 import java.util.Collection;
 
@@ -29,5 +28,4 @@ public class Film {
     @Positive(groups = {RequestMethod.Create.class, RequestMethod.Update.class})
     @Min(value = 1, groups = {RequestMethod.Create.class, RequestMethod.Update.class})
     private int duration;
-    // Collection<Director> directors;
 }

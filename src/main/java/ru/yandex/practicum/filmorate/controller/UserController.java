@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.EventService;
 import ru.yandex.practicum.filmorate.service.UserService;
-
 import java.util.Collection;
 
 @RequiredArgsConstructor
@@ -99,8 +98,6 @@ public class UserController {
 
     @GetMapping("/{id}/feed")
     public Collection<Event> getEventFeed(@PathVariable("id") Long userId) {
-        log.info("Поступил запрос GET на получение ленты пользователя {}", userId);
-        User user = userService.findUser(userId);
-        return eventService.getEventFeed(user.getId());
+        return eventService.getEventFeed(userId);
     }
 }

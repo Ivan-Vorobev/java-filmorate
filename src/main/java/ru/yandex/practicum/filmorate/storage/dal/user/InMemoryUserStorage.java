@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.user;
+package ru.yandex.practicum.filmorate.storage.dal.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

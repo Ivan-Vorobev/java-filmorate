@@ -6,10 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.ReviewService;
-import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.review.ReviewRatingValue;
+import ru.yandex.practicum.filmorate.storage.dal.review.ReviewRatingValue;
 
 import java.util.Collection;
 import java.util.List;
@@ -22,15 +20,11 @@ import java.util.Optional;
 @Slf4j
 public class ReviewController {
     private final ReviewService reviewService;
-    private final FilmService filmService;
-    private final UserService userService;
 
     @PostMapping
     public Review addReview(
             @Valid @RequestBody Review review
     ) {
-        filmService.findFilm(review.getFilmId());
-        userService.findUser(review.getUserId());
         return reviewService.add(review);
     }
 
@@ -38,8 +32,6 @@ public class ReviewController {
     public Review updateReview(
             @Valid @RequestBody Review review
     ) {
-        filmService.findFilm(review.getFilmId());
-        userService.findUser(review.getUserId());
         return reviewService.update(review);
     }
 
@@ -62,8 +54,7 @@ public class ReviewController {
             @RequestParam("filmId") Optional<Long> filmId,
             @RequestParam("count") Optional<Integer> count
     ) {
-        filmId.ifPresent(filmService::findFilm);
-        Collection<Review> result = reviewService.findFilmReviews(filmId.orElse(null), count.orElse(null));
+        Collection<Review> result = reviewService.findFilmReviews(filmId, count.orElse(null));
         return result != null ? result : List.of();
     }
 
@@ -73,7 +64,6 @@ public class ReviewController {
             @PathVariable("userId") Long userId
     ) {
         reviewService.findReview(reviewId);
-        userService.findUser(userId);
         reviewService.addReviewRating(reviewId, userId, ReviewRatingValue.INCREASE);
     }
 
@@ -83,7 +73,6 @@ public class ReviewController {
             @PathVariable("userId") Long userId
     ) {
         reviewService.findReview(reviewId);
-        userService.findUser(userId);
         reviewService.addReviewRating(reviewId, userId, ReviewRatingValue.DECREASE);
     }
 
@@ -93,7 +82,6 @@ public class ReviewController {
             @PathVariable("userId") Long userId
     ) {
         reviewService.findReview(reviewId);
-        userService.findUser(userId);
         reviewService.deleteReviewRating(reviewId, userId);
     }
 
@@ -103,7 +91,6 @@ public class ReviewController {
             @PathVariable("userId") Long userId
     ) {
         reviewService.findReview(reviewId);
-        userService.findUser(userId);
         reviewService.deleteReviewRating(reviewId, userId);
     }
 }

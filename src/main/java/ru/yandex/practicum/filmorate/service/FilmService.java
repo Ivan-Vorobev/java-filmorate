@@ -14,9 +14,9 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.service.mappers.FilmMapper;
-import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.dal.director.DirectorStorage;
+import ru.yandex.practicum.filmorate.storage.dal.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.dal.genre.GenreStorage;
 
 import java.util.*;
 
@@ -183,7 +183,7 @@ public class FilmService {
     }
 
     public Collection<Film> findFilmsByDirector(final Long directorId, final String sortBy) {
-        directorService.findDirector(directorId);
+        directorService.findDirectorById(directorId);
         return switch (SortFilm.fromString(sortBy)) {
             case LIKES -> filmStorage.findFilmsByDirectorSortLike(directorId).stream()
                     .map(FilmMapper::modelFromDto)

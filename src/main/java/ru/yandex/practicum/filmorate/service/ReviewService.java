@@ -6,19 +6,25 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.mappers.ReviewMapper;
-import ru.yandex.practicum.filmorate.storage.review.ReviewRatingValue;
-import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
+import ru.yandex.practicum.filmorate.storage.dal.review.ReviewRatingValue;
+import ru.yandex.practicum.filmorate.storage.dal.review.ReviewStorage;
 import java.util.Collection;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
 
+    private final FilmService filmService;
+    private final UserService userService;
     private final ReviewStorage reviewStorage;
     private final EventService eventService;
 
     public Review add(Review review) {
         assertNull(review, "Class review");
+
+        filmService.findFilm(review.getFilmId());
+        userService.findUser(review.getUserId());
 
         Review createdReview = ReviewMapper.modelFromDto(
                 reviewStorage.add(
@@ -31,6 +37,9 @@ public class ReviewService {
 
     public Review update(Review review) {
         assertNull(review, "Class review");
+
+        filmService.findFilm(review.getFilmId());
+        userService.findUser(review.getUserId());
 
         reviewStorage.update(
                 ReviewMapper.dtoFromModel(review)
@@ -54,19 +63,22 @@ public class ReviewService {
                 .orElseThrow(() -> new NotFoundException("Review not found. Id: " + reviewId)));
     }
 
-    public Collection<Review> findFilmReviews(Long filmId, Integer count) {
-        return reviewStorage.findByParams(filmId, count).stream()
+    public Collection<Review> findFilmReviews(Optional<Long> filmId, Integer count) {
+        filmId.ifPresent(filmService::findFilm);
+        return reviewStorage.findByParams(filmId.orElse(null), count).stream()
                 .map(ReviewMapper::modelFromDto)
                 .toList();
     }
 
     public void addReviewRating(Long reviewId, Long userId, ReviewRatingValue ratingValue) {
+        userService.findUser(userId);
         assertNull(reviewId, "ReviewId");
         assertNull(userId, "UserId");
         reviewStorage.changeRating(reviewId, userId, ratingValue);
     }
 
     public void deleteReviewRating(Long reviewId, Long userId) {
+        userService.findUser(userId);
         assertNull(reviewId, "ReviewId");
         assertNull(userId, "UserId");
     }

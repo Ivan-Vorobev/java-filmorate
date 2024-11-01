@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.storage.dal.dto.GenreDto;
+import ru.yandex.practicum.filmorate.storage.dal.genre.GenreDbStorage;
 
 import java.util.Arrays;
 import java.util.Map;

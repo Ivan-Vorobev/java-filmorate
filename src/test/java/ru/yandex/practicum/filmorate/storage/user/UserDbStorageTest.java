@@ -10,6 +10,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.ActiveProfiles;
 import ru.yandex.practicum.filmorate.storage.dal.dto.UserDto;
+import ru.yandex.practicum.filmorate.storage.dal.user.UserDbStorage;
+
 import java.time.LocalDate;
 import java.util.*;
 

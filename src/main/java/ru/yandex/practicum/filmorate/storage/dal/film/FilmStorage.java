@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.film;
+package ru.yandex.practicum.filmorate.storage.dal.film;
 
 import ru.yandex.practicum.filmorate.storage.dal.dto.FilmDto;
 

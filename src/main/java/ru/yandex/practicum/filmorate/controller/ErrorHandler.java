@@ -22,14 +22,14 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleThrowable(final MethodArgumentNotValidException e) {
+    public ErrorResponse handleMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
         log.error("Ошибка валидации", e);
         return new ErrorResponse("Ошибка валидации: " + e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleThrowable(final ValidationException e) {
+    public ErrorResponse handleValidationException(final ValidationException e) {
         log.error("Ошибка валидации", e);
         return new ErrorResponse("Ошибка валидации: " + e.getMessage());
     }

@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.storage.BaseStorage;
 import ru.yandex.practicum.filmorate.dal.model.User;
 import ru.yandex.practicum.filmorate.dal.model.UserFriends;
-
 import java.util.Collection;
 import java.util.Optional;
 
@@ -23,12 +22,10 @@ public class UserDbStorage implements UserStorage {
     private static final String UPDATE_USER_QUERY = """
             UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE id = ?
             """;
-    private static final String REMOVE_QUERY = "DELETE FROM users WHERE id = ?";
+    private static final String DELETE_USER_BY_ID_QUERY = "DELETE FROM users WHERE id = ?";
+    private static final String DELETE_FROM_USER_FRIENDS_BY_FRIEND_ID_QUERY = "DELETE FROM user_friends WHERE friend_id = ?";
     private static final String INSERT_FRIEND_QUERY = "INSERT INTO user_friends (user_id, friend_id) VALUES (?, ?)";
     private static final String DELETE_USER_FRIEND_QUERY = "DELETE FROM user_friends WHERE user_id = ? AND friend_id = ?";
-
-//    private static final String FIND_USER_LIKES_QUERY = "SELECT * FROM user_friends WHERE user_id = ?";
-
     private static final String FIND_USER_LIKES_QUERY = """
                 SELECT id,
                        email,
@@ -109,8 +106,13 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public void removeUserById(Long userId) {
-        userBaseStorage.delete(REMOVE_QUERY, userId);
+    public void deleteUserById(Long userId) {
+        userBaseStorage.delete(DELETE_USER_BY_ID_QUERY, userId);
+    }
+
+    @Override
+    public void deleteUserFromFriends(Long userId) {
+        userBaseStorage.delete(DELETE_FROM_USER_FRIENDS_BY_FRIEND_ID_QUERY, userId);
     }
 
     @Override

@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.storage.BaseStorage;
 import ru.yandex.practicum.filmorate.dal.model.Event;
-
 import java.util.Collection;
 
 @Repository
@@ -18,7 +17,11 @@ public class EventDbStorage implements EventStorage {
             """;
     private static final String GET_EVENT_FEED_QUERY = """
             SELECT *
-            FROM EVENTS AS e
+            FROM events
+            WHERE user_id = ?
+            """;
+    private static final String DELETE_EVENT_BY_USER_ID_QUERY = """
+            DELETE FROM events
             WHERE user_id = ?
             """;
     private final BaseStorage<Event> eventBaseStorage;
@@ -44,5 +47,10 @@ public class EventDbStorage implements EventStorage {
     @Override
     public Collection<Event> getEventFeed(Long userId) {
         return eventBaseStorage.findMany(GET_EVENT_FEED_QUERY, userId);
+    }
+
+    @Override
+    public void deleteEventByUserId(Long userId) {
+        eventBaseStorage.delete(DELETE_EVENT_BY_USER_ID_QUERY, userId);
     }
 }

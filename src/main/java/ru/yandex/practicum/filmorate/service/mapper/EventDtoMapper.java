@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.service.mapper;
 
 import ru.yandex.practicum.filmorate.dto.EventDto;
 import ru.yandex.practicum.filmorate.dal.model.Event;
-
 import java.util.Collection;
 import java.util.List;
 

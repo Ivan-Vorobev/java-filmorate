@@ -57,9 +57,9 @@ public class FilmController {
     }
 
     @DeleteMapping("/{filmId}")
-    public void removeFilmById(@PathVariable("filmId") Long filmId) {
+    public void deleteFilmById(@PathVariable("filmId") Long filmId) {
         log.info("Получен запрос DELETE на удаление фильма с id = {}", filmId);
-        filmService.removeFilmById(filmId);
+        filmService.deleteFilmById(filmId);
     }
 
     @PutMapping("/{id}/like/{userId}")

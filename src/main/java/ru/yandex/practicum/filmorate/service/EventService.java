@@ -33,23 +33,23 @@ public class EventService {
         User user = userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found. Id: " + userId));
 
-        Collection<Event> eventFeedDto = eventStorage.getEventFeed(user.getId());
-        return EventDtoMapper.dtoFomModel(eventFeedDto);
+        Collection<Event> eventFeed = eventStorage.getEventFeed(user.getId());
+        return EventDtoMapper.dtoFomModel(eventFeed);
     }
 
     public void add(Long entityId, Long userId, EventType eventType) {
-        eventStorage.create(prepareEventDtoData(entityId, userId, eventType, Operation.ADD));
+        eventStorage.create(prepareEventData(entityId, userId, eventType, Operation.ADD));
     }
 
     public void remove(Long entityId, Long userId, EventType eventType) {
-        eventStorage.create(prepareEventDtoData(entityId, userId, eventType, Operation.REMOVE));
+        eventStorage.create(prepareEventData(entityId, userId, eventType, Operation.REMOVE));
     }
 
     public void update(Long entityId, Long userId, EventType eventType) {
-        eventStorage.create(prepareEventDtoData(entityId, userId, eventType, Operation.UPDATE));
+        eventStorage.create(prepareEventData(entityId, userId, eventType, Operation.UPDATE));
     }
 
-    private Event prepareEventDtoData(Long entityId, Long userId, EventType eventType, Operation operationType) {
+    private Event prepareEventData(Long entityId, Long userId, EventType eventType, Operation operationType) {
         return Event.builder()
                 .eventType(eventType)
                 .operation(operationType)

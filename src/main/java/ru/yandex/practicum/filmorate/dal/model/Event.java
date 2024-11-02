@@ -4,7 +4,6 @@ import lombok.Builder;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.service.enums.EventType;
 import ru.yandex.practicum.filmorate.service.enums.Operation;
-
 import java.sql.Timestamp;
 
 @Builder

@@ -11,13 +11,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
-    private final Map<Long, Film> films = new HashMap<>();
+    private final Map<Long, Film> memoryFilms = new HashMap<>();
     private final Map<Long, Set<Long>> likes = new HashMap<>();
     private final GenerateIdStorage idGenerator;
 
     @Override
     public Collection<Film> findAll() {
-        return films.values();
+        return memoryFilms.values();
     }
 
     @Override
@@ -32,7 +32,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Optional<Film> findById(Long filmId) {
-        Film film = films.get(filmId);
+        Film film = memoryFilms.get(filmId);
         return film == null
                 ? Optional.empty()
                 : Optional.of(film);
@@ -41,14 +41,14 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film add(Film film) {
         film.setId(idGenerator.generate());
-        films.put(film.getId(), film);
+        memoryFilms.put(film.getId(), film);
         likes.put(film.getId(), new HashSet<>());
         return film;
     }
 
     @Override
     public Film update(Film film) {
-        films.put(film.getId(), film);
+        memoryFilms.put(film.getId(), film);
         return film;
     }
 
@@ -91,7 +91,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Collection<Film> getCommonFilms(Long userId, Long friendId) {
-        List<Film> filmsDto = new ArrayList<>();
+        List<Film> films = new ArrayList<>();
 
         List<Long> filmIds = likes.entrySet().stream()
                 .filter(map -> map.getValue().contains(userId) && map.getValue().contains(friendId))
@@ -104,9 +104,9 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .toList();
 
         for (Long filmId : filmIds) {
-            filmsDto.add(films.get(filmId));
+            films.add(memoryFilms.get(filmId));
         }
 
-        return filmsDto;
+        return films;
     }
 }

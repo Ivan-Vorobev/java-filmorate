@@ -6,8 +6,8 @@ VALUES (1, 'G'),
        (4, 'R'),
        (5, 'NC-17');
 
-TRUNCATE TABLE genreDto;
-INSERT INTO genreDto (id, name)
+TRUNCATE TABLE genre;
+INSERT INTO genre (id, name)
 VALUES (1, 'Комедия'),
        (2, 'Драма'),
        (3, 'Мультфильм'),

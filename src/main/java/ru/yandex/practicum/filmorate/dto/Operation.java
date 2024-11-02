@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.dto;
 
-public enum OperationDto {
+public enum Operation {
     ADD,
     REMOVE,
     UPDATE

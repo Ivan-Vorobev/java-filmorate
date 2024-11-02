@@ -28,11 +28,11 @@ public class GenreDbStorage implements GenreStorage {
     @Autowired
     public GenreDbStorage(
             JdbcTemplate jdbc,
-            RowMapper<Genre> genreDtoRowMapper,
-            RowMapper<FilmGenre> filmGenreDtoRowMapper
+            RowMapper<Genre> genreRowMapper,
+            RowMapper<FilmGenre> filmGenreRowMapper
     ) {
-        genreBaseStorage = new BaseStorage<>(jdbc, genreDtoRowMapper);
-        filmGenreBaseStorage = new BaseStorage<>(jdbc, filmGenreDtoRowMapper);
+        genreBaseStorage = new BaseStorage<>(jdbc, genreRowMapper);
+        filmGenreBaseStorage = new BaseStorage<>(jdbc, filmGenreRowMapper);
     }
 
     @Override

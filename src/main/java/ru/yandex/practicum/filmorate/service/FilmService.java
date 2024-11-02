@@ -157,7 +157,7 @@ public class FilmService {
         userService.getUserById(userId);
         FilmDto film = findFilmById(filmId);
         filmStorage.addLike(FilmDtoMapper.modelFromDto(film), userId);
-        eventService.add(filmId, userId, EventTypeDto.LIKE);
+        eventService.add(filmId, userId, EventType.LIKE);
         return film;
     }
 
@@ -165,7 +165,7 @@ public class FilmService {
         userService.getUserById(userId);
         FilmDto film = findFilmById(filmId);
         filmStorage.deleteLike(FilmDtoMapper.modelFromDto(film), userId);
-        eventService.remove(filmId, userId, EventTypeDto.LIKE);
+        eventService.remove(filmId, userId, EventType.LIKE);
         return film;
     }
 

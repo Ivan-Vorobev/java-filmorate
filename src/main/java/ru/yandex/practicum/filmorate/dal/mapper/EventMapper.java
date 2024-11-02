@@ -2,8 +2,8 @@ package ru.yandex.practicum.filmorate.dal.mapper;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.dto.EventTypeDto;
-import ru.yandex.practicum.filmorate.dto.OperationDto;
+import ru.yandex.practicum.filmorate.dto.EventType;
+import ru.yandex.practicum.filmorate.dto.Operation;
 import ru.yandex.practicum.filmorate.dal.model.Event;
 
 import java.sql.ResultSet;
@@ -15,8 +15,8 @@ public class EventMapper implements RowMapper<Event> {
     public Event mapRow(ResultSet rs, int rowNum) throws SQLException {
         return Event.builder()
                 .id(rs.getLong("id"))
-                .eventTypeDto(EventTypeDto.valueOf(rs.getString("event_type")))
-                .operationDto(OperationDto.valueOf(rs.getString("operation")))
+                .eventType(EventType.valueOf(rs.getString("event_type")))
+                .operation(Operation.valueOf(rs.getString("operation")))
                 .userId(rs.getLong("user_id"))
                 .entityId(rs.getLong("entity_id"))
                 .createdAt(rs.getTimestamp("created_at"))

@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.ComponentScan;
-import ru.yandex.practicum.filmorate.dto.EventTypeDto;
-import ru.yandex.practicum.filmorate.dto.OperationDto;
+import ru.yandex.practicum.filmorate.dto.EventType;
+import ru.yandex.practicum.filmorate.dto.Operation;
 import ru.yandex.practicum.filmorate.dal.model.Event;
 import ru.yandex.practicum.filmorate.dal.model.User;
 import ru.yandex.practicum.filmorate.dal.storage.user.UserDbStorage;
@@ -32,8 +32,8 @@ class EventDbStorageTest {
     public void createEventDto() {
         Long userId = createUser();
         Event event = Event.builder()
-                .eventTypeDto(EventTypeDto.FRIEND)
-                .operationDto(OperationDto.ADD)
+                .eventType(EventType.FRIEND)
+                .operation(Operation.ADD)
                 .userId(userId)
                 .entityId(1L)
                 .createdAt(Timestamp.from(Instant.now()))

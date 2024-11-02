@@ -24,16 +24,16 @@ public class EventDbStorage implements EventStorage {
     private final BaseStorage<Event> eventBaseStorage;
 
     @Autowired
-    public EventDbStorage(JdbcTemplate jdbc, RowMapper<Event> eventDtoRowMapper) {
-        eventBaseStorage = new BaseStorage<>(jdbc, eventDtoRowMapper);
+    public EventDbStorage(JdbcTemplate jdbc, RowMapper<Event> eventRowMapper) {
+        eventBaseStorage = new BaseStorage<>(jdbc, eventRowMapper);
     }
 
     @Override
     public Event create(Event event) {
         long id = eventBaseStorage.insert(
                 INSERT_QUERY,
-                event.getEventTypeDto().toString(),
-                event.getOperationDto().toString(),
+                event.getEventType().toString(),
+                event.getOperation().toString(),
                 event.getUserId(),
                 event.getEntityId(),
                 event.getCreatedAt());

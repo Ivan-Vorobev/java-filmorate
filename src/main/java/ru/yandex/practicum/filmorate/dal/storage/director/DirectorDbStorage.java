@@ -13,16 +13,16 @@ import java.util.Optional;
 
 @Repository
 public class DirectorDbStorage implements DirectorStorage {
-    private static final String FIND_DIRECTOR_QUERY = "SELECT * FROM directorDto WHERE id = ?";
-    private static final String FIND_ALL_DIRECTOR_QUERY = "SELECT * FROM directorDto";
-    private static final String INSERT_DIRECTOR_QUERY = "INSERT INTO directorDto (name)" +
+    private static final String FIND_DIRECTOR_QUERY = "SELECT * FROM director WHERE id = ?";
+    private static final String FIND_ALL_DIRECTOR_QUERY = "SELECT * FROM director";
+    private static final String INSERT_DIRECTOR_QUERY = "INSERT INTO director (name)" +
             "VALUES (?)";
     private static final String INSERT_FILM_DIRECTOR_QUERY = "INSERT INTO film_director (film_id, director_id) " +
             "VALUES (?, ?)";
     private static final String UPDATE_DIRECTOR_QUERY = """
-            UPDATE directorDto SET name = ? WHERE id = ?
+            UPDATE director SET name = ? WHERE id = ?
             """;
-    private static final String DELETE_DIRECTOR_QUERY = "DELETE FROM directorDto WHERE id = ?";
+    private static final String DELETE_DIRECTOR_QUERY = "DELETE FROM director WHERE id = ?";
 
     private static final String DELETE_FILIM_DIRECTOR_QUERY = "DELETE FROM film_director WHERE id = ?";
     private final BaseStorage<Director> directorBaseStorage;
@@ -30,9 +30,9 @@ public class DirectorDbStorage implements DirectorStorage {
     @Autowired
     public DirectorDbStorage(
             JdbcTemplate jdbc,
-            RowMapper<Director> directorDtoRowMapper
+            RowMapper<Director> directorRowMapper
     ) {
-        directorBaseStorage = new BaseStorage<>(jdbc, directorDtoRowMapper);
+        directorBaseStorage = new BaseStorage<>(jdbc, directorRowMapper);
     }
 
     @Override

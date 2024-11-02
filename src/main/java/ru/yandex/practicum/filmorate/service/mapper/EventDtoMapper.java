@@ -12,8 +12,8 @@ public class EventDtoMapper {
         return EventDto.builder()
                 .eventId(model.getId())
                 .entityId(model.getEntityId())
-                .eventType(model.getEventTypeDto().toString())
-                .operation(model.getOperationDto().toString())
+                .eventType(model.getEventType().toString())
+                .operation(model.getOperation().toString())
                 .userId(model.getUserId())
                 .timestamp(model.getCreatedAt().toInstant().toEpochMilli())
                 .build();

@@ -133,7 +133,7 @@ public class FilmDbStorage implements FilmStorage {
                 fg.genre_id AS genre_id,
                 g.name AS genre_name
             FROM film_genres fg
-            INNER JOIN genreDto g ON g.id = fg.genre_id
+            INNER JOIN genre g ON g.id = fg.genre_id
             WHERE fg.film_id IN (%s)
             ORDER BY fg.film_id ASC
             """;
@@ -143,7 +143,7 @@ public class FilmDbStorage implements FilmStorage {
                 fd.director_id AS director_id,
                 d.name AS director_name
             FROM film_director fd
-            INNER JOIN directorDto d ON d.id = fd.director_id
+            INNER JOIN director d ON d.id = fd.director_id
             WHERE fd.film_id IN (%s)
             ORDER BY fd.film_id ASC
             """;
@@ -157,12 +157,12 @@ public class FilmDbStorage implements FilmStorage {
     @Autowired
     public FilmDbStorage(
             JdbcTemplate jdbc,
-            RowMapper<Film> filmDtoRowMapper,
+            RowMapper<Film> filmRowMapper,
             RowMapper<FilmLikes> filmLikesRowMapper,
             RowMapper<FilmFullGenre> filmGenreRowMapper,
             RowMapper<FilmFullDirector> filmDirectorRowMapper
     ) {
-        filmBaseStorage = new BaseStorage<>(jdbc, filmDtoRowMapper);
+        filmBaseStorage = new BaseStorage<>(jdbc, filmRowMapper);
         filmLikesBaseStorage = new BaseStorage<>(jdbc, filmLikesRowMapper);
         filmGenreBaseStorage = new BaseStorage<>(jdbc, filmGenreRowMapper);
         filmDirectorBaseStorage = new BaseStorage<>(jdbc, filmDirectorRowMapper);
@@ -170,12 +170,12 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Collection<Film> findAll() {
-        return prepareFilmDtoData(filmBaseStorage.findMany(FIND_ALL_QUERY));
+        return prepareFilmData(filmBaseStorage.findMany(FIND_ALL_QUERY));
     }
 
     @Override
     public Optional<Film> findById(Long filmId) {
-        Collection<Film> films = prepareFilmDtoData(filmBaseStorage.findMany(FIND_BY_ID_QUERY, filmId));
+        Collection<Film> films = prepareFilmData(filmBaseStorage.findMany(FIND_BY_ID_QUERY, filmId));
         Optional<Film> film = films.stream().findFirst();
 
         if (film.isPresent()) {
@@ -257,17 +257,17 @@ public class FilmDbStorage implements FilmStorage {
         params.add(count);
 
 
-        return prepareFilmDtoData(filmBaseStorage.findMany(query, params.toArray()));
+        return prepareFilmData(filmBaseStorage.findMany(query, params.toArray()));
     }
 
     @Override
     public Collection<Film> findFilmsByDirectorSortYear(Long directorId) {
-        return prepareFilmDtoData(filmBaseStorage.findMany(FIND_FILMS_BY_DIRECTOR_SORT_YEAR, directorId));
+        return prepareFilmData(filmBaseStorage.findMany(FIND_FILMS_BY_DIRECTOR_SORT_YEAR, directorId));
     }
 
     @Override
     public Collection<Film> findFilmsByDirectorSortLike(Long directorId) {
-        return prepareFilmDtoData(filmBaseStorage.findMany(FIND_FILMS_BY_DIRECTOR_SORT_LIKE, directorId));
+        return prepareFilmData(filmBaseStorage.findMany(FIND_FILMS_BY_DIRECTOR_SORT_LIKE, directorId));
     }
 
     @Override
@@ -291,7 +291,7 @@ public class FilmDbStorage implements FilmStorage {
                                 f.id IN (
                                     SELECT DISTINCT fd.film_id
                                     FROM film_director fd
-                                    INNER JOIN directorDto d ON d.id = fd.director_id
+                                    INNER JOIN director d ON d.id = fd.director_id
                                     WHERE lower(d.name) LIKE ?
                                 )
                                 """);
@@ -301,15 +301,15 @@ public class FilmDbStorage implements FilmStorage {
             });
         }
         String formattedQuery = String.format(SEARCH_QUERY, conditions);
-        return prepareFilmDtoData(filmBaseStorage.findMany(formattedQuery, params.toArray()));
+        return prepareFilmData(filmBaseStorage.findMany(formattedQuery, params.toArray()));
     }
 
     @Override
     public Collection<Film> getCommonFilms(Long userId, Long friendId) {
-        return prepareFilmDtoData(filmBaseStorage.findMany(GET_COMMON_FILMS, userId, friendId));
+        return prepareFilmData(filmBaseStorage.findMany(GET_COMMON_FILMS, userId, friendId));
     }
 
-    private Collection<Film> prepareFilmDtoData(Collection<Film> films) {
+    private Collection<Film> prepareFilmData(Collection<Film> films) {
         loadGenres(films);
         loadDirectors(films);
         return films;
@@ -407,6 +407,6 @@ public class FilmDbStorage implements FilmStorage {
         // Получаем список фильмов, которые понравились похожему пользователю, но отсутствуют у текущего пользователя
         Collection<Film> recommendedFilms = filmBaseStorage.findMany(FIND_RECOMMENDED_FILMS_QUERY, similarUserId, userId);
 
-        return prepareFilmDtoData(recommendedFilms);
+        return prepareFilmData(recommendedFilms);
     }
 }

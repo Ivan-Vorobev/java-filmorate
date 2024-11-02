@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.dto.EventDto;
-import ru.yandex.practicum.filmorate.dto.EventTypeDto;
-import ru.yandex.practicum.filmorate.dto.OperationDto;
+import ru.yandex.practicum.filmorate.dto.EventType;
+import ru.yandex.practicum.filmorate.dto.Operation;
 import ru.yandex.practicum.filmorate.service.mapper.EventDtoMapper;
 import ru.yandex.practicum.filmorate.dal.model.Event;
 import ru.yandex.practicum.filmorate.dal.model.User;
@@ -37,22 +37,22 @@ public class EventService {
         return EventDtoMapper.dtoFomModel(eventFeedDto);
     }
 
-    public void add(Long entityId, Long userId, EventTypeDto eventTypeDto) {
-        eventStorage.create(prepareEventDtoData(entityId, userId, eventTypeDto, OperationDto.ADD));
+    public void add(Long entityId, Long userId, EventType eventType) {
+        eventStorage.create(prepareEventDtoData(entityId, userId, eventType, Operation.ADD));
     }
 
-    public void remove(Long entityId, Long userId, EventTypeDto eventTypeDto) {
-        eventStorage.create(prepareEventDtoData(entityId, userId, eventTypeDto, OperationDto.REMOVE));
+    public void remove(Long entityId, Long userId, EventType eventType) {
+        eventStorage.create(prepareEventDtoData(entityId, userId, eventType, Operation.REMOVE));
     }
 
-    public void update(Long entityId, Long userId, EventTypeDto eventTypeDto) {
-        eventStorage.create(prepareEventDtoData(entityId, userId, eventTypeDto, OperationDto.UPDATE));
+    public void update(Long entityId, Long userId, EventType eventType) {
+        eventStorage.create(prepareEventDtoData(entityId, userId, eventType, Operation.UPDATE));
     }
 
-    private Event prepareEventDtoData(Long entityId, Long userId, EventTypeDto eventTypeDto, OperationDto operationDtoType) {
+    private Event prepareEventDtoData(Long entityId, Long userId, EventType eventType, Operation operationType) {
         return Event.builder()
-                .eventTypeDto(eventTypeDto)
-                .operationDto(operationDtoType)
+                .eventType(eventType)
+                .operation(operationType)
                 .userId(userId)
                 .entityId(entityId)
                 .createdAt(Timestamp.from(Instant.now()))

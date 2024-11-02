@@ -14,15 +14,14 @@ import java.util.Optional;
 public class RatingDbStorage implements RatingStorage {
     private static final String FIND_RATING_QUERY = "SELECT * FROM rating WHERE id = ?";
     private static final String FIND_ALL_RATING_QUERY = "SELECT * FROM rating";
-
     private final BaseStorage<Rating> genreBaseStorage;
 
     @Autowired
     public RatingDbStorage(
             JdbcTemplate jdbc,
-            RowMapper<Rating> genreDtoRowMapper
+            RowMapper<Rating> genreRowMapper
     ) {
-        genreBaseStorage = new BaseStorage<>(jdbc, genreDtoRowMapper);
+        genreBaseStorage = new BaseStorage<>(jdbc, genreRowMapper);
     }
 
     @Override

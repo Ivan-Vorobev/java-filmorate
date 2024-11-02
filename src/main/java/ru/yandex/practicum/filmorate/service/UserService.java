@@ -3,7 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dto.EventTypeDto;
+import ru.yandex.practicum.filmorate.dto.EventType;
 import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.dal.model.User;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -68,7 +68,7 @@ public class UserService {
         UserDto userDto = getUserById(userId);
         UserDto friend = getUserById(friendId);
         userStorage.addFriend(UserDtoMapper.modelFromDto(userDto), UserDtoMapper.modelFromDto(friend));
-        eventService.add(friendId, userId, EventTypeDto.FRIEND);
+        eventService.add(friendId, userId, EventType.FRIEND);
     }
 
     public void deleteFriend(Long userId, Long friendId) {
@@ -78,7 +78,7 @@ public class UserService {
         UserDto userDto = getUserById(userId);
         UserDto friend = getUserById(friendId);
         userStorage.deleteFriend(UserDtoMapper.modelFromDto(userDto), UserDtoMapper.modelFromDto(friend));
-        eventService.remove(friendId, userId, EventTypeDto.FRIEND);
+        eventService.remove(friendId, userId, EventType.FRIEND);
     }
 
     public Collection<UserDto> findFriends(Long userId) {

@@ -62,32 +62,32 @@ public class ReviewDbStorage implements ReviewStorage {
             WHERE review_id = ?
             """;
 
-    private final BaseStorage<Review> reviewDtoStorage;
+    private final BaseStorage<Review> reviewStorage;
 
     @Autowired
     public ReviewDbStorage(
             JdbcTemplate jdbc,
-            RowMapper<Review> reviewDtoRowMapper
+            RowMapper<Review> reviewRowMapper
     ) {
-        reviewDtoStorage = new BaseStorage<>(jdbc, reviewDtoRowMapper);
+        reviewStorage = new BaseStorage<>(jdbc, reviewRowMapper);
     }
 
     @Override
     public Optional<Review> findById(Long reviewId) {
-        return reviewDtoStorage.findOne(FIND_REVIEW_QUERY, reviewId);
+        return reviewStorage.findOne(FIND_REVIEW_QUERY, reviewId);
     }
 
     @Override
     public Collection<Review> findByParams(Long filmId, Integer limit) {
         limit = limit == null ? 10 : limit;
         if (filmId != null) {
-            return reviewDtoStorage.findMany(
+            return reviewStorage.findMany(
                     FIND_ALL_FILM_REVIEWS_QUERY.replace("((WHERE_EXPRESSION))", "WHERE r.film_id = ?"),
                     filmId,
                     limit
             );
         }
-        return reviewDtoStorage.findMany(
+        return reviewStorage.findMany(
                 FIND_ALL_FILM_REVIEWS_QUERY.replace("((WHERE_EXPRESSION))", ""),
                 limit
         );
@@ -96,18 +96,18 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     public void changeRating(Long reviewId, Long userId, ReviewRatingValue ratingValue) {
         removeRating(reviewId, userId);
-        reviewDtoStorage.insert(INSERT_REVIEW_RATING_VALUE, reviewId, userId, ratingValue.value);
+        reviewStorage.insert(INSERT_REVIEW_RATING_VALUE, reviewId, userId, ratingValue.value);
     }
 
     @Override
     public void removeRating(Long reviewId, Long userId) {
-        reviewDtoStorage.delete(DELETE_REVIEW_RATING_VALUE, reviewId, userId);
+        reviewStorage.delete(DELETE_REVIEW_RATING_VALUE, reviewId, userId);
     }
 
     @Override
     public Review add(Review review) {
         review.setId(
-                reviewDtoStorage.insert(
+                reviewStorage.insert(
                         INSERT_REVIEW,
                         review.getFilmId(),
                         review.getUserId(),
@@ -121,7 +121,7 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void update(Review review) {
-        reviewDtoStorage.update(
+        reviewStorage.update(
                 UPDATE_REVIEW,
                 review.getIsPositive(),
                 review.getContent(),
@@ -131,7 +131,7 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void delete(Long reviewId) {
-        reviewDtoStorage.delete(DELETE_REVIEWS_QUERY, reviewId);
-        reviewDtoStorage.delete(DELETE_REVIEW_RATINGS_QUERY, reviewId);
+        reviewStorage.delete(DELETE_REVIEWS_QUERY, reviewId);
+        reviewStorage.delete(DELETE_REVIEW_RATINGS_QUERY, reviewId);
     }
 }

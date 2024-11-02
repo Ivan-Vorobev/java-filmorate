@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.dto.EventTypeDto;
+import ru.yandex.practicum.filmorate.dto.EventType;
 import ru.yandex.practicum.filmorate.dto.ReviewDto;
 import ru.yandex.practicum.filmorate.service.mapper.ReviewDtoMapper;
 import ru.yandex.practicum.filmorate.dal.storage.review.ReviewRatingValue;
@@ -29,7 +29,7 @@ public class ReviewService {
                         ReviewDtoMapper.modelFromDto(reviewDto)
                 )
         );
-        eventService.add(createdReviewDto.getReviewId(), createdReviewDto.getUserId(), EventTypeDto.REVIEW);
+        eventService.add(createdReviewDto.getReviewId(), createdReviewDto.getUserId(), EventType.REVIEW);
         return findReviewById(createdReviewDto.getReviewId());
     }
 
@@ -41,7 +41,7 @@ public class ReviewService {
                 ReviewDtoMapper.modelFromDto(reviewDto)
         );
         ReviewDto updatedReviewDto = findReviewById(reviewDto.getReviewId());
-        eventService.update(updatedReviewDto.getReviewId(), updatedReviewDto.getUserId(), EventTypeDto.REVIEW);
+        eventService.update(updatedReviewDto.getReviewId(), updatedReviewDto.getUserId(), EventType.REVIEW);
         return updatedReviewDto;
     }
 
@@ -52,7 +52,7 @@ public class ReviewService {
 
         ReviewDto reviewDto = findReviewById(reviewId);
         reviewStorage.delete(reviewId);
-        eventService.remove(reviewDto.getReviewId(), reviewDto.getUserId(), EventTypeDto.REVIEW);
+        eventService.remove(reviewDto.getReviewId(), reviewDto.getUserId(), EventType.REVIEW);
     }
 
     public ReviewDto findReviewById(Long reviewId) {

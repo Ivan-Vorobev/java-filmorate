@@ -62,10 +62,10 @@ public class UserDbStorage implements UserStorage {
 
     public UserDbStorage(
             JdbcTemplate jdbc,
-            @Qualifier("userMapper") RowMapper<User> userDtoRowMapper,
+            @Qualifier("userMapper") RowMapper<User> userRowMapper,
             @Qualifier("userFriendsMapper") RowMapper<UserFriends> userFriendRowMapper
     ) {
-        userBaseStorage = new BaseStorage<>(jdbc, userDtoRowMapper);
+        userBaseStorage = new BaseStorage<>(jdbc, userRowMapper);
         userFriendBaseStorage = new BaseStorage<>(jdbc, userFriendRowMapper);
     }
 

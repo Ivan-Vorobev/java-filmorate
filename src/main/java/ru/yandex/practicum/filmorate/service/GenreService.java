@@ -11,7 +11,6 @@ import ru.yandex.practicum.filmorate.dal.storage.genre.GenreStorage;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,22 +18,20 @@ public class GenreService {
     private final GenreStorage genreStorage;
 
     public Collection<GenreDto> findAll() {
-        return genreStorage.findAll().stream()
-                .map(GenreDtoMapper::modelFromDto)
-                .collect(Collectors.toList());
+        return GenreDtoMapper.dtoFromModel(genreStorage.findAll());
     }
 
-    public GenreDto findGenre(Long genreId) {
+    public GenreDto findGenreById(Long genreId) {
         Genre genre = genreStorage.findById(genreId)
                 .orElseThrow(() -> new NotFoundException("Genre not found. Id: " + genreId));
 
-        return GenreDtoMapper.modelFromDto(genre);
+        return GenreDtoMapper.dtoFromModel(genre);
     }
 
     public Map<Long, GenreDto> findAllAsMap() {
         HashMap<Long, GenreDto> genresMap = new HashMap<>();
         for (Genre genre : genreStorage.findAll()) {
-            genresMap.put(genre.getId(), GenreDtoMapper.modelFromDto(genre));
+            genresMap.put(genre.getId(), GenreDtoMapper.dtoFromModel(genre));
         }
 
         return genresMap;

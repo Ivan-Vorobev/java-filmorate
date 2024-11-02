@@ -4,23 +4,27 @@ import ru.yandex.practicum.filmorate.dto.EventDto;
 import ru.yandex.practicum.filmorate.dal.model.Event;
 
 import java.util.Collection;
+import java.util.List;
 
 public class EventDtoMapper {
 
-    public static EventDto modelFromDto(Event event) {
+    public static EventDto dtoFromModel(Event model) {
         return EventDto.builder()
-                .eventId(event.getId())
-                .entityId(event.getEntityId())
-                .eventType(event.getEventTypeDto().toString())
-                .operation(event.getOperationDto().toString())
-                .userId(event.getUserId())
-                .timestamp(event.getCreatedAt().toInstant().toEpochMilli())
+                .eventId(model.getId())
+                .entityId(model.getEntityId())
+                .eventType(model.getEventTypeDto().toString())
+                .operation(model.getOperationDto().toString())
+                .userId(model.getUserId())
+                .timestamp(model.getCreatedAt().toInstant().toEpochMilli())
                 .build();
     }
 
-    public static Collection<EventDto> modelFromDto(Collection<Event> event) {
-        return event.stream()
-                .map(EventDtoMapper::modelFromDto)
+    public static Collection<EventDto> dtoFomModel(Collection<Event> models) {
+        if (models == null) {
+            return List.of();
+        }
+        return models.stream()
+                .map(EventDtoMapper::dtoFromModel)
                 .toList();
     }
 }

@@ -32,7 +32,7 @@ public class UserController {
 
     @PostMapping
     @Validated(RequestMethod.Create.class)
-    public UserDto add(@Valid @RequestBody UserDto userDto) {
+    public UserDto create(@Valid @RequestBody UserDto userDto) {
         return userService.create(userDto);
     }
 
@@ -50,7 +50,7 @@ public class UserController {
     @GetMapping("/{id}")
     public UserDto getUserById(@PathVariable("id") Long id) {
         log.info("Поступил запрос GET на получение данных о пользователе с id = {}", id);
-        return userService.findUser(id);
+        return userService.getUserById(id);
     }
 
     @DeleteMapping("/{id}")
@@ -77,14 +77,14 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public Collection<UserDto> findUsers(
+    public Collection<UserDto> findFriends(
             @PathVariable("id") Long userId
     ) {
         return userService.findFriends(userId);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public Collection<UserDto> findUsers(
+    public Collection<UserDto> findCommonFriends(
             @PathVariable("id") Long userId,
             @PathVariable("otherId") Long otherId
     ) {

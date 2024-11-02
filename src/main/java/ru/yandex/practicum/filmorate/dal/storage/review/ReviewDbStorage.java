@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dal.storage.review;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -11,6 +12,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 @Repository
+@Primary
 public class ReviewDbStorage implements ReviewStorage {
     private static final String DELETE_REVIEW_RATING_VALUE = """
             DELETE FROM review_ratings

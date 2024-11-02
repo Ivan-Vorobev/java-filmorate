@@ -34,15 +34,15 @@ public class FilmController {
     }
 
     @GetMapping("/{id}")
-    public FilmDto findOne(
+    public FilmDto findFilmById(
             @PathVariable("id") Long filmId
     ) {
-        return filmService.findFilm(filmId);
+        return filmService.findFilmById(filmId);
     }
 
     @PostMapping
     @Validated({RequestMethod.Create.class})
-    public FilmDto add(@Valid @RequestBody FilmDto film) {
+    public FilmDto create(@Valid @RequestBody FilmDto film) {
         FilmDto newFilm = filmService.create(film);
         log.info("Add film with id: " + newFilm.getId());
         return newFilm;
@@ -79,7 +79,7 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public Collection<FilmDto> getPopular(
+    public Collection<FilmDto> findTopPopular(
             @RequestParam(value = "count", defaultValue = "10") Long count,
             @RequestParam(value = "genreId", defaultValue = "0") Long genreId,
             @RequestParam(value = "year", defaultValue = "0") Integer year

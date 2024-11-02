@@ -34,7 +34,7 @@ public class EventService {
                 .orElseThrow(() -> new NotFoundException("User not found. Id: " + userId));
 
         Collection<Event> eventFeedDto = eventStorage.getEventFeed(user.getId());
-        return EventDtoMapper.modelFromDto(eventFeedDto);
+        return EventDtoMapper.dtoFomModel(eventFeedDto);
     }
 
     public void add(Long entityId, Long userId, EventTypeDto eventTypeDto) {

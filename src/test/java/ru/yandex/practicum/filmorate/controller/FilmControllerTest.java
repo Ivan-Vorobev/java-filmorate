@@ -26,13 +26,13 @@ class FilmControllerTest {
     @DisplayName("Успешное создание фильма")
     void add_validatePositive_allFieldsIsValid() {
         assertDoesNotThrow(
-                () -> filmController.add(createFilm(1L)),
+                () -> filmController.create(createFilm(1L)),
                 "Валидные данные не проходят валидацию"
         );
         assertDoesNotThrow(
                 () -> {
                     FilmDto film = createFilm(null);
-                    FilmDto createdFilm = filmController.add(film);
+                    FilmDto createdFilm = filmController.create(film);
                     assertNotEquals(null, createdFilm.getId(), "Не создано id фильма");
                     assertEquals(film.getName(), createdFilm.getName(), "Имя не совпадает");
                     assertEquals(film.getDescription(), createdFilm.getDescription(), "Описание не совпадает");
@@ -47,7 +47,7 @@ class FilmControllerTest {
     @DisplayName("Успешное обновление фильма")
     void update_validatePositive_allFieldsIsValid() {
         assertDoesNotThrow(
-                () -> filmController.add(createFilm(1L)),
+                () -> filmController.create(createFilm(1L)),
                 "Валидные данные не проходят валидацию"
         );
         assertDoesNotThrow(
@@ -73,13 +73,13 @@ class FilmControllerTest {
     @Test
     @DisplayName("Валидация при создании фильма")
     void add_validateNegative_fieldsIsNotValid() {
-        filmValidate("add");
+        filmValidate("create");
     }
 
     @Test
     @DisplayName("Валидация при обновлении фильма")
     void update_validateNegative_fieldsIsNotValid() {
-        filmController.add(createFilm(1L));
+        filmController.create(createFilm(1L));
         // Field #id
         assertThrows(
                 ConstraintViolationException.class,

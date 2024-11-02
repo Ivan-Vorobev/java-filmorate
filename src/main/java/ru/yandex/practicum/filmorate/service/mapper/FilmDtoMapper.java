@@ -8,46 +8,51 @@ import ru.yandex.practicum.filmorate.dto.FilmDto;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class FilmDtoMapper {
-    public static FilmDto modelFromDto(Film dto) {
-        Collection<Genre> genres = dto.getGenres();
+    public static FilmDto dtoFromModel(Film model) {
+        Collection<Genre> genres = model.getGenres();
         if (genres == null) {
             genres = new ArrayList<>();
         }
 
-        Collection<Director> directors = dto.getDirectors();
+        Collection<Director> directors = model.getDirectors();
         if (directors == null) {
             directors = new ArrayList<>();
         }
 
         return FilmDto.builder()
-                .id(dto.getId())
-                .name(dto.getName())
-                .description(dto.getDescription())
-                .releaseDate(dto.getReleaseDate())
-                .mpa(RatingDto.builder().id(dto.getRatingId()).name(dto.getRatingName()).build())
-                .genres(
-                        genres.stream()
-                                .map(GenreDtoMapper::modelFromDto)
-                                .toList()
-                )
-                .directors(directors.stream()
-                        .map(DirectorDtoMapper::modelFromDto)
-                        .toList())
-                .duration(dto.getDuration())
-                .build();
-    }
-
-    public static Film dtoFromModel(FilmDto model) {
-        return Film.builder()
                 .id(model.getId())
                 .name(model.getName())
                 .description(model.getDescription())
                 .releaseDate(model.getReleaseDate())
-                .ratingId(model.getMpa() != null ? model.getMpa().getId() : null)
-                .ratingName(model.getMpa() != null ? model.getMpa().getName() : null)
+                .mpa(RatingDto.builder().id(model.getRatingId()).name(model.getRatingName()).build())
+                .genres(GenreDtoMapper.dtoFromModel(genres))
+                .directors(DirectorDtoMapper.dtoFromModel(directors))
                 .duration(model.getDuration())
+                .build();
+    }
+
+    public static Collection<FilmDto> dtoFromModel(Collection<Film> models) {
+        if (models == null) {
+            return List.of();
+        }
+
+        return models.stream()
+                .map(FilmDtoMapper::dtoFromModel)
+                .toList();
+    }
+
+    public static Film modelFromDto(FilmDto dto) {
+        return Film.builder()
+                .id(dto.getId())
+                .name(dto.getName())
+                .description(dto.getDescription())
+                .releaseDate(dto.getReleaseDate())
+                .ratingId(dto.getMpa() != null ? dto.getMpa().getId() : null)
+                .ratingName(dto.getMpa() != null ? dto.getMpa().getName() : null)
+                .duration(dto.getDuration())
                 .build();
     }
 }

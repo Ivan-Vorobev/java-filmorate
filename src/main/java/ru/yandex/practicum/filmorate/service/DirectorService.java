@@ -18,7 +18,7 @@ public class DirectorService {
 
     public Collection<DirectorDto> findAll() {
         return directorStorage.findAll().stream()
-                .map(DirectorDtoMapper::modelFromDto)
+                .map(DirectorDtoMapper::dtoFromModel)
                 .collect(Collectors.toList());
     }
 
@@ -26,28 +26,28 @@ public class DirectorService {
         Director director = directorStorage.findById(directorId)
                 .orElseThrow(() -> new NotFoundException("Director not found. Id: " + directorId));
 
-        return DirectorDtoMapper.modelFromDto(director);
+        return DirectorDtoMapper.dtoFromModel(director);
     }
 
     public DirectorDto create(DirectorDto directorDto) {
-        return DirectorDtoMapper.modelFromDto(
+        return DirectorDtoMapper.dtoFromModel(
                 directorStorage.add(
-                        DirectorDtoMapper.dtoFromModel(directorDto)
+                        DirectorDtoMapper.modelFromDto(directorDto)
                 )
         );
     }
 
     public DirectorDto update(DirectorDto directorDto) {
         findDirectorByID(directorDto.getId());
-        return DirectorDtoMapper.modelFromDto(
+        return DirectorDtoMapper.dtoFromModel(
                 directorStorage.update(
-                        DirectorDtoMapper.dtoFromModel(directorDto)
+                        DirectorDtoMapper.modelFromDto(directorDto)
                 )
         );
     }
 
     public void delete(Long direcorId) {
         DirectorDto director = findDirectorByID(direcorId);
-        directorStorage.delete(DirectorDtoMapper.dtoFromModel(director));
+        directorStorage.delete(DirectorDtoMapper.modelFromDto(director));
     }
 }

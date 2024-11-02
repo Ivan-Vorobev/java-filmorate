@@ -3,26 +3,39 @@ package ru.yandex.practicum.filmorate.service.mapper;
 import ru.yandex.practicum.filmorate.dto.ReviewDto;
 import ru.yandex.practicum.filmorate.dal.model.Review;
 
+import java.util.Collection;
+import java.util.List;
+
 public class ReviewDtoMapper {
-    public static ReviewDto modelFromDto(Review dto) {
+    public static ReviewDto dtoFromModel(Review model) {
         return ReviewDto.builder()
-                .reviewId(dto.getId())
-                .content(dto.getContent())
-                .isPositive(dto.getIsPositive())
-                .userId(dto.getUserId())
-                .filmId(dto.getFilmId())
-                .useful(dto.getUseful() != null ? dto.getUseful() : 0)
+                .reviewId(model.getId())
+                .content(model.getContent())
+                .isPositive(model.getIsPositive())
+                .userId(model.getUserId())
+                .filmId(model.getFilmId())
+                .useful(model.getUseful() != null ? model.getUseful() : 0)
                 .build();
     }
 
-    public static Review dtoFromModel(ReviewDto model) {
+    public static Collection<ReviewDto> dtoFromModel(Collection<Review> models) {
+        if (models == null) {
+            return List.of();
+        }
+
+        return models.stream()
+                .map(ReviewDtoMapper::dtoFromModel)
+                .toList();
+    }
+
+    public static Review modelFromDto(ReviewDto dto) {
         return Review.builder()
-                .id(model.getReviewId())
-                .filmId(model.getFilmId())
-                .userId(model.getUserId())
-                .isPositive(model.getIsPositive())
-                .content(model.getContent())
-                .useful(model.getUseful())
+                .id(dto.getReviewId())
+                .filmId(dto.getFilmId())
+                .userId(dto.getUserId())
+                .isPositive(dto.getIsPositive())
+                .content(dto.getContent())
+                .useful(dto.getUseful())
                 .build();
     }
 }

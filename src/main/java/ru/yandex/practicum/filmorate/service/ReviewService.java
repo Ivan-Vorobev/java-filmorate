@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.dto.EventTypeDto;
 import ru.yandex.practicum.filmorate.dto.ReviewDto;
@@ -16,64 +17,68 @@ public class ReviewService {
 
     private final ReviewStorage reviewStorage;
     private final EventService eventService;
+    private final FilmService filmService;
+    private final UserService userService;
 
-    public ReviewDto add(ReviewDto reviewDto) {
-        assertNull(reviewDto, "Class review");
+    public ReviewDto create(ReviewDto reviewDto) {
+        filmService.findFilmById(reviewDto.getFilmId());
+        userService.getUserById(reviewDto.getUserId());
 
-        ReviewDto createdReviewDto = ReviewDtoMapper.modelFromDto(
+        ReviewDto createdReviewDto = ReviewDtoMapper.dtoFromModel(
                 reviewStorage.add(
-                        ReviewDtoMapper.dtoFromModel(reviewDto)
+                        ReviewDtoMapper.modelFromDto(reviewDto)
                 )
         );
         eventService.add(createdReviewDto.getReviewId(), createdReviewDto.getUserId(), EventTypeDto.REVIEW);
-        return findReview(createdReviewDto.getReviewId());
+        return findReviewById(createdReviewDto.getReviewId());
     }
 
     public ReviewDto update(ReviewDto reviewDto) {
-        assertNull(reviewDto, "Class review");
+        filmService.findFilmById(reviewDto.getFilmId());
+        userService.getUserById(reviewDto.getUserId());
 
         reviewStorage.update(
-                ReviewDtoMapper.dtoFromModel(reviewDto)
+                ReviewDtoMapper.modelFromDto(reviewDto)
         );
-        ReviewDto updatedReviewDto = findReview(reviewDto.getReviewId());
+        ReviewDto updatedReviewDto = findReviewById(reviewDto.getReviewId());
         eventService.update(updatedReviewDto.getReviewId(), updatedReviewDto.getUserId(), EventTypeDto.REVIEW);
         return updatedReviewDto;
     }
 
     public void delete(Long reviewId) {
-        assertNull(reviewId, "ReviewId");
-        ReviewDto reviewDto = findReview(reviewId);
+        if (reviewId == null) {
+            return;
+        }
+
+        ReviewDto reviewDto = findReviewById(reviewId);
         reviewStorage.delete(reviewId);
         eventService.remove(reviewDto.getReviewId(), reviewDto.getUserId(), EventTypeDto.REVIEW);
     }
 
-    public ReviewDto findReview(Long reviewId) {
-        assertNull(reviewId, "ReviewId");
-        return ReviewDtoMapper.modelFromDto(reviewStorage
+    public ReviewDto findReviewById(Long reviewId) {
+        return ReviewDtoMapper.dtoFromModel(reviewStorage
                 .findById(reviewId)
                 .orElseThrow(() -> new NotFoundException("Review not found. Id: " + reviewId)));
     }
 
-    public Collection<ReviewDto> findFilmReviews(Long filmId, Integer count) {
-        return reviewStorage.findByParams(filmId, count).stream()
-                .map(ReviewDtoMapper::modelFromDto)
-                .toList();
+    public Collection<ReviewDto> findUserFilmReviews(Long filmId, Integer count) {
+        FilmDto filmDto = filmService.findFilmById(filmId);
+        return ReviewDtoMapper.dtoFromModel(reviewStorage.findByParams(filmDto.getId(), count));
+    }
+
+    public Collection<ReviewDto> findFilmReviews(Integer count) {
+        return ReviewDtoMapper.dtoFromModel(reviewStorage.findByParams(null, count));
     }
 
     public void addReviewRating(Long reviewId, Long userId, ReviewRatingValue ratingValue) {
-        assertNull(reviewId, "ReviewId");
-        assertNull(userId, "UserId");
+        findReviewById(reviewId);
+        userService.getUserById(userId);
         reviewStorage.changeRating(reviewId, userId, ratingValue);
     }
 
     public void deleteReviewRating(Long reviewId, Long userId) {
-        assertNull(reviewId, "ReviewId");
-        assertNull(userId, "UserId");
-    }
-
-    private void assertNull(Object value, String field) {
-        if (value == null) {
-            throw new IllegalArgumentException(field + " is null");
-        }
+        findReviewById(reviewId);
+        userService.getUserById(userId);
+        reviewStorage.removeRating(reviewId, userId);
     }
 }

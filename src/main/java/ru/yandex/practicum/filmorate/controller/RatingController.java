@@ -26,9 +26,9 @@ public class RatingController {
     }
 
     @GetMapping("/{id}")
-    public RatingDto findRating(
+    public RatingDto findRatingById(
             @PathVariable("id") Long ratingId
     ) {
-        return ratingService.findRating(ratingId);
+        return ratingService.findRatingById(ratingId);
     }
 }

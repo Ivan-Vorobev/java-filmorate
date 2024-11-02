@@ -6,14 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.dto.ReviewDto;
-import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.ReviewService;
-import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.dal.storage.review.ReviewRatingValue;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Validated
@@ -22,49 +18,45 @@ import java.util.Optional;
 @Slf4j
 public class ReviewController {
     private final ReviewService reviewService;
-    private final FilmService filmService;
-    private final UserService userService;
 
     @PostMapping
-    public ReviewDto addReview(
+    public ReviewDto create(
             @Valid @RequestBody ReviewDto reviewDto
     ) {
-        filmService.findFilm(reviewDto.getFilmId());
-        userService.findUser(reviewDto.getUserId());
-        return reviewService.add(reviewDto);
+        return reviewService.create(reviewDto);
     }
 
     @PutMapping
-    public ReviewDto updateReview(
+    public ReviewDto update(
             @Valid @RequestBody ReviewDto reviewDto
     ) {
-        filmService.findFilm(reviewDto.getFilmId());
-        userService.findUser(reviewDto.getUserId());
         return reviewService.update(reviewDto);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteReview(
+    public void delete(
             @PathVariable("id") Long reviewId
     ) {
         reviewService.delete(reviewId);
     }
 
     @GetMapping("/{id}")
-    public ReviewDto getReview(
+    public ReviewDto findReviewById(
             @PathVariable("id") Long reviewId
     ) {
-        return reviewService.findReview(reviewId);
+        return reviewService.findReviewById(reviewId);
     }
 
     @GetMapping
-    public Collection<ReviewDto> getFilmReviews(
-            @RequestParam("filmId") Optional<Long> filmId,
-            @RequestParam("count") Optional<Integer> count
+    public Collection<ReviewDto> getFilteredFilmReviews(
+            @RequestParam(value = "filmId", required = false) Long filmId,
+            @RequestParam(value = "count", required = false) Integer count
     ) {
-        filmId.ifPresent(filmService::findFilm);
-        Collection<ReviewDto> result = reviewService.findFilmReviews(filmId.orElse(null), count.orElse(null));
-        return result != null ? result : List.of();
+        if (filmId == null) {
+            return reviewService.findFilmReviews(count);
+        }
+
+        return reviewService.findUserFilmReviews(filmId, count);
     }
 
     @PutMapping("/{id}/like/{userId}")
@@ -72,8 +64,6 @@ public class ReviewController {
             @PathVariable("id") Long reviewId,
             @PathVariable("userId") Long userId
     ) {
-        reviewService.findReview(reviewId);
-        userService.findUser(userId);
         reviewService.addReviewRating(reviewId, userId, ReviewRatingValue.INCREASE);
     }
 
@@ -82,8 +72,6 @@ public class ReviewController {
             @PathVariable("id") Long reviewId,
             @PathVariable("userId") Long userId
     ) {
-        reviewService.findReview(reviewId);
-        userService.findUser(userId);
         reviewService.addReviewRating(reviewId, userId, ReviewRatingValue.DECREASE);
     }
 
@@ -92,8 +80,6 @@ public class ReviewController {
             @PathVariable("id") Long reviewId,
             @PathVariable("userId") Long userId
     ) {
-        reviewService.findReview(reviewId);
-        userService.findUser(userId);
         reviewService.deleteReviewRating(reviewId, userId);
     }
 
@@ -102,8 +88,6 @@ public class ReviewController {
             @PathVariable("id") Long reviewId,
             @PathVariable("userId") Long userId
     ) {
-        reviewService.findReview(reviewId);
-        userService.findUser(userId);
         reviewService.deleteReviewRating(reviewId, userId);
     }
 }

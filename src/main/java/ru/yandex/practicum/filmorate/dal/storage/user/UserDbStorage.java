@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.dal.storage.user;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -12,6 +13,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 @Repository
+@Primary
 public class UserDbStorage implements UserStorage {
 
     private static final String FIND_ALL_QUERY = "SELECT * FROM users";

@@ -25,13 +25,13 @@ class UserControllerTest {
     @DisplayName("Успешное создание пользователя")
     void add_validatePositive_allFieldsIsValid() {
         assertDoesNotThrow(
-                () -> userController.add(createUser(1L)),
+                () -> userController.create(createUser(1L)),
                 "Валидные данные не проходят валидацию"
         );
         assertDoesNotThrow(
                 () -> {
                     UserDto userDto = createUser(null);
-                    UserDto createdUserDto = userController.add(userDto);
+                    UserDto createdUserDto = userController.create(userDto);
                     assertNotEquals(null, createdUserDto.getId(), "Не создано id пользователя");
                     assertEquals(userDto.getName(), createdUserDto.getName(), "Имя не совпадает");
                     assertEquals(userDto.getLogin(), createdUserDto.getLogin(), "Login не совпадает");
@@ -46,7 +46,7 @@ class UserControllerTest {
     @DisplayName("Успешное обновление пользователя")
     void update_validatePositive_allFieldsIsValid() {
         assertDoesNotThrow(
-                () -> userController.add(createUser(1L)),
+                () -> userController.create(createUser(1L)),
                 "Валидные данные не проходят валидацию"
         );
         assertDoesNotThrow(
@@ -71,13 +71,13 @@ class UserControllerTest {
     @Test
     @DisplayName("Валидация при создании пользователя")
     void add_validateNegative_fieldsIsNotValid() {
-        userValidate("add");
+        userValidate("create");
     }
 
     @Test
     @DisplayName("Валидация при обновлении пользователя")
     void update_validateNegative_fieldsIsNotValid() {
-        userController.add(createUser(1L));
+        userController.create(createUser(1L));
         // Field #id
         assertThrows(
                 ConstraintViolationException.class,

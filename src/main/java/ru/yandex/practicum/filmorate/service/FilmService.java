@@ -76,15 +76,15 @@ public class FilmService {
         }
 
         if (film.getGenres() != null) {
-            Collection<GenreDto> newGenreDtos = new ArrayList<>();
+            Collection<GenreDto> newGenres = new ArrayList<>();
             Map<Long, GenreDto> genres = genreService.findAllAsMap();
 
             for (GenreDto genreDto : film.getGenres()) {
                 genreStorage.add(newFilm.getId(), genreDto.getId());
-                newGenreDtos.add(genres.get(genreDto.getId()));
+                newGenres.add(genres.get(genreDto.getId()));
             }
 
-            newFilm.setGenres(newGenreDtos);
+            newFilm.setGenres(newGenres);
         }
 
         if (film.getDirectors() != null) {

@@ -2,8 +2,8 @@ package ru.yandex.practicum.filmorate.dal.model;
 
 import lombok.Builder;
 import lombok.Data;
-import ru.yandex.practicum.filmorate.dto.EventType;
-import ru.yandex.practicum.filmorate.dto.Operation;
+import ru.yandex.practicum.filmorate.service.enums.EventType;
+import ru.yandex.practicum.filmorate.service.enums.Operation;
 
 import java.sql.Timestamp;
 

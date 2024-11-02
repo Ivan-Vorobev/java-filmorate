@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.dto.EventType;
+import ru.yandex.practicum.filmorate.service.enums.EventType;
 import ru.yandex.practicum.filmorate.dto.ReviewDto;
 import ru.yandex.practicum.filmorate.service.mapper.ReviewDtoMapper;
 import ru.yandex.practicum.filmorate.dal.storage.review.ReviewRatingValue;

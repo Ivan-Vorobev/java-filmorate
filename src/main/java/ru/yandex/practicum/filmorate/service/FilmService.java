@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.dto.DirectorDto;
 import ru.yandex.practicum.filmorate.dal.model.Film;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.service.enums.EventType;
 import ru.yandex.practicum.filmorate.service.mapper.FilmDtoMapper;
 import ru.yandex.practicum.filmorate.dal.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.dal.storage.film.FilmStorage;

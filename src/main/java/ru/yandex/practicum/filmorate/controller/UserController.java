@@ -6,9 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.RequestMethod;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Event;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.dto.FilmDto;
+import ru.yandex.practicum.filmorate.dto.EventDto;
+import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.EventService;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -26,29 +26,29 @@ public class UserController {
     private final EventService eventService;
 
     @GetMapping
-    public Collection<User> findAll() {
+    public Collection<UserDto> findAll() {
         return userService.findAll();
     }
 
     @PostMapping
     @Validated(RequestMethod.Create.class)
-    public User add(@Valid @RequestBody User user) {
-        return userService.create(user);
+    public UserDto add(@Valid @RequestBody UserDto userDto) {
+        return userService.create(userDto);
     }
 
     @PutMapping
     @Validated(RequestMethod.Update.class)
-    public User update(@Valid @RequestBody User user) {
-        User updatedUser;
+    public UserDto update(@Valid @RequestBody UserDto userDto) {
+        UserDto updatedUserDto;
 
-        updatedUser = userService.update(user);
+        updatedUserDto = userService.update(userDto);
 
-        log.info("User updated. Id: " + updatedUser.getId());
-        return updatedUser;
+        log.info("User updated. Id: " + updatedUserDto.getId());
+        return updatedUserDto;
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable("id") Long id) {
+    public UserDto getUserById(@PathVariable("id") Long id) {
         log.info("Поступил запрос GET на получение данных о пользователе с id = {}", id);
         return userService.findUser(id);
     }
@@ -77,14 +77,14 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends")
-    public Collection<User> findUsers(
+    public Collection<UserDto> findUsers(
             @PathVariable("id") Long userId
     ) {
         return userService.findFriends(userId);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public Collection<User> findUsers(
+    public Collection<UserDto> findUsers(
             @PathVariable("id") Long userId,
             @PathVariable("otherId") Long otherId
     ) {
@@ -92,12 +92,12 @@ public class UserController {
     }
 
     @GetMapping("/{id}/recommendations")
-    public Collection<Film> getRecommendations(@PathVariable("id") Long userId) {
+    public Collection<FilmDto> getRecommendations(@PathVariable("id") Long userId) {
         return filmService.getRecommendations(userId);
     }
 
     @GetMapping("/{id}/feed")
-    public Collection<Event> getEventFeed(@PathVariable("id") Long userId) {
+    public Collection<EventDto> getEventFeed(@PathVariable("id") Long userId) {
         return eventService.getEventFeed(userId);
     }
 }

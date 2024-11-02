@@ -2,11 +2,11 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.storage.dal.dto.RatingDto;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Rating;
-import ru.yandex.practicum.filmorate.service.mappers.RatingMapper;
-import ru.yandex.practicum.filmorate.storage.rating.RatingStorage;
+import ru.yandex.practicum.filmorate.dto.RatingDto;
+import ru.yandex.practicum.filmorate.dal.model.Rating;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.service.mapper.RatingDtoMapper;
+import ru.yandex.practicum.filmorate.dal.storage.rating.RatingStorage;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -16,16 +16,16 @@ import java.util.stream.Collectors;
 public class RatingService {
     private final RatingStorage ratingStorage;
 
-    public Collection<Rating> findAll() {
+    public Collection<RatingDto> findAll() {
         return ratingStorage.findAll().stream()
-                .map(RatingMapper::modelFromDto)
+                .map(RatingDtoMapper::modelFromDto)
                 .collect(Collectors.toList());
     }
 
-    public Rating findRating(Long ratingId) {
-        RatingDto rating = ratingStorage.findById(ratingId)
+    public RatingDto findRating(Long ratingId) {
+        Rating rating = ratingStorage.findById(ratingId)
                 .orElseThrow(() -> new NotFoundException("Rating not found. Id: " + ratingId));
 
-        return RatingMapper.modelFromDto(rating);
+        return RatingDtoMapper.modelFromDto(rating);
     }
 }

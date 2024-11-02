@@ -1,0 +1,59 @@
+package ru.yandex.practicum.filmorate.dal.storage.event;
+
+import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
+import org.springframework.context.annotation.ComponentScan;
+import ru.yandex.practicum.filmorate.dto.EventTypeDto;
+import ru.yandex.practicum.filmorate.dto.OperationDto;
+import ru.yandex.practicum.filmorate.dal.model.Event;
+import ru.yandex.practicum.filmorate.dal.model.User;
+import ru.yandex.practicum.filmorate.dal.storage.user.UserDbStorage;
+
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.Random;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@JdbcTest
+@AutoConfigureTestDatabase
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@ComponentScan("ru.yandex.practicum.filmorate")
+class EventDbStorageTest {
+
+    private final EventDbStorage eventStorage;
+    private final UserDbStorage userStorage;
+
+    @Test
+    public void createEventDto() {
+        Long userId = createUser();
+        Event event = Event.builder()
+                .eventTypeDto(EventTypeDto.FRIEND)
+                .operationDto(OperationDto.ADD)
+                .userId(userId)
+                .entityId(1L)
+                .createdAt(Timestamp.from(Instant.now()))
+                .build();
+
+        assertDoesNotThrow(() -> {
+            eventStorage.create(event);
+        });
+    }
+
+    private Long createUser() {
+        Random random = new Random();
+        int randomInt = random.nextInt();
+        User user = User.builder()
+                .email(String.format("test%d@mail.ru", randomInt))
+                .login(String.format("test%d", randomInt))
+                .name("test")
+                .birthday(LocalDate.of(2005, 5, 1))
+                .build();
+        user = userStorage.add(user);
+        return user.getId();
+    }
+}

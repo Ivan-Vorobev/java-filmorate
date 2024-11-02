@@ -3,15 +3,15 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Event;
-import ru.yandex.practicum.filmorate.model.EventType;
-import ru.yandex.practicum.filmorate.model.Operation;
-import ru.yandex.practicum.filmorate.service.mappers.EventMapper;
-import ru.yandex.practicum.filmorate.storage.dal.dto.EventDto;
-import ru.yandex.practicum.filmorate.storage.dal.dto.UserDto;
-import ru.yandex.practicum.filmorate.storage.event.EventStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.dto.EventDto;
+import ru.yandex.practicum.filmorate.dto.EventTypeDto;
+import ru.yandex.practicum.filmorate.dto.OperationDto;
+import ru.yandex.practicum.filmorate.service.mapper.EventDtoMapper;
+import ru.yandex.practicum.filmorate.dal.model.Event;
+import ru.yandex.practicum.filmorate.dal.model.User;
+import ru.yandex.practicum.filmorate.dal.storage.event.EventStorage;
+import ru.yandex.practicum.filmorate.dal.storage.user.UserStorage;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Collection;
@@ -29,30 +29,30 @@ public class EventService {
         this.userStorage = userStorage;
     }
 
-    public Collection<Event> getEventFeed(Long userId) {
-        UserDto userDto = userStorage.findById(userId)
+    public Collection<EventDto> getEventFeed(Long userId) {
+        User user = userStorage.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found. Id: " + userId));
 
-        Collection<EventDto> eventFeedDto = eventStorage.getEventFeed(userDto.getId());
-        return EventMapper.modelFromDto(eventFeedDto);
+        Collection<Event> eventFeedDto = eventStorage.getEventFeed(user.getId());
+        return EventDtoMapper.modelFromDto(eventFeedDto);
     }
 
-    public void add(Long entityId, Long userId, EventType eventType) {
-        eventStorage.create(prepareEventDtoData(entityId, userId, eventType, Operation.ADD));
+    public void add(Long entityId, Long userId, EventTypeDto eventTypeDto) {
+        eventStorage.create(prepareEventDtoData(entityId, userId, eventTypeDto, OperationDto.ADD));
     }
 
-    public void remove(Long entityId, Long userId, EventType eventType) {
-        eventStorage.create(prepareEventDtoData(entityId, userId, eventType, Operation.REMOVE));
+    public void remove(Long entityId, Long userId, EventTypeDto eventTypeDto) {
+        eventStorage.create(prepareEventDtoData(entityId, userId, eventTypeDto, OperationDto.REMOVE));
     }
 
-    public void update(Long entityId, Long userId, EventType eventType) {
-        eventStorage.create(prepareEventDtoData(entityId, userId, eventType, Operation.UPDATE));
+    public void update(Long entityId, Long userId, EventTypeDto eventTypeDto) {
+        eventStorage.create(prepareEventDtoData(entityId, userId, eventTypeDto, OperationDto.UPDATE));
     }
 
-    private EventDto prepareEventDtoData(Long entityId, Long userId, EventType eventType, Operation operationType) {
-        return EventDto.builder()
-                .eventType(eventType)
-                .operation(operationType)
+    private Event prepareEventDtoData(Long entityId, Long userId, EventTypeDto eventTypeDto, OperationDto operationDtoType) {
+        return Event.builder()
+                .eventTypeDto(eventTypeDto)
+                .operationDto(operationDtoType)
                 .userId(userId)
                 .entityId(entityId)
                 .createdAt(Timestamp.from(Instant.now()))

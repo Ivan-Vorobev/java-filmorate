@@ -2,15 +2,13 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.service.mappers.DirectorMapper;
-import ru.yandex.practicum.filmorate.storage.dal.dto.DirectorDto;
-import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.dto.DirectorDto;
+import ru.yandex.practicum.filmorate.service.mapper.DirectorDtoMapper;
+import ru.yandex.practicum.filmorate.dal.model.Director;
+import ru.yandex.practicum.filmorate.dal.storage.director.DirectorStorage;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,38 +16,38 @@ import java.util.stream.Collectors;
 public class DirectorService {
     private final DirectorStorage directorStorage;
 
-    public Collection<Director> findAll() {
+    public Collection<DirectorDto> findAll() {
         return directorStorage.findAll().stream()
-                .map(DirectorMapper::modelFromDto)
+                .map(DirectorDtoMapper::modelFromDto)
                 .collect(Collectors.toList());
     }
 
-    public Director findDirectorByID(Long directorId) {
-        DirectorDto director = directorStorage.findById(directorId)
+    public DirectorDto findDirectorByID(Long directorId) {
+        Director director = directorStorage.findById(directorId)
                 .orElseThrow(() -> new NotFoundException("Director not found. Id: " + directorId));
 
-        return DirectorMapper.modelFromDto(director);
+        return DirectorDtoMapper.modelFromDto(director);
     }
 
-    public Director create(Director director) {
-        return DirectorMapper.modelFromDto(
+    public DirectorDto create(DirectorDto directorDto) {
+        return DirectorDtoMapper.modelFromDto(
                 directorStorage.add(
-                        DirectorMapper.dtoFromModel(director)
+                        DirectorDtoMapper.dtoFromModel(directorDto)
                 )
         );
     }
 
-    public Director update(Director director) {
-        findDirectorByID(director.getId());
-        return DirectorMapper.modelFromDto(
+    public DirectorDto update(DirectorDto directorDto) {
+        findDirectorByID(directorDto.getId());
+        return DirectorDtoMapper.modelFromDto(
                 directorStorage.update(
-                        DirectorMapper.dtoFromModel(director)
+                        DirectorDtoMapper.dtoFromModel(directorDto)
                 )
         );
     }
 
     public void delete(Long direcorId) {
-        Director director = findDirectorByID(direcorId);
-        directorStorage.delete(DirectorMapper.dtoFromModel(director));
+        DirectorDto director = findDirectorByID(direcorId);
+        directorStorage.delete(DirectorDtoMapper.dtoFromModel(director));
     }
 }

@@ -5,11 +5,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.dto.ReviewDto;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.review.ReviewRatingValue;
+import ru.yandex.practicum.filmorate.dal.storage.review.ReviewRatingValue;
 
 import java.util.Collection;
 import java.util.List;
@@ -26,21 +26,21 @@ public class ReviewController {
     private final UserService userService;
 
     @PostMapping
-    public Review addReview(
-            @Valid @RequestBody Review review
+    public ReviewDto addReview(
+            @Valid @RequestBody ReviewDto reviewDto
     ) {
-        filmService.findFilm(review.getFilmId());
-        userService.findUser(review.getUserId());
-        return reviewService.add(review);
+        filmService.findFilm(reviewDto.getFilmId());
+        userService.findUser(reviewDto.getUserId());
+        return reviewService.add(reviewDto);
     }
 
     @PutMapping
-    public Review updateReview(
-            @Valid @RequestBody Review review
+    public ReviewDto updateReview(
+            @Valid @RequestBody ReviewDto reviewDto
     ) {
-        filmService.findFilm(review.getFilmId());
-        userService.findUser(review.getUserId());
-        return reviewService.update(review);
+        filmService.findFilm(reviewDto.getFilmId());
+        userService.findUser(reviewDto.getUserId());
+        return reviewService.update(reviewDto);
     }
 
     @DeleteMapping("/{id}")
@@ -51,19 +51,19 @@ public class ReviewController {
     }
 
     @GetMapping("/{id}")
-    public Review getReview(
+    public ReviewDto getReview(
             @PathVariable("id") Long reviewId
     ) {
         return reviewService.findReview(reviewId);
     }
 
     @GetMapping
-    public Collection<Review> getFilmReviews(
+    public Collection<ReviewDto> getFilmReviews(
             @RequestParam("filmId") Optional<Long> filmId,
             @RequestParam("count") Optional<Integer> count
     ) {
         filmId.ifPresent(filmService::findFilm);
-        Collection<Review> result = reviewService.findFilmReviews(filmId.orElse(null), count.orElse(null));
+        Collection<ReviewDto> result = reviewService.findFilmReviews(filmId.orElse(null), count.orElse(null));
         return result != null ? result : List.of();
     }
 

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.RequestMethod;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.dto.FilmDto;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import java.util.Collection;
 
@@ -28,13 +28,13 @@ public class FilmController {
     private final FilmService filmService;
 
     @GetMapping
-    public Collection<Film> findAll() {
+    public Collection<FilmDto> findAll() {
         log.info("GET /films");
         return filmService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Film findOne(
+    public FilmDto findOne(
             @PathVariable("id") Long filmId
     ) {
         return filmService.findFilm(filmId);
@@ -42,16 +42,16 @@ public class FilmController {
 
     @PostMapping
     @Validated({RequestMethod.Create.class})
-    public Film add(@Valid @RequestBody Film film) {
-        Film newFilm = filmService.create(film);
+    public FilmDto add(@Valid @RequestBody FilmDto film) {
+        FilmDto newFilm = filmService.create(film);
         log.info("Add film with id: " + newFilm.getId());
         return newFilm;
     }
 
     @PutMapping
     @Validated({RequestMethod.Update.class})
-    public Film update(@Valid @RequestBody Film film) {
-        Film updatedFilm = filmService.update(film);
+    public FilmDto update(@Valid @RequestBody FilmDto film) {
+        FilmDto updatedFilm = filmService.update(film);
         log.info("Film updated. Id: " + updatedFilm.getId());
         return updatedFilm;
     }
@@ -63,7 +63,7 @@ public class FilmController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public Film addLike(
+    public FilmDto addLike(
             @PathVariable("id") Long filmId,
             @PathVariable("userId") Long userId
     ) {
@@ -71,7 +71,7 @@ public class FilmController {
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public Film deleteLike(
+    public FilmDto deleteLike(
             @PathVariable("id") Long filmId,
             @PathVariable("userId") Long userId
     ) {
@@ -79,7 +79,7 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public Collection<Film> getPopular(
+    public Collection<FilmDto> getPopular(
             @RequestParam(value = "count", defaultValue = "10") Long count,
             @RequestParam(value = "genreId", defaultValue = "0") Long genreId,
             @RequestParam(value = "year", defaultValue = "0") Integer year
@@ -88,7 +88,7 @@ public class FilmController {
     }
 
     @GetMapping("/director/{id}")
-    public Collection<Film> getFilmByDirectorId(
+    public Collection<FilmDto> getFilmByDirectorId(
             @PathVariable("id") Long directorId,
             @RequestParam(value = "sortBy") String sortBy
     ) {
@@ -96,7 +96,7 @@ public class FilmController {
     }
 
     @GetMapping("/search")
-    public Collection<Film> searchFilm(
+    public Collection<FilmDto> searchFilm(
             @RequestParam(value = "query") String query,
             @RequestParam(value = "by") String by
     ) {
@@ -104,7 +104,7 @@ public class FilmController {
     }
 
     @GetMapping("/common")
-    public Collection<Film> getCommonFilms(
+    public Collection<FilmDto> getCommonFilms(
             @RequestParam(value = "userId") Long userId,
             @RequestParam(value = "friendId") Long friendId
     ) {

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.RequestMethod;
-import ru.yandex.practicum.filmorate.model.Director;
+import ru.yandex.practicum.filmorate.dto.DirectorDto;
 import ru.yandex.practicum.filmorate.service.DirectorService;
 
 import java.util.Collection;
@@ -27,12 +27,12 @@ public class DirectorController {
     private final DirectorService directorService;
 
     @GetMapping
-    public Collection<Director> findAll() {
+    public Collection<DirectorDto> findAll() {
         return directorService.findAll();
     }
 
     @GetMapping("/{id}")
-    public Director findDirectorById(
+    public DirectorDto findDirectorById(
             @PathVariable("id") Long directorId
     ) {
         return directorService.findDirectorByID(directorId);
@@ -40,14 +40,14 @@ public class DirectorController {
 
     @PostMapping
     @Validated(RequestMethod.Create.class)
-    public Director create(@Valid @RequestBody Director director) {
-        return directorService.create(director);
+    public DirectorDto create(@Valid @RequestBody DirectorDto directorDto) {
+        return directorService.create(directorDto);
     }
 
     @PutMapping
     @Validated({RequestMethod.Update.class})
-    public Director update(@Valid @RequestBody Director director) {
-        Director updatedDirector = directorService.update(director);
+    public DirectorDto update(@Valid @RequestBody DirectorDto directorDto) {
+        DirectorDto updatedDirector = directorService.update(directorDto);
         log.info("Director updated. Id: " + updatedDirector.getId());
         return updatedDirector;
     }

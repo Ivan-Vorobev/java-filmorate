@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Rating;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.dto.FilmDto;
+import ru.yandex.practicum.filmorate.dto.RatingDto;
 
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
@@ -31,8 +31,8 @@ class FilmControllerTest {
         );
         assertDoesNotThrow(
                 () -> {
-                    Film film = createFilm(null);
-                    Film createdFilm = filmController.add(film);
+                    FilmDto film = createFilm(null);
+                    FilmDto createdFilm = filmController.add(film);
                     assertNotEquals(null, createdFilm.getId(), "Не создано id фильма");
                     assertEquals(film.getName(), createdFilm.getName(), "Имя не совпадает");
                     assertEquals(film.getDescription(), createdFilm.getDescription(), "Описание не совпадает");
@@ -52,13 +52,13 @@ class FilmControllerTest {
         );
         assertDoesNotThrow(
                 () -> {
-                    Film film = createFilm(1L);
+                    FilmDto film = createFilm(1L);
                     film.setReleaseDate(film.getReleaseDate().minusDays(1));
                     film.setDuration(film.getDuration() + 10);
-                    film.setMpa(Rating.builder().id(2L).build());
+                    film.setMpa(RatingDto.builder().id(2L).build());
                     film.setDescription(film.getDescription() + " - update description");
                     film.setName(film.getName() + " - update name");
-                    Film updatedFilm = filmController.update(film);
+                    FilmDto updatedFilm = filmController.update(film);
 
                     assertEquals(film.getId(), updatedFilm.getId(), "ИД не изменилось");
                     assertEquals(film.getName(), updatedFilm.getName(), "Имя не изменилось");
@@ -84,7 +84,7 @@ class FilmControllerTest {
         assertThrows(
                 ConstraintViolationException.class,
                 () -> {
-                    Film film = createFilm(null);
+                    FilmDto film = createFilm(null);
                     filmController.update(film);
                 },
                 "Id не должен быть null"
@@ -92,7 +92,7 @@ class FilmControllerTest {
         assertThrows(
                 NotFoundException.class,
                 () -> {
-                    Film film = createFilm(null);
+                    FilmDto film = createFilm(null);
                     film.setId(Long.MAX_VALUE);
                     filmController.update(film);
                 },
@@ -106,7 +106,7 @@ class FilmControllerTest {
         assertThrows(
                 ConstraintViolationException.class,
                 () -> {
-                    Film film = createFilm(1L);
+                    FilmDto film = createFilm(1L);
                     film.setName(null);
                     invoke(method, film);
                 },
@@ -115,7 +115,7 @@ class FilmControllerTest {
         assertThrows(
                 ConstraintViolationException.class,
                 () -> {
-                    Film film = createFilm(1L);
+                    FilmDto film = createFilm(1L);
                     film.setName("   ");
                     invoke(method, film);
                 },
@@ -125,7 +125,7 @@ class FilmControllerTest {
         // Field #description
         assertDoesNotThrow(
                 () -> {
-                    Film film = createFilm(1L);
+                    FilmDto film = createFilm(1L);
                     film.setDescription(null);
                     invoke(method, film);
                 },
@@ -134,7 +134,7 @@ class FilmControllerTest {
         assertThrows(
                 ConstraintViolationException.class,
                 () -> {
-                    Film film = createFilm(1L);
+                    FilmDto film = createFilm(1L);
                     StringBuilder builder = new StringBuilder();
                     builder.repeat("A", 201);
                     film.setDescription(builder.toString());
@@ -144,7 +144,7 @@ class FilmControllerTest {
         );
         assertDoesNotThrow(
                 () -> {
-                    Film film = createFilm(1L);
+                    FilmDto film = createFilm(1L);
                     StringBuilder builder = new StringBuilder();
                     builder.repeat("A", 200);
                     film.setDescription(builder.toString());
@@ -156,7 +156,7 @@ class FilmControllerTest {
         // Field #duration
         assertDoesNotThrow(
                 () -> {
-                    Film film = createFilm(1L);
+                    FilmDto film = createFilm(1L);
                     film.setDuration(1);
                     invoke(method, film);
                 },
@@ -165,7 +165,7 @@ class FilmControllerTest {
         assertThrows(
                 ConstraintViolationException.class,
                 () -> {
-                    Film film = createFilm(1L);
+                    FilmDto film = createFilm(1L);
                     film.setDuration(0);
                     invoke(method, film);
                 },
@@ -174,7 +174,7 @@ class FilmControllerTest {
         assertThrows(
                 ConstraintViolationException.class,
                 () -> {
-                    Film film = createFilm(1L);
+                    FilmDto film = createFilm(1L);
                     film.setDuration(-1);
                     invoke(method, film);
                 },
@@ -184,7 +184,7 @@ class FilmControllerTest {
         // Field #duration
         assertDoesNotThrow(
                 () -> {
-                    Film film = createFilm(1L);
+                    FilmDto film = createFilm(1L);
                     film.setReleaseDate(LocalDate.of(1895, 12, 29));
                     invoke(method, film);
                 },
@@ -193,7 +193,7 @@ class FilmControllerTest {
         assertThrows(
                 ConstraintViolationException.class,
                 () -> {
-                    Film film = createFilm(1L);
+                    FilmDto film = createFilm(1L);
                     film.setReleaseDate(LocalDate.of(1895, 12, 28));
                     invoke(method, film);
                 },
@@ -201,23 +201,23 @@ class FilmControllerTest {
         );
     }
 
-    private void invoke(String method, Film film) throws Throwable {
+    private void invoke(String method, FilmDto film) throws Throwable {
         try {
             filmController
                     .getClass()
-                    .getMethod(method, Film.class)
+                    .getMethod(method, FilmDto.class)
                     .invoke(filmController, film);
         } catch (InvocationTargetException e) {
             throw e.getCause();
         }
     }
 
-    private Film createFilm(Long id) {
-        return Film.builder()
+    private FilmDto createFilm(Long id) {
+        return FilmDto.builder()
                 .id(id)
                 .name("Film #" + id)
                 .description("About film #" + id)
-                .mpa(Rating.builder().id(1L).build())
+                .mpa(RatingDto.builder().id(1L).build())
                 .duration(180)
                 .releaseDate(LocalDate.now())
                 .build();

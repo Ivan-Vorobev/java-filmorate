@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.dto.UserDto;
 
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
@@ -30,13 +30,13 @@ class UserControllerTest {
         );
         assertDoesNotThrow(
                 () -> {
-                    User user = createUser(null);
-                    User createdUser = userController.add(user);
-                    assertNotEquals(null, createdUser.getId(), "Не создано id пользователя");
-                    assertEquals(user.getName(), createdUser.getName(), "Имя не совпадает");
-                    assertEquals(user.getLogin(), createdUser.getLogin(), "Login не совпадает");
-                    assertEquals(user.getEmail(), createdUser.getEmail(), "Email не совпадает");
-                    assertEquals(user.getBirthday(), createdUser.getBirthday(), "Дата рождения не совпадает");
+                    UserDto userDto = createUser(null);
+                    UserDto createdUserDto = userController.add(userDto);
+                    assertNotEquals(null, createdUserDto.getId(), "Не создано id пользователя");
+                    assertEquals(userDto.getName(), createdUserDto.getName(), "Имя не совпадает");
+                    assertEquals(userDto.getLogin(), createdUserDto.getLogin(), "Login не совпадает");
+                    assertEquals(userDto.getEmail(), createdUserDto.getEmail(), "Email не совпадает");
+                    assertEquals(userDto.getBirthday(), createdUserDto.getBirthday(), "Дата рождения не совпадает");
                 },
                 "Валидные данные не проходят валидацию"
         );
@@ -51,18 +51,18 @@ class UserControllerTest {
         );
         assertDoesNotThrow(
                 () -> {
-                    User user = createUser(1L);
-                    user.setBirthday(user.getBirthday().minusDays(1));
-                    user.setLogin(user.getLogin() + "_upl");
-                    user.setEmail("Test_" + user.getId() + "_updated@updated.com");
-                    user.setName(user.getName() + " - update name");
-                    User updateduserUser = userController.update(user);
+                    UserDto userDto = createUser(1L);
+                    userDto.setBirthday(userDto.getBirthday().minusDays(1));
+                    userDto.setLogin(userDto.getLogin() + "_upl");
+                    userDto.setEmail("Test_" + userDto.getId() + "_updated@updated.com");
+                    userDto.setName(userDto.getName() + " - update name");
+                    UserDto updateduserUserDto = userController.update(userDto);
 
-                    assertEquals(user.getId(), updateduserUser.getId(), "ИД не изменилось");
-                    assertEquals(user.getName(), updateduserUser.getName(), "Имя не изменилось");
-                    assertEquals(user.getBirthday(), updateduserUser.getBirthday(), "Дата рождения не изменилась");
-                    assertEquals(user.getEmail(), updateduserUser.getEmail(), "Email не изменился");
-                    assertEquals(user.getLogin(), updateduserUser.getLogin(), "Login не изменился");
+                    assertEquals(userDto.getId(), updateduserUserDto.getId(), "ИД не изменилось");
+                    assertEquals(userDto.getName(), updateduserUserDto.getName(), "Имя не изменилось");
+                    assertEquals(userDto.getBirthday(), updateduserUserDto.getBirthday(), "Дата рождения не изменилась");
+                    assertEquals(userDto.getEmail(), updateduserUserDto.getEmail(), "Email не изменился");
+                    assertEquals(userDto.getLogin(), updateduserUserDto.getLogin(), "Login не изменился");
                 },
                 "Валидные данные не проходят валидацию"
         );
@@ -82,17 +82,17 @@ class UserControllerTest {
         assertThrows(
                 ConstraintViolationException.class,
                 () -> {
-                    User user = createUser(null);
-                    userController.update(user);
+                    UserDto userDto = createUser(null);
+                    userController.update(userDto);
                 },
                 "Id не должен быть null"
         );
         assertThrows(
                 NotFoundException.class,
                 () -> {
-                    User user = createUser(null);
-                    user.setId(Long.MAX_VALUE);
-                    userController.update(user);
+                    UserDto userDto = createUser(null);
+                    userDto.setId(Long.MAX_VALUE);
+                    userController.update(userDto);
                 },
                 "Попытка обновить несуществующий элемент"
         );
@@ -103,19 +103,19 @@ class UserControllerTest {
         // Field #name
         assertDoesNotThrow(
                 () -> {
-                    User user = createUser(1L);
-                    user.setName(null);
-                    User createdUser = invoke(method, user);
-                    assertEquals(createdUser.getLogin(), createdUser.getName(), "При пустом имени getName не возвращает login");
+                    UserDto userDto = createUser(1L);
+                    userDto.setName(null);
+                    UserDto createdUserDto = invoke(method, userDto);
+                    assertEquals(createdUserDto.getLogin(), createdUserDto.getName(), "При пустом имени getName не возвращает login");
                 },
                 "Имя необязательное поле"
         );
         assertDoesNotThrow(
                 () -> {
-                    User user = createUser(1L);
-                    user.setName("  ");
-                    User createdUser = invoke(method, user);
-                    assertEquals(createdUser.getLogin(), createdUser.getName(), "При пустом имени getName не возвращает login");
+                    UserDto userDto = createUser(1L);
+                    userDto.setName("  ");
+                    UserDto createdUserDto = invoke(method, userDto);
+                    assertEquals(createdUserDto.getLogin(), createdUserDto.getName(), "При пустом имени getName не возвращает login");
                 },
                 "Имя необязательное поле"
         );
@@ -124,18 +124,18 @@ class UserControllerTest {
         assertThrows(
                 ConstraintViolationException.class,
                 () -> {
-                    User user = createUser(1L);
-                    user.setLogin(null);
-                    invoke(method, user);
+                    UserDto userDto = createUser(1L);
+                    userDto.setLogin(null);
+                    invoke(method, userDto);
                 },
                 "Login не может быть пустым"
         );
         assertThrows(
                 ConstraintViolationException.class,
                 () -> {
-                    User user = createUser(1L);
-                    user.setLogin("  ");
-                    invoke(method, user);
+                    UserDto userDto = createUser(1L);
+                    userDto.setLogin("  ");
+                    invoke(method, userDto);
                 },
                 "Login не может содержать только пробелы"
         );
@@ -144,27 +144,27 @@ class UserControllerTest {
         assertThrows(
                 ConstraintViolationException.class,
                 () -> {
-                    User user = createUser(1L);
-                    user.setEmail("   ");
-                    invoke(method, user);
+                    UserDto userDto = createUser(1L);
+                    userDto.setEmail("   ");
+                    invoke(method, userDto);
                 },
                 "Email не может содержать только пробелы"
         );
         assertThrows(
                 ConstraintViolationException.class,
                 () -> {
-                    User user = createUser(1L);
-                    user.setEmail(null);
-                    invoke(method, user);
+                    UserDto userDto = createUser(1L);
+                    userDto.setEmail(null);
+                    invoke(method, userDto);
                 },
                 "Email не может быть пустым"
         );
         assertThrows(
                 ConstraintViolationException.class,
                 () -> {
-                    User user = createUser(1L);
-                    user.setEmail("new_email.ru");
-                    invoke(method, user);
+                    UserDto userDto = createUser(1L);
+                    userDto.setEmail("new_email.ru");
+                    invoke(method, userDto);
                 },
                 "Невалидный адрес email"
         );
@@ -172,36 +172,36 @@ class UserControllerTest {
         // Field #birthday
         assertDoesNotThrow(
                 () -> {
-                    User user = createUser(1L);
-                    user.setBirthday(LocalDate.now());
-                    invoke(method, user);
+                    UserDto userDto = createUser(1L);
+                    userDto.setBirthday(LocalDate.now());
+                    invoke(method, userDto);
                 },
                 "Дата рождения может быть now()"
         );
         assertThrows(
                 ConstraintViolationException.class,
                 () -> {
-                    User user = createUser(1L);
-                    user.setBirthday(LocalDate.now().plusDays(1));
-                    invoke(method, user);
+                    UserDto userDto = createUser(1L);
+                    userDto.setBirthday(LocalDate.now().plusDays(1));
+                    invoke(method, userDto);
                 },
                 "Дата рождения не может быть из будущего"
         );
     }
 
-    private User invoke(String method, User user) throws Throwable {
+    private UserDto invoke(String method, UserDto userDto) throws Throwable {
         try {
-            return (User) userController
+            return (UserDto) userController
                     .getClass()
-                    .getMethod(method, User.class)
-                    .invoke(userController, user);
+                    .getMethod(method, UserDto.class)
+                    .invoke(userController, userDto);
         } catch (InvocationTargetException e) {
             throw e.getCause();
         }
     }
 
-    private User createUser(Long id) {
-        return User.builder()
+    private UserDto createUser(Long id) {
+        return UserDto.builder()
                 .id(id)
                 .name("User #" + id)
                 .email(id + "test@mail.ru")

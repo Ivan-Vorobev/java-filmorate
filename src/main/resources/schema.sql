@@ -14,8 +14,8 @@ CREATE TABLE IF NOT EXISTS films
     duration     INTEGER
 );
 
-DROP TABLE IF EXISTS genre;
-CREATE TABLE IF NOT EXISTS genre
+DROP TABLE IF EXISTS genreDto;
+CREATE TABLE IF NOT EXISTS genreDto
 (
     id
         BIGSERIAL
@@ -103,8 +103,8 @@ CREATE TABLE IF NOT EXISTS film_likes
          user_id
             )
 );
-DROP TABLE IF EXISTS director;
-CREATE TABLE IF NOT EXISTS director
+DROP TABLE IF EXISTS directorDto;
+CREATE TABLE IF NOT EXISTS directorDto
 (
     id
         BIGSERIAL

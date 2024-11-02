@@ -3,12 +3,12 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.model.EventType;
-import ru.yandex.practicum.filmorate.storage.dal.dto.UserDto;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.mappers.UserMapper;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.dto.EventTypeDto;
+import ru.yandex.practicum.filmorate.dto.UserDto;
+import ru.yandex.practicum.filmorate.dal.model.User;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.service.mapper.UserDtoMapper;
+import ru.yandex.practicum.filmorate.dal.storage.user.UserStorage;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
@@ -26,39 +26,39 @@ public class UserService {
         this.eventService = eventService;
     }
 
-    public Collection<User> findAll() {
+    public Collection<UserDto> findAll() {
         return userStorage.findAll().stream()
-                .map(UserMapper::modelFromDto)
+                .map(UserDtoMapper::modelFromDto)
                 .collect(Collectors.toList());
     }
 
-    public User findUser(Long userId) {
-        UserDto userDto = userStorage
+    public UserDto findUser(Long userId) {
+        User user = userStorage
                 .findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found. Id: " + userId));
 
-        return UserMapper.modelFromDto(userDto);
+        return UserDtoMapper.modelFromDto(user);
     }
 
-    public User create(User user) {
-        return UserMapper.modelFromDto(
+    public UserDto create(UserDto userDto) {
+        return UserDtoMapper.modelFromDto(
                 userStorage.add(
-                        UserMapper.dtoFromModel(user)
+                        UserDtoMapper.dtoFromModel(userDto)
                 )
         );
     }
 
-    public User update(User user) {
-        findUser(user.getId());
-        return UserMapper.modelFromDto(
+    public UserDto update(UserDto userDto) {
+        findUser(userDto.getId());
+        return UserDtoMapper.modelFromDto(
                 userStorage.update(
-                        UserMapper.dtoFromModel(user)
+                        UserDtoMapper.dtoFromModel(userDto)
                 )
         );
     }
 
     public void removeUserById(Long userId) {
-        User user = findUser(userId);
+        UserDto userDto = findUser(userId);
         userStorage.removeUserById(userId);
     }
 
@@ -66,36 +66,36 @@ public class UserService {
         if (Objects.equals(userId, friendId)) {
             throw new IllegalArgumentException("Пользователь и друг совпадают");
         }
-        User user = findUser(userId);
-        User friend = findUser(friendId);
-        userStorage.addFriend(UserMapper.dtoFromModel(user), UserMapper.dtoFromModel(friend));
-        eventService.add(friendId, userId, EventType.FRIEND);
+        UserDto userDto = findUser(userId);
+        UserDto friend = findUser(friendId);
+        userStorage.addFriend(UserDtoMapper.dtoFromModel(userDto), UserDtoMapper.dtoFromModel(friend));
+        eventService.add(friendId, userId, EventTypeDto.FRIEND);
     }
 
     public void deleteFriend(Long userId, Long friendId) {
         if (Objects.equals(userId, friendId)) {
             throw new IllegalArgumentException("Пользователь и друг совпадают");
         }
-        User user = findUser(userId);
-        User friend = findUser(friendId);
-        userStorage.deleteFriend(UserMapper.dtoFromModel(user), UserMapper.dtoFromModel(friend));
-        eventService.remove(friendId, userId, EventType.FRIEND);
+        UserDto userDto = findUser(userId);
+        UserDto friend = findUser(friendId);
+        userStorage.deleteFriend(UserDtoMapper.dtoFromModel(userDto), UserDtoMapper.dtoFromModel(friend));
+        eventService.remove(friendId, userId, EventTypeDto.FRIEND);
     }
 
-    public Collection<User> findFriends(Long userId) {
-        User user = findUser(userId);
-        Collection<UserDto> friends = userStorage.getFriends(userId);
+    public Collection<UserDto> findFriends(Long userId) {
+        UserDto userDto = findUser(userId);
+        Collection<User> friends = userStorage.getFriends(userId);
         return friends.stream()
-                .map(UserMapper::modelFromDto)
+                .map(UserDtoMapper::modelFromDto)
                 .collect(Collectors.toList());
     }
 
-    public List<User> findCommonFriends(final Long userId, final Long otherId) {
-        User user = findUser(userId);
-        User otherUser = findUser(otherId);
-        Collection<UserDto> commonFriendsOfUsers = userStorage.getCommonFriendsOfUsers(user.getId(), otherUser.getId());
+    public List<UserDto> findCommonFriends(final Long userId, final Long otherId) {
+        UserDto userDto = findUser(userId);
+        UserDto otherUserDto = findUser(otherId);
+        Collection<User> commonFriendsOfUsers = userStorage.getCommonFriendsOfUsers(userDto.getId(), otherUserDto.getId());
         return commonFriendsOfUsers.stream()
-                .map(UserMapper::modelFromDto)
+                .map(UserDtoMapper::modelFromDto)
                 .toList();
     }
 }

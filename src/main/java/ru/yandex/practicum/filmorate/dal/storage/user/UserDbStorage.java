@@ -16,18 +16,16 @@ import java.util.Optional;
 @Primary
 public class UserDbStorage implements UserStorage {
 
-    private static final String FIND_ALL_QUERY = "SELECT * FROM users";
-    private static final String FIND_BY_ID_QUERY = "SELECT * FROM users WHERE id = ?";
+    private static final String FIND_ALL_QUERY = "SELECT * FROM users WHERE active = true";
+    private static final String FIND_BY_ID_QUERY = "SELECT * FROM users WHERE id = ? AND active = true";
     private static final String INSERT_USER_QUERY = "INSERT INTO users (email, login, name, birthday)" +
             "VALUES (?, ?, ?, ?)";
     private static final String UPDATE_USER_QUERY = """
             UPDATE users SET email = ?, login = ?, name = ?, birthday = ? WHERE id = ?
             """;
-    private static final String REMOVE_QUERY = "DELETE FROM users WHERE id = ?";
+    private static final String DEACTIVATE_USERS = "UPDATE users SET active = false WHERE id = ?";
     private static final String INSERT_FRIEND_QUERY = "INSERT INTO user_friends (user_id, friend_id) VALUES (?, ?)";
     private static final String DELETE_USER_FRIEND_QUERY = "DELETE FROM user_friends WHERE user_id = ? AND friend_id = ?";
-
-//    private static final String FIND_USER_LIKES_QUERY = "SELECT * FROM user_friends WHERE user_id = ?";
 
     private static final String FIND_USER_LIKES_QUERY = """
                 SELECT id,
@@ -40,6 +38,7 @@ public class UserDbStorage implements UserStorage {
                     (SELECT friend_id
                      FROM user_friends
                      WHERE user_id = ?)
+                     AND active = true
             """;
     private static final String FIND_ALL_COMMON_USER_FRIENDS_QUERY = """
             SELECT id,
@@ -109,8 +108,8 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public void removeUserById(Long userId) {
-        userBaseStorage.delete(REMOVE_QUERY, userId);
+    public void deactivateUserById(Long userId) {
+        userBaseStorage.update(DEACTIVATE_USERS, userId);
     }
 
     @Override

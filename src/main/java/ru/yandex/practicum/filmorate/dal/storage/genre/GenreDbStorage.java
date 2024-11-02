@@ -16,8 +16,18 @@ import java.util.stream.Collectors;
 public class GenreDbStorage implements GenreStorage {
     private static final String FIND_GENRE_QUERY = "SELECT * FROM genre WHERE id = ?";
     private static final String FIND_ALL_GENRE_QUERY = "SELECT * FROM genre";
-    private static final String FIND_ALL_FILM_GENRE_QUERY = "SELECT * FROM film_genres";
-    private static final String FIND_FILM_GENRE_QUERY = "SELECT * FROM film_genres WHERE film_id = ?";
+    private static final String FIND_ALL_FILM_GENRE_QUERY = """
+            SELECT *
+            FROM film_genres fg
+            INNER JOIN films f ON f.id = fg.film_id
+            WHERE f.active = true
+            """;
+    private static final String FIND_FILM_GENRE_QUERY = """
+            SELECT fg.*
+            FROM film_genres fg
+            INNER JOIN films f ON f.id = fg.film_id
+            WHERE fg.film_id = ?
+            """;
     private static final String INSERT_GENRE_QUERY = "INSERT INTO film_genres (film_id, genre_id) " +
             "VALUES (?, ?)";
     private static final String DELETE_GENRE_QUERY = "DELETE FROM film_genres WHERE film_id = ?";

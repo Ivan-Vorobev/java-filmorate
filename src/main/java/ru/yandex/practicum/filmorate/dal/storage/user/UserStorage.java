@@ -12,7 +12,7 @@ public interface UserStorage {
 
     User update(User user);
 
-    void removeUserById(Long userId);
+    void deactivateUserById(Long userId);
 
     Optional<User> findById(Long id);
 

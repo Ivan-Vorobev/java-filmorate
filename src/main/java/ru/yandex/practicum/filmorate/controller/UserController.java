@@ -56,7 +56,7 @@ public class UserController {
     @DeleteMapping("/{id}")
     public void removeUserById(@PathVariable("id") Long id) {
         log.info("Получен запрос DELETE на удаление пользователя с id = {}", id);
-        userService.removeUserById(id);
+        userService.deactivateUserById(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")

@@ -149,9 +149,9 @@ public class FilmService {
         return updatedFilm;
     }
 
-    public void removeFilmById(Long filmId) {
+    public void deactivateFilmById(Long filmId) {
         FilmDto film = findFilmById(filmId);
-        filmStorage.removeFilmById(film.getId());
+        filmStorage.deactivateFilmById(film.getId());
     }
 
     public FilmDto addLike(final Long filmId, final Long userId) {

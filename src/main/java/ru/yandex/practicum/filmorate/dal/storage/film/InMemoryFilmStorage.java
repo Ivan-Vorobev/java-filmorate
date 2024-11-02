@@ -53,7 +53,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void removeFilmById(Long filmId) {
+    public void deactivateFilmById(Long filmId) {
 
     }
 

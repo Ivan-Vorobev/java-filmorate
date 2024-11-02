@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS films
                  BIGSERIAL
         PRIMARY
             KEY,
+    active BOOLEAN DEFAULT true,
     rating_id
                  BIGINT,
     name
@@ -61,6 +62,7 @@ CREATE TABLE IF NOT EXISTS users
              BIGSERIAL
         PRIMARY
             KEY,
+    active BOOLEAN DEFAULT true,
     email
              VARCHAR(255),
     login    VARCHAR(255) NOT NULL,

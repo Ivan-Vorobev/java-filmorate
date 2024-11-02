@@ -23,6 +23,7 @@ public class FilmDbStorage implements FilmStorage {
                 r.name as rating_name,
             FROM films f
             LEFT JOIN rating r ON r.id = f.rating_id
+            WHERE f.active = true
             """;
     private static final String FIND_BY_ID_QUERY = """
             SELECT
@@ -30,18 +31,24 @@ public class FilmDbStorage implements FilmStorage {
                 r.name as rating_name,
             FROM films f
             LEFT JOIN rating r ON r.id = f.rating_id
-            WHERE f.id = ?
+            WHERE f.active = true AND f.id = ?
             """;
-    private static final String FIND_SIMILAR_USER_QUERY = "SELECT l.* " +
-            "FROM film_likes AS l " +
-            "WHERE l.film_id IN (" +
-            "SELECT film_id " +
-            "FROM film_likes l1 " +
-            "WHERE l1.user_id = ?) " +
-            "AND l.user_id <> ? " +
-            "GROUP BY l.user_id, l.film_id " +
-            "ORDER BY COUNT(l.film_id) DESC " +
-            "LIMIT 1";
+    private static final String FIND_SIMILAR_USER_QUERY = """
+            SELECT l.*
+            FROM film_likes AS l
+            INNER JOIN films f ON f.id = l.film_id
+            WHERE
+                f.active = true
+                AND l.film_id IN (
+                    SELECT l1.film_id
+                    FROM film_likes l1
+                    WHERE l1.user_id = ?
+                )
+            AND l.user_id <> ?
+            GROUP BY l.user_id, l.film_id
+            ORDER BY COUNT(l.film_id) DESC
+            LIMIT 1
+            """;
     private static final String FIND_RECOMMENDED_FILMS_QUERY = """
             SELECT
                 f.*,
@@ -49,7 +56,7 @@ public class FilmDbStorage implements FilmStorage {
             FROM films f
             LEFT JOIN rating r ON r.id = f.rating_id
             LEFT JOIN film_likes l ON f.id = l.film_id
-            WHERE l.user_id = ? AND f.id NOT IN (
+            WHERE f.active = true AND l.user_id = ? AND f.id NOT IN (
                 SELECT film_id FROM film_likes WHERE user_id = ?
             )
             """;
@@ -71,12 +78,12 @@ public class FilmDbStorage implements FilmStorage {
                  INNER JOIN film_likes fl2 ON fl2.film_id = fl1.film_id
                  AND fl1.user_id = ?
                  AND fl2.user_id = ?)
+                 AND f.active = true
             GROUP BY f.id
             ORDER BY COUNT(fl.user_id) DESC
             """;
-    private static final String REMOVE_QUERY = """
-            DELETE FROM films
-            WHERE id = ?
+    private static final String DEACTIVATE_FILMS = """
+            UPDATE films SET active = false WHERE id = ?
             """;
     private static final String INSERT_LIKE_QUERY = "INSERT INTO film_likes (film_id, user_id) VALUES (?, ?)";
     private static final String DELETE_LIKE_QUERY = "DELETE FROM film_likes WHERE film_id = ? AND user_id = ?";
@@ -89,7 +96,7 @@ public class FilmDbStorage implements FilmStorage {
             FROM films f
             JOIN film_director fd ON fd.film_id = f.id
             LEFT JOIN rating r ON r.id = f.rating_id
-            WHERE fd.director_id = ?
+            WHERE fd.director_id = ? AND f.active = true
             ORDER BY count_likes
             """;
 
@@ -100,7 +107,7 @@ public class FilmDbStorage implements FilmStorage {
             FROM films f
             JOIN film_director fd ON fd.film_id = f.id
             LEFT JOIN rating r ON r.id = f.rating_id
-            WHERE fd.director_id = ?
+            WHERE fd.director_id = ? AND f.active = true
             ORDER BY EXTRACT(YEAR FROM release_date)
             """;
 
@@ -111,7 +118,7 @@ public class FilmDbStorage implements FilmStorage {
             FROM films f
             LEFT JOIN FILM_LIKES fl ON f.ID = fl.FILM_ID
             LEFT JOIN rating r ON r.id = f.rating_id
-            WHERE %s
+            WHERE f.active = true AND ( %s )
             GROUP BY f.ID
             ORDER BY COALESCE(COUNT(fl.FILM_ID), 0) DESC
             """;
@@ -123,7 +130,7 @@ public class FilmDbStorage implements FilmStorage {
             LEFT JOIN FILM_LIKES fl ON f.ID = fl.FILM_ID
             LEFT JOIN film_genres fj ON fj.film_id = f.id
             LEFT JOIN rating r ON r.id = f.rating_id
-            WHERE %s
+            WHERE f.active = true %s
             GROUP BY f.ID
             ORDER BY COUNT(fl.FILM_ID) DESC
             """;
@@ -134,7 +141,8 @@ public class FilmDbStorage implements FilmStorage {
                 g.name AS genre_name
             FROM film_genres fg
             INNER JOIN genre g ON g.id = fg.genre_id
-            WHERE fg.film_id IN (%s)
+            INNER JOIN films f ON f.id = fg.film_id
+            WHERE fg.film_id IN (%s) AND f.active = true
             ORDER BY fg.film_id ASC
             """;
     private static final String FIND_FILM_DIRECTORS = """
@@ -144,7 +152,8 @@ public class FilmDbStorage implements FilmStorage {
                 d.name AS director_name
             FROM film_director fd
             INNER JOIN director d ON d.id = fd.director_id
-            WHERE fd.film_id IN (%s)
+            INNER JOIN films f ON f.id = fd.film_id
+            WHERE fd.film_id IN (%s) AND f.active = true
             ORDER BY fd.film_id ASC
             """;
 
@@ -215,8 +224,8 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public void removeFilmById(Long filmId) {
-        filmBaseStorage.delete(REMOVE_QUERY, filmId);
+    public void deactivateFilmById(Long filmId) {
+        filmBaseStorage.update(DEACTIVATE_FILMS, filmId);
     }
 
     @Override
@@ -241,7 +250,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Collection<Film> getAllLikes(Long count, Long genreId, Integer year) {
-        StringBuilder conditions = new StringBuilder("1=1");
+        StringBuilder conditions = new StringBuilder("AND 1=1");
         List<Object> params = new ArrayList<>();
 
         if (genreId != 0) {

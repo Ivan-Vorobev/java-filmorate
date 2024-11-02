@@ -56,9 +56,9 @@ public class UserService {
         );
     }
 
-    public void removeUserById(Long userId) {
+    public void deactivateUserById(Long userId) {
         UserDto user = getUserById(userId);
-        userStorage.removeUserById(user.getId());
+        userStorage.deactivateUserById(user.getId());
     }
 
     public void addFriend(Long userId, Long friendId) {

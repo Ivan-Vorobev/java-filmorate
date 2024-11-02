@@ -4,14 +4,17 @@ import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.storage.dal.dto.FilmDto;
-import ru.yandex.practicum.filmorate.exceptions.BadRequestException;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.service.mappers.FilmMapper;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
+import ru.yandex.practicum.filmorate.dto.*;
+import ru.yandex.practicum.filmorate.constraint.SortFilm;
+import ru.yandex.practicum.filmorate.dto.DirectorDto;
+import ru.yandex.practicum.filmorate.dal.model.Film;
+import ru.yandex.practicum.filmorate.exception.BadRequestException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.service.enums.EventType;
+import ru.yandex.practicum.filmorate.service.mapper.FilmDtoMapper;
+import ru.yandex.practicum.filmorate.dal.storage.director.DirectorStorage;
+import ru.yandex.practicum.filmorate.dal.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.dal.storage.genre.GenreStorage;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,6 +26,9 @@ public class FilmService {
     private final GenreStorage genreStorage;
     private final GenreService genreService;
     private final RatingService ratingService;
+    private final DirectorService directorService;
+    private final DirectorStorage directorStorage;
+    private final EventService eventService;
 
     @Autowired
     public FilmService(
@@ -30,174 +36,189 @@ public class FilmService {
             UserService userService,
             GenreStorage genreStorage,
             GenreService genreService,
-            RatingService ratingService
+            RatingService ratingService,
+            DirectorService directorService,
+            DirectorStorage directorStorage,
+            EventService eventService
     ) {
         this.filmStorage = filmStorage;
         this.userService = userService;
         this.genreStorage = genreStorage;
         this.genreService = genreService;
         this.ratingService = ratingService;
+        this.directorService = directorService;
+        this.directorStorage = directorStorage;
+        this.eventService = eventService;
     }
 
-    public Collection<Film> findAll() {
-        return filmStorage.findAll().stream()
-                .map(FilmMapper::modelFromDto)
-                .toList();
-//
-//        Map<Long, Set<Long>> filmGenres = genreStorage.findAllFilmGenres();
-//        Map<Long, Genre> genres = genreService.findAllAsMap();
-//        Map<Long, Rating> ratings = ratingService.findAllAsMap();
-//        return filmStorage.findAll().stream()
-//                .map(v -> {
-//                    Film film = FilmMapper.modelFromDto(v);
-//                    Set<Long> currentFilmGenres = filmGenres.get(film.getId());
-//                    if (currentFilmGenres != null) {
-//                        film.setGenres(
-//                                currentFilmGenres.stream()
-//                                        .map(genres::get)
-//                                        .collect(Collectors.toList())
-//                        );
-//                    } else {
-//                        film.setGenres(List.of());
-//                    }
-//
-//                    if (film.getMpa() != null) {
-//                        film.setMpa(
-//                                ratings.get(film.getMpa().getId())
-//                        );
-//                    }
-//                    return film;
-//                })
-//                .collect(Collectors.toList());
+    public Collection<FilmDto> findAll() {
+        return FilmDtoMapper.dtoFromModel(filmStorage.findAll());
     }
 
-    public Film findFilm(Long filmId) {
-        FilmDto filmDto = filmStorage
+    public FilmDto findFilmById(Long filmId) {
+        Film film = filmStorage
                 .findById(filmId)
                 .orElseThrow(() -> new NotFoundException("Film not found. Id: " + filmId));
-        return FilmMapper.modelFromDto(filmDto);
-//        film.setGenres(dto.getGenres().stream()
-//                .map(GenreMapper::modelFromDto)
-//                .toList());
-//        return
-//        Map<Long, Genre> genres = genreService.findAllAsMap();
-//
-//        Film film = FilmMapper.modelFromDto(filmDto);
-//        Set<Long> filmGenres = genreStorage.findFilmGenres(film.getId());
-//        if (filmGenres != null) {
-//            film.setGenres(
-//                    filmGenres.stream()
-//                            .map(genres::get)
-//                            .collect(Collectors.toList())
-//            );
-//        } else {
-//            film.setGenres(List.of());
-//        }
-//
-//        if (film.getMpa() != null) {
-//            film.setMpa(ratingService.findRating(film.getMpa().getId()));
-//        }
-//        return film;
+        return FilmDtoMapper.dtoFromModel(film);
     }
 
-    public Film create(Film film) {
+    public FilmDto create(FilmDto film) {
         validateFilm(film);
 
-        Film newFilm = FilmMapper.modelFromDto(
+        FilmDto newFilm = FilmDtoMapper.dtoFromModel(
                 filmStorage.add(
-                        FilmMapper.dtoFromModel(film)
+                        FilmDtoMapper.modelFromDto(film)
                 )
         );
 
         if (film.getMpa() != null) {
-            newFilm.setMpa(ratingService.findRating(film.getMpa().getId()));
+            newFilm.setMpa(ratingService.findRatingById(film.getMpa().getId()));
         }
 
         if (film.getGenres() != null) {
-            Collection<Genre> newGenres = new ArrayList<>();
-            Map<Long, Genre> genres = genreService.findAllAsMap();
+            Collection<GenreDto> newGenres = new ArrayList<>();
+            Map<Long, GenreDto> genres = genreService.findAllAsMap();
 
-            for (Genre genre : film.getGenres()) {
-                genreStorage.add(newFilm.getId(), genre.getId());
-                newGenres.add(genres.get(genre.getId()));
+            for (GenreDto genreDto : film.getGenres()) {
+                genreStorage.add(newFilm.getId(), genreDto.getId());
+                newGenres.add(genres.get(genreDto.getId()));
             }
 
             newFilm.setGenres(newGenres);
         }
 
+        if (film.getDirectors() != null) {
+            Collection<DirectorDto> newDirectors = new ArrayList<>();
+            Map<Long, DirectorDto> directors = directorService.findAll().stream()
+                    .collect(Collectors.toMap(DirectorDto::getId, director -> director));
+
+            for (DirectorDto director : film.getDirectors()) {
+                directorStorage.addFilm(newFilm.getId(), director.getId());
+                newDirectors.add(directors.get(director.getId()));
+            }
+
+            newFilm.setDirectors(newDirectors);
+        }
+
         return newFilm;
     }
 
-    public Film update(Film film) {
-        findFilm(film.getId());
+    public FilmDto update(FilmDto film) {
+        findFilmById(film.getId());
         validateFilm(film);
 
-        Film updatedFilm = FilmMapper.modelFromDto(
+        FilmDto updatedFilm = FilmDtoMapper.dtoFromModel(
                 filmStorage.update(
-                        FilmMapper.dtoFromModel(film)
+                        FilmDtoMapper.modelFromDto(film)
                 )
         );
 
         if (film.getMpa() != null) {
-            updatedFilm.setMpa(ratingService.findRating(film.getMpa().getId()));
+            updatedFilm.setMpa(ratingService.findRatingById(film.getMpa().getId()));
         }
 
         if (film.getGenres() != null) {
             genreStorage.delete(updatedFilm.getId());
 
-            for (Genre genre : film.getGenres()) {
-                genreStorage.add(updatedFilm.getId(), genre.getId());
+            HashMap<Long, Boolean> newGenreIds = new HashMap<>();
+            Collection<GenreDto> genreDtos = genreService.findAll();
+            for (GenreDto genreDto : film.getGenres()) {
+                genreStorage.add(updatedFilm.getId(), genreDto.getId());
+                newGenreIds.put(genreDto.getId(), true);
             }
+            updatedFilm.setGenres(
+                    genreDtos.stream()
+                            .filter(g -> newGenreIds.get(g.getId()) != null)
+                            .toList()
+            );
         } else {
             genreStorage.delete(updatedFilm.getId());
+        }
+
+        if (film.getDirectors() != null) {
+            directorStorage.deleteByFilm(updatedFilm.getId());
+            updatedFilm.setDirectors(film.getDirectors());
+
+            for (DirectorDto director : film.getDirectors()) {
+                directorStorage.addFilm(updatedFilm.getId(), director.getId());
+            }
+        } else {
+            directorStorage.deleteByFilm(updatedFilm.getId());
         }
 
         return updatedFilm;
     }
 
-    public Film addLike(final Long filmId, final Long userId) {
-        userService.findUser(userId);
-        Film film = findFilm(filmId);
-        filmStorage.addLike(FilmMapper.dtoFromModel(film), userId);
+    public void deactivateFilmById(Long filmId) {
+        FilmDto film = findFilmById(filmId);
+        filmStorage.deactivateFilmById(film.getId());
+    }
 
+    public FilmDto addLike(final Long filmId, final Long userId) {
+        userService.getUserById(userId);
+        FilmDto film = findFilmById(filmId);
+        filmStorage.addLike(FilmDtoMapper.modelFromDto(film), userId);
+        eventService.add(filmId, userId, EventType.LIKE);
         return film;
     }
 
-    public Film deleteLike(final Long filmId, final Long userId) {
-        userService.findUser(userId);
-        Film film = findFilm(filmId);
-        filmStorage.deleteLike(FilmMapper.dtoFromModel(film), userId);
+    public FilmDto deleteLike(final Long filmId, final Long userId) {
+        userService.getUserById(userId);
+        FilmDto film = findFilmById(filmId);
+        filmStorage.deleteLike(FilmDtoMapper.modelFromDto(film), userId);
+        eventService.remove(filmId, userId, EventType.LIKE);
         return film;
     }
 
-    public Collection<Film> findTopPopular(final Long topCount) {
+    public Collection<FilmDto> findTopPopular(final Long topCount, Long genreId, Integer year) {
         if (topCount < 1) {
-            throw new ValidationException("Count grater than 0");
+            throw new ValidationException("The 'count' value must be greater than 0, " + topCount + " given");
         }
 
-        return filmStorage.getAllLikes().entrySet().stream()
-                .sorted((v1, v2) -> Integer.compare(v1.getValue().size(), v2.getValue().size()) * -1)
-                .limit(topCount)
-                .map(v -> findFilm(v.getKey()))
-                .collect(Collectors.toList());
+        return FilmDtoMapper.dtoFromModel(filmStorage.getAllLikes(topCount, genreId, year));
     }
 
-    private void validateFilm(Film film) {
+    public Collection<FilmDto> findFilmsByDirector(final Long directorId, final String sortBy) {
+        directorService.findDirectorByID(directorId);
+        return switch (SortFilm.fromString(sortBy)) {
+            case LIKES -> FilmDtoMapper.dtoFromModel(filmStorage.findFilmsByDirectorSortLike(directorId));
+            case YEAR -> FilmDtoMapper.dtoFromModel(filmStorage.findFilmsByDirectorSortYear(directorId));
+            default -> throw new NotFoundException("Incorrect sort type: " + sortBy);
+        };
+    }
+
+    public Collection<FilmDto> getRecommendations(Long userId) {
+        userService.getUserById(userId);
+
+        return FilmDtoMapper.dtoFromModel(filmStorage.getUserRecommendations(userId));
+    }
+
+    public Collection<FilmDto> getCommonFilms(Long userId, Long friendId) {
+        UserDto userDto = userService.getUserById(userId);
+        UserDto friend = userService.getUserById(friendId);
+        return FilmDtoMapper.dtoFromModel(filmStorage.getCommonFilms(userDto.getId(), friend.getId()));
+    }
+
+    private void validateFilm(FilmDto film) {
         if (film.getMpa() != null) {
             try {
-                ratingService.findRating(film.getMpa().getId());
+                ratingService.findRatingById(film.getMpa().getId());
             } catch (Exception e) {
                 throw new BadRequestException(e.getMessage());
             }
         }
 
         if (film.getGenres() != null) {
-            Map<Long, Genre> genres = genreService.findAllAsMap();
-            for (Genre genre : film.getGenres()) {
-                if (genres.get(genre.getId()) == null) {
-                    throw new BadRequestException("Genre not found. Id: " + genre.getId());
+            Map<Long, GenreDto> genres = genreService.findAllAsMap();
+            for (GenreDto genreDto : film.getGenres()) {
+                if (genres.get(genreDto.getId()) == null) {
+                    throw new BadRequestException("Genre not found. Id: " + genreDto.getId());
                 }
             }
         }
+    }
+
+    public Collection<FilmDto> searchFilm(String query, String by) {
+        return FilmDtoMapper.dtoFromModel(filmStorage.searchFilm(query, by));
     }
 }

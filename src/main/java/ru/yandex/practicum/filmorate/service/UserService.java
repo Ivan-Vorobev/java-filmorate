@@ -96,7 +96,7 @@ public class UserService {
         UserDto userDto = getUserById(userId);
         UserDto friend = getUserById(friendId);
         userStorage.deleteFriend(UserDtoMapper.modelFromDto(userDto), UserDtoMapper.modelFromDto(friend));
-        eventService.remove(friendId, userId, EventType.FRIEND);
+        eventService.delete(friendId, userId, EventType.FRIEND);
     }
 
     public Collection<UserDto> findFriends(Long userId) {

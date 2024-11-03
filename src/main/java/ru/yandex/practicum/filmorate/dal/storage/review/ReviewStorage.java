@@ -11,7 +11,7 @@ public interface ReviewStorage {
 
     void changeRating(Long reviewId, Long userId, ReviewRatingValue ratingValue);
 
-    void removeRating(Long reviewId, Long userId);
+    void deleteRating(Long reviewId, Long userId);
 
     Review add(Review review);
 

@@ -52,7 +52,7 @@ public class ReviewService {
 
         ReviewDto reviewDto = findReviewById(reviewId);
         reviewStorage.delete(reviewId);
-        eventService.remove(reviewDto.getReviewId(), reviewDto.getUserId(), EventType.REVIEW);
+        eventService.delete(reviewDto.getReviewId(), reviewDto.getUserId(), EventType.REVIEW);
     }
 
     public ReviewDto findReviewById(Long reviewId) {
@@ -79,6 +79,6 @@ public class ReviewService {
     public void deleteReviewRating(Long reviewId, Long userId) {
         findReviewById(reviewId);
         userService.getUserById(userId);
-        reviewStorage.removeRating(reviewId, userId);
+        reviewStorage.deleteRating(reviewId, userId);
     }
 }

@@ -174,7 +174,7 @@ public class FilmService {
         userService.getUserById(userId);
         FilmDto film = findFilmById(filmId);
         filmStorage.deleteLike(FilmDtoMapper.modelFromDto(film), userId);
-        eventService.remove(filmId, userId, EventType.LIKE);
+        eventService.delete(filmId, userId, EventType.LIKE);
         return film;
     }
 

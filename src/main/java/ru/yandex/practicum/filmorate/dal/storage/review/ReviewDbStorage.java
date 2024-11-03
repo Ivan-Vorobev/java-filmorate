@@ -105,12 +105,12 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void changeRating(Long reviewId, Long userId, ReviewRatingValue ratingValue) {
-        removeRating(reviewId, userId);
+        deleteRating(reviewId, userId);
         reviewStorage.insert(INSERT_REVIEW_RATING_VALUE, reviewId, userId, ratingValue.value);
     }
 
     @Override
-    public void removeRating(Long reviewId, Long userId) {
+    public void deleteRating(Long reviewId, Long userId) {
         reviewStorage.delete(DELETE_REVIEW_RATING_VALUE, reviewId, userId);
     }
 

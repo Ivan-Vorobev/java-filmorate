@@ -41,7 +41,7 @@ public class EventService {
         eventStorage.create(prepareEventData(entityId, userId, eventType, Operation.ADD));
     }
 
-    public void remove(Long entityId, Long userId, EventType eventType) {
+    public void delete(Long entityId, Long userId, EventType eventType) {
         eventStorage.create(prepareEventData(entityId, userId, eventType, Operation.REMOVE));
     }
 

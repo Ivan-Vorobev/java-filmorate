@@ -103,3 +103,60 @@ CREATE TABLE IF NOT EXISTS film_likes
          user_id
             )
 );
+DROP TABLE IF EXISTS director;
+CREATE TABLE IF NOT EXISTS director
+(
+    id
+        BIGSERIAL
+        PRIMARY
+        KEY,
+    name
+        VARCHAR(255) NOT NULL
+    );
+DROP TABLE IF EXISTS film_director;
+CREATE TABLE IF NOT EXISTS film_director
+(
+    id
+        BIGSERIAL
+        PRIMARY
+        KEY,
+    film_id
+        BIGINT,
+    director_id
+        BIGINT,
+    UNIQUE
+        (
+         film_id,
+         director_id
+        )
+    );
+
+DROP TABLE IF EXISTS events;
+CREATE TABLE IF NOT EXISTS events (
+    id BIGSERIAL PRIMARY KEY,
+    event_type varchar NOT NULL,
+    operation varchar NOT NULL,
+    user_id BIGINT,
+    entity_id BIGINT NOT NULL,
+    created_at timestamp NOT NULL
+);
+
+DROP TABLE IF EXISTS reviews;
+CREATE TABLE IF NOT EXISTS reviews
+(
+    id          BIGSERIAL PRIMARY KEY,
+    film_id     BIGINT,
+    user_id     BIGINT,
+    is_positive BOOLEAN,
+    content     TEXT
+);
+
+DROP TABLE IF EXISTS review_ratings;
+CREATE TABLE IF NOT EXISTS review_ratings
+(
+    id        BIGSERIAL PRIMARY KEY,
+    review_id BIGINT,
+    user_id   BIGINT,
+    "value"   INT,
+    UNIQUE (review_id, user_id)
+);

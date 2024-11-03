@@ -78,7 +78,7 @@ public class FilmService {
         if (film.getGenres() != null) {
             Collection<GenreDto> newGenres = new ArrayList<>();
             Map<Long, GenreDto> genres = genreService.findAll().stream()
-                    .collect(Collectors.toMap(GenreDto::getId, director -> director));;
+                    .collect(Collectors.toMap(GenreDto::getId, director -> director));
 
             for (GenreDto genreDto : film.getGenres()) {
                 genreStorage.add(newFilm.getId(), genreDto.getId());
@@ -211,7 +211,7 @@ public class FilmService {
 
         if (film.getGenres() != null) {
             Map<Long, GenreDto> genres = genreService.findAll().stream()
-                    .collect(Collectors.toMap(GenreDto::getId, director -> director));;
+                    .collect(Collectors.toMap(GenreDto::getId, director -> director));
             for (GenreDto genreDto : film.getGenres()) {
                 if (genres.get(genreDto.getId()) == null) {
                     throw new BadRequestException("Genre not found. Id: " + genreDto.getId());

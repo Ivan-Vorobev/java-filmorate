@@ -27,13 +27,4 @@ public class GenreService {
 
         return GenreDtoMapper.dtoFromModel(genre);
     }
-
-    public Map<Long, GenreDto> findAllAsMap() {
-        HashMap<Long, GenreDto> genresMap = new HashMap<>();
-        for (Genre genre : genreStorage.findAll()) {
-            genresMap.put(genre.getId(), GenreDtoMapper.dtoFromModel(genre));
-        }
-
-        return genresMap;
-    }
 }

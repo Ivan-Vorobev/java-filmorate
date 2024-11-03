@@ -7,7 +7,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.storage.BaseStorage;
 import ru.yandex.practicum.filmorate.dal.model.User;
-import ru.yandex.practicum.filmorate.dal.model.UserFriends;
+import ru.yandex.practicum.filmorate.dal.model.sub.UserFriends;
 import java.util.Collection;
 import java.util.Optional;
 

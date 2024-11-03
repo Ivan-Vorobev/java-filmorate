@@ -2,20 +2,18 @@ package ru.yandex.practicum.filmorate.dto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 
 @Data
 @Builder
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ReviewDto {
-    Long reviewId;
+    private Long reviewId;
     @NotNull
-    String content;
+    private String content;
     @NotNull
-    Boolean isPositive;
+    private Boolean isPositive;
     @NotNull
-    Long userId;
+    private Long userId;
     @NotNull
-    Long filmId;
-    Integer useful;
+    private Long filmId;
+    private Integer useful;
 }

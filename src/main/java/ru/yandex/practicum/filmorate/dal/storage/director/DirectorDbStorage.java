@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.dal.storage.director;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -12,6 +13,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 @Repository
+@Slf4j
 public class DirectorDbStorage implements DirectorStorage {
     private static final String FIND_DIRECTOR_QUERY = "SELECT * FROM director WHERE id = ?";
     private static final String FIND_ALL_DIRECTOR_QUERY = "SELECT * FROM director";
@@ -64,6 +66,7 @@ public class DirectorDbStorage implements DirectorStorage {
                     directorId
             );
         } catch (DuplicateKeyException ignored) {
+            log.info(String.format("Try to add existing director for film. Film id: %d, director id: %d", filmId, directorId));
         }
     }
 

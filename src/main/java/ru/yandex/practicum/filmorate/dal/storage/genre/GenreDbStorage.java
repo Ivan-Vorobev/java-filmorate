@@ -1,18 +1,20 @@
 package ru.yandex.practicum.filmorate.dal.storage.genre;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.storage.BaseStorage;
-import ru.yandex.practicum.filmorate.dal.model.FilmGenre;
+import ru.yandex.practicum.filmorate.dal.model.sub.FilmGenre;
 import ru.yandex.practicum.filmorate.dal.model.Genre;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
+@Slf4j
 public class GenreDbStorage implements GenreStorage {
     private static final String FIND_GENRE_QUERY = "SELECT * FROM genre WHERE id = ?";
     private static final String FIND_ALL_GENRE_QUERY = "SELECT * FROM genre";
@@ -81,6 +83,7 @@ public class GenreDbStorage implements GenreStorage {
                     genreId
             );
         } catch (DuplicateKeyException ignored) {
+            log.info(String.format("Try to add existing genre for film. Film id: %d, genre id: %d", filmId, genreId));
         }
 
         return FilmGenre.builder()

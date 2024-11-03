@@ -1,10 +1,10 @@
-package ru.yandex.practicum.filmorate.dal.model;
+package ru.yandex.practicum.filmorate.dal.model.sub;
 
+import lombok.Builder;
 import lombok.Data;
-import lombok.experimental.SuperBuilder;
 
 @Data
-@SuperBuilder
+@Builder
 public class FilmGenre {
     private Long filmId;
     private Long genreId;

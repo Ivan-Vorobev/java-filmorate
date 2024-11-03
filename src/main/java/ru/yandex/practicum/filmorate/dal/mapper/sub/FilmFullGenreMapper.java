@@ -1,8 +1,8 @@
-package ru.yandex.practicum.filmorate.dal.mapper;
+package ru.yandex.practicum.filmorate.dal.mapper.sub;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.dal.model.FilmFullGenre;
+import ru.yandex.practicum.filmorate.dal.model.sub.FilmFullGenre;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

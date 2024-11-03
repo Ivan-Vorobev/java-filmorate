@@ -49,14 +49,12 @@ public class UserController {
 
     @GetMapping("/{id}")
     public UserDto getUserById(@PathVariable("id") Long id) {
-        log.info("Поступил запрос GET на получение данных о пользователе с id = {}", id);
         return userService.getUserById(id);
     }
 
     @DeleteMapping("/{id}")
-    public void removeUserById(@PathVariable("id") Long id) {
-        log.info("Получен запрос DELETE на удаление пользователя с id = {}", id);
-        userService.removeUserById(id);
+    public void deleteUserById(@PathVariable("id") Long id) {
+        userService.deleteUserById(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
@@ -73,7 +71,6 @@ public class UserController {
             @PathVariable("friendId") Long friendId
     ) {
         userService.deleteFriend(userId, friendId);
-
     }
 
     @GetMapping("/{id}/friends")

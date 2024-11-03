@@ -53,8 +53,12 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void removeFilmById(Long filmId) {
+    public void deleteFilmById(Long filmId) {
+        memoryFilms.remove(filmId);
+    }
 
+    @Override
+    public void deleteFilmFromFilmGenres(Long filmId) {
     }
 
     @Override
@@ -67,6 +71,14 @@ public class InMemoryFilmStorage implements FilmStorage {
     public void deleteLike(Film film, Long userId) {
         Set<Long> filmLikes = this.getFilmLikes(film);
         filmLikes.remove(userId);
+    }
+
+    @Override
+    public void deleteLikeByUserId(Long userId) {
+    }
+
+    @Override
+    public void deleteLikeByFilmId(Long filmId) {
     }
 
     @Override
@@ -106,7 +118,6 @@ public class InMemoryFilmStorage implements FilmStorage {
         for (Long filmId : filmIds) {
             films.add(memoryFilms.get(filmId));
         }
-
         return films;
     }
 }

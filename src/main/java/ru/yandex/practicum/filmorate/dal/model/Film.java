@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.dal.model;
 
 import lombok.Builder;
 import lombok.Data;
-
 import java.time.LocalDate;
 import java.util.Collection;
 

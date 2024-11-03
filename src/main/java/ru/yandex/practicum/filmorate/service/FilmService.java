@@ -4,6 +4,7 @@ import jakarta.validation.ValidationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dal.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.dto.*;
 import ru.yandex.practicum.filmorate.constraint.SortFilm;
 import ru.yandex.practicum.filmorate.dto.DirectorDto;
@@ -15,7 +16,6 @@ import ru.yandex.practicum.filmorate.service.mapper.FilmDtoMapper;
 import ru.yandex.practicum.filmorate.dal.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.dal.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.dal.storage.genre.GenreStorage;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,6 +29,7 @@ public class FilmService {
     private final DirectorService directorService;
     private final DirectorStorage directorStorage;
     private final EventService eventService;
+    private final ReviewStorage reviewStorage;
 
     @Autowired
     public FilmService(
@@ -39,7 +40,8 @@ public class FilmService {
             RatingService ratingService,
             DirectorService directorService,
             DirectorStorage directorStorage,
-            EventService eventService
+            EventService eventService,
+            ReviewStorage reviewStorage
     ) {
         this.filmStorage = filmStorage;
         this.userService = userService;
@@ -49,6 +51,7 @@ public class FilmService {
         this.directorService = directorService;
         this.directorStorage = directorStorage;
         this.eventService = eventService;
+        this.reviewStorage = reviewStorage;
     }
 
     public Collection<FilmDto> findAll() {
@@ -150,9 +153,13 @@ public class FilmService {
         return updatedFilm;
     }
 
-    public void removeFilmById(Long filmId) {
+    public void deleteFilmById(Long filmId) {
         FilmDto film = findFilmById(filmId);
-        filmStorage.removeFilmById(film.getId());
+        filmStorage.deleteFilmById(film.getId());
+        filmStorage.deleteFilmFromFilmGenres(film.getId());
+        filmStorage.deleteLikeByFilmId(film.getId());
+        directorStorage.deleteByFilm(film.getId());
+        reviewStorage.deleteReviewByFilmId(film.getId());
     }
 
     public FilmDto addLike(final Long filmId, final Long userId) {

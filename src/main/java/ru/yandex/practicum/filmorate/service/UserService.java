@@ -3,6 +3,9 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dal.storage.event.EventStorage;
+import ru.yandex.practicum.filmorate.dal.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.dal.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.service.enums.EventType;
 import ru.yandex.practicum.filmorate.dto.UserDto;
 import ru.yandex.practicum.filmorate.dal.model.User;
@@ -18,11 +21,21 @@ public class UserService {
 
     private final UserStorage userStorage;
     private final EventService eventService;
+    private final ReviewStorage reviewStorage;
+    private final FilmStorage filmStorage;
+    private final EventStorage eventStorage;
 
     @Autowired
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, EventService eventService) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage,
+                       EventService eventService,
+                       ReviewStorage reviewStorage,
+                       FilmStorage filmStorage,
+                       EventStorage eventStorage) {
         this.userStorage = userStorage;
         this.eventService = eventService;
+        this.reviewStorage = reviewStorage;
+        this.filmStorage = filmStorage;
+        this.eventStorage = eventStorage;
     }
 
     public Collection<UserDto> findAll() {
@@ -56,9 +69,14 @@ public class UserService {
         );
     }
 
-    public void removeUserById(Long userId) {
+    public void deleteUserById(Long userId) {
         UserDto user = getUserById(userId);
-        userStorage.removeUserById(user.getId());
+        userStorage.deleteUserById(user.getId());
+        userStorage.deleteUserFromFriends(user.getId());
+        filmStorage.deleteLikeByUserId(user.getId());
+        reviewStorage.deleteReviewByUserId(user.getId());
+        reviewStorage.deleteReviewRatingsByUserId(user.getId());
+        eventStorage.deleteEventByUserId(user.getId());
     }
 
     public void addFriend(Long userId, Long friendId) {

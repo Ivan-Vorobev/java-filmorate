@@ -7,7 +7,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.storage.BaseStorage;
 import ru.yandex.practicum.filmorate.dal.model.Review;
-
 import java.util.Collection;
 import java.util.Optional;
 
@@ -57,11 +56,22 @@ public class ReviewDbStorage implements ReviewStorage {
             DELETE FROM reviews
             WHERE id = ?
             """;
+    private static final String DELETE_REVIEW_BY_USER_ID_QUERY = """
+            DELETE FROM reviews
+            WHERE user_id = ?
+            """;
+    private static final String DELETE_REVIEW_BY_FILM_ID_QUERY = """
+            DELETE FROM reviews
+            WHERE film_id = ?
+            """;
     private static final String DELETE_REVIEW_RATINGS_QUERY = """
             DELETE FROM review_ratings
             WHERE review_id = ?
             """;
-
+    private static final String DELETE_REVIEW_RATINGS_BY_USER_ID_QUERY = """
+            DELETE FROM review_ratings
+            WHERE user_id = ?
+            """;
     private final BaseStorage<Review> reviewStorage;
 
     @Autowired
@@ -115,7 +125,6 @@ public class ReviewDbStorage implements ReviewStorage {
                         review.getContent()
                 )
         );
-
         return review;
     }
 
@@ -133,5 +142,20 @@ public class ReviewDbStorage implements ReviewStorage {
     public void delete(Long reviewId) {
         reviewStorage.delete(DELETE_REVIEWS_QUERY, reviewId);
         reviewStorage.delete(DELETE_REVIEW_RATINGS_QUERY, reviewId);
+    }
+
+    @Override
+    public void deleteReviewByUserId(Long userId) {
+        reviewStorage.delete(DELETE_REVIEW_BY_USER_ID_QUERY, userId);
+    }
+
+    @Override
+    public void deleteReviewByFilmId(Long filmId) {
+        reviewStorage.delete(DELETE_REVIEW_BY_FILM_ID_QUERY, filmId);
+    }
+
+    @Override
+    public void deleteReviewRatingsByUserId(Long userId) {
+        reviewStorage.delete(DELETE_REVIEW_RATINGS_BY_USER_ID_QUERY, userId);
     }
 }

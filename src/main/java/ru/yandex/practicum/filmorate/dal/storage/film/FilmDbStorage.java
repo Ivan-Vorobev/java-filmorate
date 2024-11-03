@@ -9,7 +9,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dal.storage.BaseStorage;
 import ru.yandex.practicum.filmorate.dal.model.*;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -53,7 +52,6 @@ public class FilmDbStorage implements FilmStorage {
                 SELECT film_id FROM film_likes WHERE user_id = ?
             )
             """;
-
     private static final String INSERT_FILM_QUERY = "INSERT INTO films (rating_id, name, description, release_date, duration)" +
             "VALUES (?, ?, ?, ?, ?)";
     private static final String UPDATE_FILM_QUERY = """
@@ -74,12 +72,18 @@ public class FilmDbStorage implements FilmStorage {
             GROUP BY f.id
             ORDER BY COUNT(fl.user_id) DESC
             """;
-    private static final String REMOVE_QUERY = """
+    private static final String DELETE_FILM_BY_ID_QUERY = """
             DELETE FROM films
             WHERE id = ?
             """;
+    private static final String DELETE_FROM_FILM_GENRES_BY_FILM_ID_QUERY = """
+            DELETE FROM film_genres
+            WHERE film_id = ?
+            """;
     private static final String INSERT_LIKE_QUERY = "INSERT INTO film_likes (film_id, user_id) VALUES (?, ?)";
     private static final String DELETE_LIKE_QUERY = "DELETE FROM film_likes WHERE film_id = ? AND user_id = ?";
+    private static final String DELETE_LIKE_BY_USER_ID_QUERY = "DELETE FROM film_likes WHERE user_id = ?";
+    private static final String DELETE_LIKE_BY_FILM_ID_QUERY = "DELETE FROM film_likes WHERE film_id = ?";
     private static final String FIND_FILM_LIKES_QUERY = "SELECT * FROM film_likes WHERE film_id = ?";
     private static final String FIND_FILMS_BY_DIRECTOR_SORT_LIKE = """
             SELECT DISTINCT
@@ -92,7 +96,6 @@ public class FilmDbStorage implements FilmStorage {
             WHERE fd.director_id = ?
             ORDER BY count_likes
             """;
-
     private static final String FIND_FILMS_BY_DIRECTOR_SORT_YEAR = """
             SELECT
                 f.*,
@@ -103,7 +106,6 @@ public class FilmDbStorage implements FilmStorage {
             WHERE fd.director_id = ?
             ORDER BY EXTRACT(YEAR FROM release_date)
             """;
-
     private static final String SEARCH_QUERY = """
             SELECT
                 f.*,
@@ -182,7 +184,6 @@ public class FilmDbStorage implements FilmStorage {
             loadGenres(List.of(film.get()));
             loadDirectors(List.of(film.get()));
         }
-
         return film;
     }
 
@@ -215,13 +216,28 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public void removeFilmById(Long filmId) {
-        filmBaseStorage.delete(REMOVE_QUERY, filmId);
+    public void deleteFilmById(Long filmId) {
+        filmBaseStorage.delete(DELETE_FILM_BY_ID_QUERY, filmId);
+    }
+
+    @Override
+    public void deleteFilmFromFilmGenres(Long filmId) {
+        filmBaseStorage.delete(DELETE_FROM_FILM_GENRES_BY_FILM_ID_QUERY, filmId);
     }
 
     @Override
     public void deleteLike(Film film, Long userId) {
         filmLikesBaseStorage.delete(DELETE_LIKE_QUERY, film.getId(), userId);
+    }
+
+    @Override
+    public void deleteLikeByUserId(Long userId) {
+        filmLikesBaseStorage.delete(DELETE_LIKE_BY_USER_ID_QUERY, userId);
+    }
+
+    @Override
+    public void deleteLikeByFilmId(Long filmId) {
+        filmLikesBaseStorage.delete(DELETE_LIKE_BY_FILM_ID_QUERY, filmId);
     }
 
     @Override
